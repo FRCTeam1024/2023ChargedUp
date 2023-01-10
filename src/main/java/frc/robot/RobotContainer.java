@@ -96,9 +96,9 @@ public class RobotContainer {
      */
 
     //Display the name and version number of the code.
-    driverTab.add("Running Code Version:", BuildConfig.APP_NAME + " " + BuildConfig.APP_VERSION)
+    /**driverTab.add("Running Code Version:", BuildConfig.APP_NAME + " " + BuildConfig.APP_VERSION)
         .withSize(3,1)
-        .withPosition(0,0);
+        .withPosition(0,0);*/
 
     //Add commands to auto chooser, set default to null to avoid surprise operation
     m_AutoChooser.setDefaultOption("None", null);   

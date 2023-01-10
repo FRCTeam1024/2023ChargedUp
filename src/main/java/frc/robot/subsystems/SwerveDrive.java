@@ -12,6 +12,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -36,11 +37,18 @@ public class SwerveDrive extends SubsystemBase {
 
   private double[] yawPitchRoll = new double[3];
 
+  private SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
+
   /** Creates a new SwerveDrive. */
   public SwerveDrive() {
     pigeon.setYaw(0);
 
-    m_odometry = new SwerveDriveOdometry(m_kinematics, pigeon.getRotation2d());
+    modulePositions[0] = a.getPosition();
+    modulePositions[1] = b.getPosition();
+    modulePositions[2] = c.getPosition();
+    modulePositions[3] = d.getPosition();
+
+    m_odometry = new SwerveDriveOdometry(m_kinematics, pigeon.getRotation2d(), modulePositions);
 
 
 
@@ -51,10 +59,7 @@ public class SwerveDrive extends SubsystemBase {
     // This method will be called once per scheduler run
     m_odometry.update(
             pigeon.getRotation2d(),
-            a.getState(),
-            b.getState(),
-            c.getState(),
-            d.getState()
+            modulePositions
     );
 
   }
@@ -104,7 +109,7 @@ public class SwerveDrive extends SubsystemBase {
   public void zeroHeading(){
     Pose2d pose = new Pose2d(m_odometry.getPoseMeters().getTranslation(), pigeon.getRotation2d());
     pigeon.reset();
-    m_odometry.resetPosition(pose, pigeon.getRotation2d());
+    m_odometry.resetPosition(pigeon.getRotation2d(), modulePositions, pose);
   }
 
   public void defenseMode(){

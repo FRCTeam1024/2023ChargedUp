@@ -32,7 +32,7 @@ public class Robot extends TimedRobot {
   public void robotInit() {
 
     //Display and log the name and version of the code that is running
-    System.out.println("Running "+BuildConfig.APP_NAME+" "+BuildConfig.APP_VERSION);
+    //System.out.println("Running "+BuildConfig.APP_NAME+" "+BuildConfig.APP_VERSION);
 
     // Check whether the current robot is the competition robot or the practice robot:
     if(compBotJumper.get() == false) {

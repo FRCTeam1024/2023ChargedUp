@@ -56,7 +56,7 @@ public final class Constants {
         public static final double kModuleMaxAngularAcceleration = 6 * Math.PI; //Math.PI * 2  (units: rad/s/s)
 
         //Some limits governing overall robot movement
-        public static final double kMaxWheelSpeedMetersPerSecond = 3;
+        public static final double kMaxWheelSpeedMetersPerSecond = 1.5; //3
         public static final double kMaxAngularSpeedRadiansPerSecond = Math.PI * 2; 
 
 
