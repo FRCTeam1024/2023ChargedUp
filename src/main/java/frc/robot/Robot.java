@@ -8,7 +8,15 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrajectoryUtil;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Filesystem;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -18,6 +26,11 @@ import edu.wpi.first.wpilibj.DigitalInput;
  */
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
+
+  private static File deployfile = Filesystem.getDeployDirectory();
+  private static File pathfile = new File(deployfile, "pathplanner/");
+  static String fileList[] = pathfile.list();
+  static Trajectory pathList[] = new Trajectory[fileList.length];
 
   private RobotContainer m_robotContainer;
 
@@ -33,6 +46,15 @@ public class Robot extends TimedRobot {
 
     //Display and log the name and version of the code that is running
     //System.out.println("Running "+BuildConfig.APP_NAME+" "+BuildConfig.APP_VERSION);
+
+    for(int i = 0; i < fileList.length; i++) {
+      try {
+        Path thePath = Filesystem.getDeployDirectory().toPath().resolve("pathplanner/"+fileList[i]);
+        pathList[i] = TrajectoryUtil.fromPathweaverJson(thePath);
+      } catch (IOException ex) {
+        DriverStation.reportError("Unable to open trajectory: " + fileList[i], ex.getStackTrace());
+      }
+    }
 
     // Check whether the current robot is the competition robot or the practice robot:
     if(compBotJumper.get() == false) {
