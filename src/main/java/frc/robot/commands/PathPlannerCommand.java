@@ -4,10 +4,15 @@
 
 package frc.robot.commands;
 
+import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.commands.PPSwerveControllerCommand;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.RamseteController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -15,42 +20,46 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.SwerveDrive;
 
-public class PathPlannerCommand extends RamseteCommand {
+public class PathPlannerCommand extends CommandBase {
 
-    private Trajectory m_Path;
+    private PathPlannerTrajectory m_Path;
     private SwerveDrive m_Drivetrain;
 
-    public PathPlannerCommand (Trajectory path, SwerveDrive drivetrain) {
+    public PathPlannerCommand(PathPlannerTrajectory traj, SwerveDrive m_drivetrain, boolean isFirstPath) {
+        m_Drivetrain = m_drivetrain;
+        
+        new SequentialCommandGroup(
+             new InstantCommand(() -> {
+               // Reset odometry for the first path you run during auto
+               if(isFirstPath){
+                    m_drivetrain.getOdometry().resetPosition(m_drivetrain.getRotation2d(), 
+                            m_drivetrain.getSwerveModulePositions(),
+                            traj.getInitialHolonomicPose());
+               }
+             }),
+             new PPSwerveControllerCommand(
+                 traj, 
+                 m_drivetrain::getPose, // Pose supplier
+                 m_drivetrain.getSwerveDriveKinematics(), // SwerveDriveKinematics
+                 new PIDController(1, 0, 0), // X controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
+                 new PIDController(1, 0, 0), // Y controller (usually the same values as X controller)
+                 new PIDController(1, 0, 0), // Rotation controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
+                 m_drivetrain::setModuleStates, // Module states consumer
+                 m_drivetrain // Requires this drive subsystem
+             )
+         );
+     }
 
-        super(
-            path,
-            drivetrain::getPose,
-            new RamseteController(DriveConstants.kRamseteB, DriveConstants.kRamseteZeta),
-            new SimpleMotorFeedforward(DriveConstants.ksVolts,
-                                       DriveConstants.kvVoltSecondsPerMeter,
-                                       DriveConstants.kaVoltSecondsSquaredPerMeter),
-            DriveConstants.kDriveKinematics,
-            drivetrain::getWheelSpeeds,
-            new PIDController(DriveConstants.kPDriveVel, 0, 0),
-            new PIDController(DriveConstants.kPDriveVel, 0, 0),
-            // RamseteCommand passes volts to the callback
-            drivetrain::tankDriveVolts,
-            drivetrain
-        );
-
-        m_Path = path;
-        m_Drivetrain = drivetrain;
-
-
-    }
-
-    public SequentialCommandGroup configure() {
-        return this.beforeStarting(() -> m_Drivetrain.resetOdometry(m_Path.getInitialPose()))
+    /**
+     * Legacy code from 2022 - might not workwith swerve, not a major concern right now
+     * public SequentialCommandGroup configure() {
+        return this.beforeStarting(() -> m_Drivetrain.resetOdometry(m_Drivetrain.getRotation2d(), 
+        m_Drivetrain.getSwerveModulePositions(),m_Path.getInitialPose()))
                     .andThen(() -> m_Drivetrain.tankDriveVolts(0, 0))
                     .andThen(new ParallelRaceGroup(
                                 new TurnToHeading(m_Drivetrain, m_Path.sample(m_Path.getTotalTimeSeconds())
                                      .poseMeters.getRotation().getDegrees())),
                                 new WaitCommand(0.1)); //cut from 0.25 sec
-    }
+    }**/
     
 }

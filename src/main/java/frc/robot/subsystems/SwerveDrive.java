@@ -124,4 +124,32 @@ public class SwerveDrive extends SubsystemBase {
     c.setDesiredState(moduleStates[2]);
     d.setDesiredState(moduleStates[3]);
   }
+
+  public SwerveDriveOdometry getOdometry(){
+    return m_odometry;
+  }
+
+  public Rotation2d getRotation2d(){
+    return pigeon.getRotation2d();
+  }
+
+  public SwerveModulePosition[] getSwerveModulePositions(){
+    return modulePositions;
+  }
+
+  public SwerveDriveKinematics getSwerveDriveKinematics(){
+    return m_kinematics;
+  }
+
+  public void setModuleStates(SwerveModuleState[] moduleStates){
+    a.setDesiredState(moduleStates[0]);
+    b.setDesiredState(moduleStates[1]);
+    c.setDesiredState(moduleStates[2]);
+    d.setDesiredState(moduleStates[3]);
+  }
+
+  public Pose2d getPose(){
+    Pose2d pose = m_odometry.getPoseMeters();
+    return pose;
+  }
 }

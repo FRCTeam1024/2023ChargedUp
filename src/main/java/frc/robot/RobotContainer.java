@@ -6,13 +6,20 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 
+import java.util.Arrays;
 import java.util.Random;
 
+import com.pathplanner.lib.PathConstraints;
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
+
+import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.commands.DriveWithJoysticks;
+import frc.robot.commands.PathPlannerCommand;
 import frc.robot.oi.Logitech;
 import frc.robot.Constants.*;
 import frc.robot.subsystems.SwerveDrive;
@@ -101,7 +108,8 @@ public class RobotContainer {
         .withPosition(0,0);*/
 
     //Add commands to auto chooser, set default to null to avoid surprise operation
-    m_AutoChooser.setDefaultOption("None", null);   
+    m_AutoChooser.setDefaultOption("None", null);
+    m_AutoChooser.addOption("Test Path", TestAuto());
 
     //Put the auto chooser on the dashboard
     driverTab.add("Auto Mode",m_AutoChooser)
@@ -155,5 +163,13 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // An ExampleCommand will run in autonomous
     return m_AutoChooser.getSelected();
+  }
+
+  private Command TestAuto(){
+    PathPlannerTrajectory path = PathPlanner.loadPath("Test Path", new PathConstraints(0.5, 3));
+    if(path != null){
+      System.out.println("Path found: " + path.getInitialPose());
+    }
+    return new PathPlannerCommand(path, drivetrain, true);
   }
 }

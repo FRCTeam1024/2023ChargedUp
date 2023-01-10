@@ -12,6 +12,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.server.PathPlannerServer;
+
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryUtil;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -30,7 +34,7 @@ public class Robot extends TimedRobot {
   private static File deployfile = Filesystem.getDeployDirectory();
   private static File pathfile = new File(deployfile, "pathplanner/");
   static String fileList[] = pathfile.list();
-  static Trajectory pathList[] = new Trajectory[fileList.length];
+  static PathPlannerTrajectory pathList[] = new PathPlannerTrajectory[fileList.length];
 
   private RobotContainer m_robotContainer;
 
@@ -47,13 +51,14 @@ public class Robot extends TimedRobot {
     //Display and log the name and version of the code that is running
     //System.out.println("Running "+BuildConfig.APP_NAME+" "+BuildConfig.APP_VERSION);
 
+    //Pathweaver code from 2022 - may not be needed for pathplanner
     for(int i = 0; i < fileList.length; i++) {
-      try {
+      //throw {
         Path thePath = Filesystem.getDeployDirectory().toPath().resolve("pathplanner/"+fileList[i]);
-        pathList[i] = TrajectoryUtil.fromPathweaverJson(thePath);
-      } catch (IOException ex) {
-        DriverStation.reportError("Unable to open trajectory: " + fileList[i], ex.getStackTrace());
-      }
+        pathList[i] = PathPlanner.loadPath(fileList[i].substring(0,fileList[i].length()-5), 0.5, 3);
+      //} catch (IOException ex) {
+        //DriverStation.reportError("Unable to open trajectory: " + fileList[i], ex.getStackTrace());
+      //}
     }
 
     // Check whether the current robot is the competition robot or the practice robot:
