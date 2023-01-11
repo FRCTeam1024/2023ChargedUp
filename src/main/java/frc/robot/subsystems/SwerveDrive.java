@@ -112,6 +112,11 @@ public class SwerveDrive extends SubsystemBase {
     m_odometry.resetPosition(pigeon.getRotation2d(), modulePositions, pose);
   }
 
+  //might work, didnt have time to test
+  public void resetPosition(Pose2d pose){
+    m_odometry.resetPosition(pigeon.getRotation2d(), modulePositions, pose);
+  }
+
   public void defenseMode(){
     SwerveModuleState[] moduleStates = {
       new SwerveModuleState(0, new Rotation2d(Math.PI/4)),
@@ -151,5 +156,15 @@ public class SwerveDrive extends SubsystemBase {
   public Pose2d getPose(){
     Pose2d pose = m_odometry.getPoseMeters();
     return pose;
+  }
+
+  public SwerveModuleState[] getStates(){
+    SwerveModuleState[] moduleStates = {
+      a.getState(),
+      b.getState(),
+      c.getState(),
+      d.getState()
+    };
+    return moduleStates;
   }
 }

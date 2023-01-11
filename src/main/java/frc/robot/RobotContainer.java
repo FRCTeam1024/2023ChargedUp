@@ -12,12 +12,15 @@ import java.util.Random;
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.DriveWithJoysticks;
 import frc.robot.commands.PathPlannerCommand;
 import frc.robot.oi.Logitech;
@@ -167,9 +170,19 @@ public class RobotContainer {
 
   private Command TestAuto(){
     PathPlannerTrajectory path = PathPlanner.loadPath("Test Path", new PathConstraints(0.5, 3));
-    if(path != null){
-      System.out.println("Path found: " + path.getInitialPose());
-    }
-    return new PathPlannerCommand(path, drivetrain, true);
+    return new SequentialCommandGroup(
+      new InstantCommand(),
+      new PPSwerveControllerCommand(
+        path, 
+        drivetrain::getPose, // Pose supplier
+        drivetrain.getSwerveDriveKinematics(), // SwerveDriveKinematics
+        new PIDController(1, 0, 0), // X controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
+        new PIDController(1, 0, 0), // Y controller (usually the same values as X controller)
+        new PIDController(1, 0, 0), // Rotation controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
+        drivetrain::setModuleStates, // Module states consumer
+        drivetrain // Requires this drive subsystem
+      ),
+      new InstantCommand(() -> drivetrain.defenseMode())
+    );
   }
 }
