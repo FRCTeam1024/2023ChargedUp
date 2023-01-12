@@ -167,4 +167,8 @@ public class SwerveDrive extends SubsystemBase {
     };
     return moduleStates;
   }
+
+  public double getPitch(){
+    return pigeon.getPitch();
+  }
 }
