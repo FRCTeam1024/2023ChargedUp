@@ -16,10 +16,13 @@ import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.DriveWithJoysticks;
 import frc.robot.commands.PathPlannerCommand;
@@ -169,18 +172,21 @@ public class RobotContainer {
   }
 
   private Command TestAuto(){
-    PathPlannerTrajectory path = PathPlanner.loadPath("Test Path", new PathConstraints(0.5, 3));
+    PathPlannerTrajectory path = PathPlanner.loadPath("Circle Path", new PathConstraints(0.5, 0.5));
     return new SequentialCommandGroup(
-      new InstantCommand(),
-      new PPSwerveControllerCommand(
-        path, 
-        drivetrain::getPose, // Pose supplier
-        drivetrain.getSwerveDriveKinematics(), // SwerveDriveKinematics
-        new PIDController(1, 0, 0), // X controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
-        new PIDController(1, 0, 0), // Y controller (usually the same values as X controller)
-        new PIDController(1, 0, 0), // Rotation controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
-        drivetrain::setModuleStates, // Module states consumer
-        drivetrain // Requires this drive subsystem
+      new PrintCommand(path.toString()),
+      new ParallelCommandGroup(
+        new PPSwerveControllerCommand(
+          path, 
+          drivetrain::getPose, // Pose supplier
+          drivetrain.getSwerveDriveKinematics(), // SwerveDriveKinematics
+          new PIDController(0, 0, 0), // X controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
+          new PIDController(0, 0, 0), // Y controller (usually the same values as X controller)
+          new PIDController(0, 0, 0.005), // Rotation controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
+          drivetrain::setModuleStates, // Module states consumer
+          drivetrain // Requires this drive subsystem
+        ),
+        new PrintCommand(drivetrain.getStates().toString())
       ),
       new InstantCommand(() -> drivetrain.defenseMode())
     );

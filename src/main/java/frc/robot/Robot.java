@@ -53,9 +53,10 @@ public class Robot extends TimedRobot {
 
     //Pathweaver code from 2022 - may not be needed for pathplanner
     for(int i = 0; i < fileList.length; i++) {
-      //throw {
+      //try {
         Path thePath = Filesystem.getDeployDirectory().toPath().resolve("pathplanner/"+fileList[i]);
         pathList[i] = PathPlanner.loadPath(fileList[i].substring(0,fileList[i].length()-5), 0.5, 3);
+        //System.out.println(pathList[i].toString());
       //} catch (IOException ex) {
         //DriverStation.reportError("Unable to open trajectory: " + fileList[i], ex.getStackTrace());
       //}
