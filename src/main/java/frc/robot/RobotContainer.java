@@ -172,7 +172,7 @@ public class RobotContainer {
   }
 
   private Command TestAuto(){
-    PathPlannerTrajectory path = PathPlanner.loadPath("Circle Path", new PathConstraints(0.5, 0.5));
+    PathPlannerTrajectory path = PathPlanner.loadPath("Circle Path", new PathConstraints(2.5, 2.5));
     return new SequentialCommandGroup(
       new PrintCommand(path.toString()),
       new ParallelCommandGroup(
