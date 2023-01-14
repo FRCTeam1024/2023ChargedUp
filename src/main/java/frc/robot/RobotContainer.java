@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 
 import java.util.Arrays;
@@ -17,6 +18,7 @@ import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -26,6 +28,7 @@ import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.DriveWithJoysticks;
 import frc.robot.commands.PathPlannerCommand;
+import frc.robot.commands.TestingPathPlannerCommand;
 import frc.robot.oi.Logitech;
 import frc.robot.Constants.*;
 import frc.robot.subsystems.SwerveDrive;
@@ -45,10 +48,12 @@ public class RobotContainer {
   private final Logitech driverController = new Logitech(0);
 
   //Default Commands
-  private final DriveWithJoysticks driveWithController = new DriveWithJoysticks(drivetrain, driverController, true);
+  private final DriveWithJoysticks driveWithController = new DriveWithJoysticks(drivetrain, driverController, true, 1);
 
   //Chooser for auto
   SendableChooser<Command> m_AutoChooser = new SendableChooser<>();
+
+  Field2d field = new Field2d();
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -82,7 +87,8 @@ public class RobotContainer {
 
     // DRIVER CONTROLS
     driverController.aButton.onTrue(new InstantCommand(() -> drivetrain.zeroHeading()));
-    driverController.rightTrigger.whileTrue(new DriveWithJoysticks(drivetrain, driverController, false));
+    driverController.rightTrigger.whileTrue(new DriveWithJoysticks(drivetrain, driverController, false, 1));
+    driverController.leftTrigger.whileTrue(new DriveWithJoysticks(drivetrain,driverController,true, 0.35));
     //OPERATOR CONTROLS
   }
 
@@ -121,27 +127,40 @@ public class RobotContainer {
     //Put the auto chooser on the dashboard
     driverTab.add("Auto Mode",m_AutoChooser)
        .withSize(3,1)
-       .withPosition(3,0);
-
+       .withPosition(2,0);
 
     driverTab.addNumber("SwerveModule A Angle", () -> drivetrain.getAngleRad(1))
         .withSize(1,1)
-        .withPosition(4,0);
+        .withPosition(5,0);
 
     driverTab.addNumber("SwerveModule B Angle", () -> drivetrain.getAngleRad(2))
         .withSize(1,1)
-        .withPosition(5,0);
+        .withPosition(6,0);
 
     driverTab.addNumber("SwerveModule C Angle", () -> drivetrain.getAngleRad(3))
         .withSize(1,1)
-        .withPosition(4,1);
+        .withPosition(5,1);
 
     driverTab.addNumber("SwerveModule D Angle", () -> drivetrain.getAngleRad(4))
         .withSize(1,1)
-        .withPosition(5,1);
+        .withPosition(6,1);
 
     driverTab.addNumber("Robot Yaw", () -> drivetrain.getYawDegrees())
-        .withSize(1,1);
+        .withSize(1,1)
+        .withPosition(0,0);
+
+    driverTab.addNumber("X-Position", () -> drivetrain.getPose().getX())
+        .withSize(1,1)
+        .withPosition(1,0);
+
+    //putting the field in in case we want to have that visualization on shuffleboard
+    driverTab.add(field)
+        .withSize(4,3)
+        .withPosition(1,1);
+
+    driverTab.addString("Vision Estimated Pose", () -> drivetrain.visionEstimatedPose().toString())
+        .withSize(4,1)
+        .withPosition(0,4);
 /*
     driverTab.addNumber("SwerveModule A Target Angle", () -> drivetrain.getTargetAngleRad(1))
         .withSize(1,1)
@@ -173,28 +192,28 @@ public class RobotContainer {
   }
 
   private Command TestAuto(){
-    PathPlannerTrajectory path = PathPlanner.loadPath("Circle Path", new PathConstraints(2.5, 2.5));
+    PathPlannerTrajectory path = PathPlanner.loadPath("Test Path", new PathConstraints(2.5, 2.5));
     return new SequentialCommandGroup(
-      new PrintCommand(path.toString()),
+      new InstantCommand(() -> drivetrain.resetPosition(path.getInitialHolonomicPose())),
       new ParallelCommandGroup(
         new PPSwerveControllerCommand(
           path, 
           drivetrain::getPose, // Pose supplier
           drivetrain.getSwerveDriveKinematics(), // SwerveDriveKinematics
-          new PIDController(0, 0, 0), // X controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
-          new PIDController(0, 0, 0), // Y controller (usually the same values as X controller)
-          new PIDController(0, 0, 0.005), // Rotation controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
+          new PIDController(7.5, 0, 0), // X controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
+          new PIDController(7.5, 0, 0), // Y controller (usually the same values as X controller)
+          new PIDController(0.5, 0, 0.005), // Rotation controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
           drivetrain::setModuleStates, // Module states consumer
           drivetrain // Requires this drive subsystem
-        ),
-        new PrintCommand(drivetrain.getStates().toString())
+        )
       ),
       new InstantCommand(() -> drivetrain.defenseMode())
     );
   }
 
+  //Attempting to pass auto into a separate command has not worked, even with the exact same arguments
   private Command TestAuto2(){
-    PathPlannerTrajectory path = PathPlanner.loadPath("Circle Path", new PathConstraints(2.5, 2.5));
+    PathPlannerTrajectory path = PathPlanner.loadPath("Circle Path", new PathConstraints(1, 1));
     return new SequentialCommandGroup(
       new PathPlannerCommand(path,drivetrain,true),
       new InstantCommand(() -> drivetrain.defenseMode())

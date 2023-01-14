@@ -61,10 +61,10 @@ public final class Constants {
 
 
         //Turn encoder magnet offsets in degrees.  
-        public static final double turnOffsetA = 75; //May need finer adjustment on these.
-        public static final double turnOffsetB = -95;
-        public static final double turnOffsetC = 100;
-        public static final double turnOffsetD = -50;
+        public static final double turnOffsetA = 79; //May need finer adjustment on these.
+        public static final double turnOffsetB = -96;
+        public static final double turnOffsetC = 104;
+        public static final double turnOffsetD = -52;
 
         //CAN IDs
         public static final int gyroID = 1;

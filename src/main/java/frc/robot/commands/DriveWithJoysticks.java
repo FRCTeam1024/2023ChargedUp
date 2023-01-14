@@ -14,11 +14,13 @@ public class DriveWithJoysticks extends CommandBase {
   Logitech controller;
   SwerveDrive drivetrain;
   boolean fieldRelative;
-  public DriveWithJoysticks(SwerveDrive m_swerve, Logitech controllerParam, boolean isFieldRelative) {
+  double speedFactor;
+  public DriveWithJoysticks(SwerveDrive m_swerve, Logitech controllerParam, boolean isFieldRelative, double speed) {
     // Use addRequirements() here to declare subsystem dependencies.
     fieldRelative = isFieldRelative;
     drivetrain = m_swerve;
     controller = controllerParam;
+    speedFactor = speed;
     addRequirements(drivetrain);
   }
 
@@ -30,9 +32,9 @@ public class DriveWithJoysticks extends CommandBase {
   @Override
   public void execute() {
 
-    double xSpeed = -controller.getRightStickY() * DriveConstants.kMaxWheelSpeedMetersPerSecond;
-    double ySpeed = -controller.getRightStickX() * DriveConstants.kMaxWheelSpeedMetersPerSecond;
-    double rot = -controller.getLeftStickX() * DriveConstants.kMaxAngularSpeedRadiansPerSecond;
+    double xSpeed = -controller.getRightStickY() * DriveConstants.kMaxWheelSpeedMetersPerSecond * speedFactor;
+    double ySpeed = -controller.getRightStickX() * DriveConstants.kMaxWheelSpeedMetersPerSecond * speedFactor;
+    double rot = -controller.getLeftStickX() * DriveConstants.kMaxAngularSpeedRadiansPerSecond * speedFactor;
 
     drivetrain.drive(xSpeed, ySpeed, rot, fieldRelative);
   }

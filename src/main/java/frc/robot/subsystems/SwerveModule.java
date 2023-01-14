@@ -142,6 +142,7 @@ public class SwerveModule {
 
   public SwerveModulePosition getPosition(){
     return new SwerveModulePosition(
+      //m_driveMotor.getSelectedSensorPosition()*DriveConstants.wheelCircumference/(DriveConstants.encoderTicks*DriveConstants.gearRatio), new Rotation2d(getAngleRadians())
       m_driveMotor.getSelectedSensorPosition()*DriveConstants.wheelCircumference/(DriveConstants.encoderTicks*DriveConstants.gearRatio), new Rotation2d(getAngleRadians())
     );
   }

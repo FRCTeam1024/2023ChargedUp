@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.sensors.WPI_PigeonIMU;
 
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -39,6 +40,9 @@ public class SwerveDrive extends SubsystemBase {
 
   private SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
 
+  //For vision estimation - according to PhotonVision & WPILIB examples, it should be possible to just drop this in as a replacement for odometry
+  private SwerveDrivePoseEstimator m_poseEstimator = new SwerveDrivePoseEstimator(m_kinematics, pigeon.getRotation2d(), modulePositions, new Pose2d());
+
   /** Creates a new SwerveDrive. */
   public SwerveDrive() {
     pigeon.setYaw(0);
@@ -66,6 +70,8 @@ public class SwerveDrive extends SubsystemBase {
             pigeon.getRotation2d(),
             modulePositions
     );
+
+    m_poseEstimator.update(pigeon.getRotation2d(), modulePositions);
 
   }
 
@@ -96,6 +102,19 @@ public class SwerveDrive extends SubsystemBase {
     }
   }
 
+  public String getModulePosition(int id){
+    if(id == 1){
+      return a.getPosition().toString();
+    }else if(id == 2){
+      return b.getPosition().toString();
+    }else if(id == 3){
+      return c.getPosition().toString();
+    }else if(id == 4){
+      return d.getPosition().toString();
+    }else{
+      return "uh oh";
+    }
+  }
 
   private double getRawYaw() {
     pigeon.getYawPitchRoll(yawPitchRoll);
@@ -181,5 +200,9 @@ public class SwerveDrive extends SubsystemBase {
 
   public double getPitch(){
     return pigeon.getPitch();
+  }
+
+  public Pose2d visionEstimatedPose(){
+    return m_poseEstimator.getEstimatedPosition();
   }
 }

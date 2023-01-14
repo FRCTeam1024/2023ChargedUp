@@ -34,13 +34,14 @@ public class AutoBalance extends CommandBase {
   public void execute() {
     currentAngle = swerve.getPitch();
     error = goal - currentAngle;
-    if(error < 0.1){
+    if(error > 2){
       speed = kP * error;
       swerve.drive(speed, 0, 0, true); 
       //for now this just uses speed in the x direction - we can make some tweaksif need be to 
       //adjust in both the x and y directions.
-      balancedCounter++;
+      balancedCounter = 0;
     }else{
+      balancedCounter++;
       if(balancedCounter >= 10){
         isDone = true;
       }
