@@ -81,8 +81,8 @@ public class RobotContainer {
     //need to add button to switch from field to robot relative
 
     // DRIVER CONTROLS
-    driverController.aButton.whenPressed(() -> drivetrain.zeroHeading());
-    driverController.rightTrigger.whileHeld(new DriveWithJoysticks(drivetrain, driverController, false));
+    driverController.aButton.onTrue(new InstantCommand(() -> drivetrain.zeroHeading()));
+    driverController.rightTrigger.whileTrue(new DriveWithJoysticks(drivetrain, driverController, false));
     //OPERATOR CONTROLS
   }
 
