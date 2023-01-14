@@ -41,7 +41,7 @@ public class SwerveDrive extends SubsystemBase {
   private SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
 
   //For vision estimation - according to PhotonVision & WPILIB examples, it should be possible to just drop this in as a replacement for odometry
-  private SwerveDrivePoseEstimator m_poseEstimator = new SwerveDrivePoseEstimator(m_kinematics, pigeon.getRotation2d(), modulePositions, new Pose2d());
+  private SwerveDrivePoseEstimator m_poseEstimator;
 
   /** Creates a new SwerveDrive. */
   public SwerveDrive() {
@@ -54,7 +54,7 @@ public class SwerveDrive extends SubsystemBase {
 
     m_odometry = new SwerveDriveOdometry(m_kinematics, pigeon.getRotation2d(), modulePositions);
 
-
+    m_poseEstimator = new SwerveDrivePoseEstimator(m_kinematics, pigeon.getRotation2d(), modulePositions, new Pose2d());
 
   }
 
