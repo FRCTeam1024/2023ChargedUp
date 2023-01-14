@@ -8,14 +8,12 @@ import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.RamseteController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
-import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.DriveConstants;
@@ -33,20 +31,18 @@ public class PathPlannerCommand extends CommandBase {
              new InstantCommand(() -> {
                // Reset odometry for the first path you run during auto
                if(isFirstPath){
-                    m_drivetrain.getOdometry().resetPosition(m_drivetrain.getRotation2d(), 
-                            m_drivetrain.getSwerveModulePositions(),
-                            traj.getInitialHolonomicPose());
+                    m_Drivetrain.resetPosition(traj.getInitialHolonomicPose());
                }
              }),
              new PPSwerveControllerCommand(
                  traj, 
-                 m_drivetrain::getPose, // Pose supplier
-                 m_drivetrain.getSwerveDriveKinematics(), // SwerveDriveKinematics
-                 new PIDController(1, 0, 0), // X controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
-                 new PIDController(1, 0, 0), // Y controller (usually the same values as X controller)
-                 new PIDController(1, 0, 0), // Rotation controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
-                 m_drivetrain::setModuleStates, // Module states consumer
-                 m_drivetrain // Requires this drive subsystem
+                 m_Drivetrain::getPose, // Pose supplier
+                 m_Drivetrain.getSwerveDriveKinematics(), // SwerveDriveKinematics
+                 new PIDController(1.5, 0, 0), // X controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
+                 new PIDController(1.5, 0, 0), // Y controller (usually the same values as X controller)
+                 new PIDController(4, 0, 0.005), // Rotation controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
+                 m_Drivetrain::setModuleStates, // Module states consumer
+                 m_Drivetrain // Requires this drive subsystem
              )
          );
      }

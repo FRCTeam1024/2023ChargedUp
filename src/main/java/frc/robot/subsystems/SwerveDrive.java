@@ -57,6 +57,11 @@ public class SwerveDrive extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    modulePositions[0] = a.getPosition();
+    modulePositions[1] = b.getPosition();
+    modulePositions[2] = c.getPosition();
+    modulePositions[3] = d.getPosition();
+
     m_odometry.update(
             pigeon.getRotation2d(),
             modulePositions
@@ -114,6 +119,12 @@ public class SwerveDrive extends SubsystemBase {
 
   //might work, didnt have time to test
   public void resetPosition(Pose2d pose){
+    
+    modulePositions[0] = a.getPosition();
+    modulePositions[1] = b.getPosition();
+    modulePositions[2] = c.getPosition();
+    modulePositions[3] = d.getPosition();
+
     m_odometry.resetPosition(pigeon.getRotation2d(), modulePositions, pose);
   }
 

@@ -116,6 +116,7 @@ public class RobotContainer {
     //Add commands to auto chooser, set default to null to avoid surprise operation
     m_AutoChooser.setDefaultOption("None", null);
     m_AutoChooser.addOption("Test Path", TestAuto());
+    m_AutoChooser.addOption("Test2", TestAuto2());
 
     //Put the auto chooser on the dashboard
     driverTab.add("Auto Mode",m_AutoChooser)
@@ -188,6 +189,14 @@ public class RobotContainer {
         ),
         new PrintCommand(drivetrain.getStates().toString())
       ),
+      new InstantCommand(() -> drivetrain.defenseMode())
+    );
+  }
+
+  private Command TestAuto2(){
+    PathPlannerTrajectory path = PathPlanner.loadPath("Circle Path", new PathConstraints(2.5, 2.5));
+    return new SequentialCommandGroup(
+      new PathPlannerCommand(path,drivetrain,true),
       new InstantCommand(() -> drivetrain.defenseMode())
     );
   }
