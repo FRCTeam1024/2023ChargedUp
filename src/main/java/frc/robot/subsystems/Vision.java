@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.photonvision.PhotonCamera;
 import org.photonvision.RobotPoseEstimator;
@@ -17,17 +18,19 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.Pair;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Vision extends SubsystemBase {
   private final PhotonCamera photon = new PhotonCamera("OV5647");
   private ArrayList<Pair<PhotonCamera, Transform3d>> camList = new ArrayList<Pair<PhotonCamera, Transform3d>>();
-  private final Transform3d robotToCam = new Transform3d(new Translation3d(0.0, 0.0, 0.0), new Rotation3d(0, 0, 0));
+  private final Transform3d robotToCam = new Transform3d(new Translation3d(0.0, Units.inchesToMeters(10), Units.inchesToMeters(-3)), new Rotation3d(0, 0, 0));
 
   public static final List<AprilTag> aprilTags =
     List.of(
@@ -114,8 +117,16 @@ public class Vision extends SubsystemBase {
     return getResults().getBestTarget();
   }
 
-  /**public Pose3d estimateRobotPose() {
-    PhotonTrackedTarget currentTarget = getBestTarget();
+  public Pair<Pose2d, Double> estimateRobotPose(Pose2d prevEstimatedRobotPose) {
+    robotPoseEstimator.setReferencePose(prevEstimatedRobotPose);
+
+    double currentTime = Timer.getFPGATimestamp();
+    Optional<Pair<Pose3d, Double>> result = robotPoseEstimator.update();
+    if(result.isPresent()){
+      return new Pair<Pose2d, Double>(result.get().getFirst().toPose2d(), currentTime - result.get().getSecond());
+    }else{
+      return new Pair<Pose2d, Double>(null, 0.0);
+    }
     
-  }*/
+  }
 }

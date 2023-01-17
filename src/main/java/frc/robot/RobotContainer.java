@@ -26,12 +26,14 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.commands.AutoAlignAprilTag;
 import frc.robot.commands.DriveWithJoysticks;
 import frc.robot.commands.PathPlannerCommand;
 import frc.robot.commands.TestingPathPlannerCommand;
 import frc.robot.oi.Logitech;
 import frc.robot.Constants.*;
 import frc.robot.subsystems.SwerveDrive;
+import frc.robot.subsystems.Vision;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -158,9 +160,17 @@ public class RobotContainer {
         .withSize(4,3)
         .withPosition(1,1);
 
-    driverTab.addString("Vision Estimated Pose", () -> drivetrain.visionEstimatedPose().toString())
+    driverTab.addString("Vision Estimated Pose", () -> drivetrain.getPose().toString())
         .withSize(4,1)
         .withPosition(0,4);
+
+    driverTab.add("AutoAlignAprilTag", new AutoAlignAprilTag(drivetrain, drivetrain.getCamera()))
+        .withSize(2,1)
+        .withPosition(0,2);
+
+    driverTab.addNumber("Target Yaw", () -> drivetrain.getTargetYaw())
+        .withSize(1,1)
+        .withPosition(0,3);
 /*
     driverTab.addNumber("SwerveModule A Target Angle", () -> drivetrain.getTargetAngleRad(1))
         .withSize(1,1)

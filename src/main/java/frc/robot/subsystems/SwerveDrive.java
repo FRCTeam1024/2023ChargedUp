@@ -4,8 +4,11 @@
 
 package frc.robot.subsystems;
 
+import org.photonvision.targeting.PhotonTrackedTarget;
+
 import com.ctre.phoenix.sensors.WPI_PigeonIMU;
 
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -30,6 +33,8 @@ public class SwerveDrive extends SubsystemBase {
   private final SwerveModule c = new SwerveModule(DriveConstants.angleMotorC, DriveConstants.driveMotorC, DriveConstants.turnEncoderC, DriveConstants.turnOffsetC, true, false, Math.PI/4);
   private final SwerveModule d = new SwerveModule(DriveConstants.angleMotorD, DriveConstants.driveMotorD, DriveConstants.turnEncoderD, DriveConstants.turnOffsetD, true, true, 3*Math.PI/4);
   
+  private final Vision camera = new Vision();
+
   private final WPI_PigeonIMU pigeon = new WPI_PigeonIMU(DriveConstants.gyroID);
   
   private final SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(m_ALocation, m_BLocation, m_CLocation, m_DLocation);
@@ -202,7 +207,27 @@ public class SwerveDrive extends SubsystemBase {
     return pigeon.getPitch();
   }
 
-  public Pose2d visionEstimatedPose(){
-    return m_poseEstimator.getEstimatedPosition();
+  public void visionEstimatedPose(){
+    Pair<Pose2d,Double> pair = camera.estimateRobotPose(getPose());
+    m_poseEstimator.addVisionMeasurement(
+      pair.getFirst(), pair.getSecond()
+    );
+  }
+
+  public Vision getCamera(){
+    return camera;
+  }
+
+  public double getTargetYaw(){
+    if(camera.hasTargets()){
+      PhotonTrackedTarget target = camera.getBestTarget();
+      if(target != null){
+        return target.getYaw();
+      }else{
+        return 180;
+      }
+    }else{
+      return 180;
+    }
   }
 }
