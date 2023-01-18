@@ -14,20 +14,20 @@ public class AutoAlignAprilTag extends CommandBase {
   /** Creates a new AutoAlignAprilTag. */
   private SwerveDrive m_swerve;
   private Vision m_camera;
-  private boolean end = false;
-  private int counter = 0;
+  private int counter;
   public AutoAlignAprilTag(SwerveDrive swerve, Vision camera) {
     // Use addRequirements() here to declare subsystem dependencies.
     m_swerve = swerve;
     m_camera = camera;
     counter = 0;
-    end = false;
     addRequirements(m_swerve, m_camera);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    counter = 0;
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
@@ -49,9 +49,6 @@ public class AutoAlignAprilTag extends CommandBase {
     }else{
       counter++;
       m_swerve.defenseMode();
-      if(counter >= 10){
-        end = true;
-      }
     }
   }
 
@@ -62,7 +59,10 @@ public class AutoAlignAprilTag extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    counter = 0;
-    return end;
+    if(counter >= 10){
+      return true;
+    } else {
+      return false;
+    }
   }
 }

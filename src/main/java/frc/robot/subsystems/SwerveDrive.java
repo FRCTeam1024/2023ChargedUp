@@ -7,16 +7,29 @@ package frc.robot.subsystems;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import com.ctre.phoenix.sensors.WPI_PigeonIMU;
+import com.pathplanner.lib.PathConstraints;
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.PathPoint;
+import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
 import edu.wpi.first.math.Pair;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -229,5 +242,51 @@ public class SwerveDrive extends SubsystemBase {
     }else{
       return 180;
     }
+  }
+
+  public PathPlannerTrajectory calculatePathToTag() {
+    Pose2d robotPose = getPose();
+    Translation2d robotPosition = new Translation2d(robotPose.getX(), robotPose.getY());
+    Rotation2d robotRotation = robotPose.getRotation();
+    if (camera.hasTargets()) {  
+      Transform3d camToTarget = camera.getBestTarget().getBestCameraToTarget();
+      Pose2d targetPose = robotPose.plus(
+        new Transform2d(
+          new Translation2d(camToTarget.getX() + 1, camToTarget.getY()),
+          new Rotation2d(camToTarget.getRotation().getZ() + Math.PI)
+        )
+      );
+      return PathPlanner.generatePath(
+        new PathConstraints(1, 1),
+        new PathPoint(robotPosition, robotRotation),
+        new PathPoint(targetPose.getTranslation(), targetPose.getRotation())
+      );
+    } else {
+      return PathPlanner.generatePath(
+        new PathConstraints(1, 1),
+        new PathPoint(robotPosition, robotRotation),
+        new PathPoint(robotPosition, robotRotation)
+      );
+    }
+  }
+
+  public Command followTrajectory(PathPlannerTrajectory path){
+    return new SequentialCommandGroup(
+      new PrintCommand("Following Trajectory"),
+      new InstantCommand(() -> this.resetPosition(path.getInitialHolonomicPose())),
+      new ParallelCommandGroup(
+        new PPSwerveControllerCommand(
+          path,
+          this::getPose, // Pose supplier
+          this.getSwerveDriveKinematics(), // SwerveDriveKinematics
+          new PIDController(7.5, 0, 0), // X controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
+          new PIDController(7.5, 0, 0), // Y controller (usually the same values as X controller)
+          new PIDController(0.5, 0, 0.005), // Rotation controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
+          this::setModuleStates, // Module states consumer
+          this // Requires this drive subsystem
+        )
+      ),
+      new InstantCommand(() -> this.defenseMode())
+    );
   }
 }

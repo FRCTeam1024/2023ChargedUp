@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.AutoAlignAprilTag;
+import frc.robot.commands.AutoMoveToAprilTag;
 import frc.robot.commands.DriveWithJoysticks;
 import frc.robot.commands.PathPlannerCommand;
 import frc.robot.commands.TestingPathPlannerCommand;
@@ -125,6 +126,7 @@ public class RobotContainer {
     m_AutoChooser.setDefaultOption("None", null);
     m_AutoChooser.addOption("Test Path", TestAuto());
     m_AutoChooser.addOption("Test2", TestAuto2());
+    m_AutoChooser.addOption("Testing Swerve Auto", returnAutoCommand());
 
     //Put the auto chooser on the dashboard
     driverTab.add("Auto Mode",m_AutoChooser)
@@ -171,7 +173,11 @@ public class RobotContainer {
     driverTab.addNumber("Target Yaw", () -> drivetrain.getTargetYaw())
         .withSize(1,1)
         .withPosition(0,3);
-/*
+
+    driverTab.add("AutoMoveToAprilTag", new AutoMoveToAprilTag(drivetrain, drivetrain.getCamera()))
+        .withSize(2,1)
+        .withPosition(7, 0);
+    /*
     driverTab.addNumber("SwerveModule A Target Angle", () -> drivetrain.getTargetAngleRad(1))
         .withSize(1,1)
         .withPosition(4,3);
@@ -201,13 +207,17 @@ public class RobotContainer {
     return m_AutoChooser.getSelected();
   }
 
+  public Command returnAutoCommand(){
+    return drivetrain.followTrajectory(PathPlanner.loadPath("Test Path", new PathConstraints(2.5, 2.5)));
+  }
+
   private Command TestAuto(){
     PathPlannerTrajectory path = PathPlanner.loadPath("Test Path", new PathConstraints(2.5, 2.5));
     return new SequentialCommandGroup(
       new InstantCommand(() -> drivetrain.resetPosition(path.getInitialHolonomicPose())),
       new ParallelCommandGroup(
         new PPSwerveControllerCommand(
-          path, 
+          path,
           drivetrain::getPose, // Pose supplier
           drivetrain.getSwerveDriveKinematics(), // SwerveDriveKinematics
           new PIDController(7.5, 0, 0), // X controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
