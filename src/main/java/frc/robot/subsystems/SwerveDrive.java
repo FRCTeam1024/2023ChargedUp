@@ -220,6 +220,10 @@ public class SwerveDrive extends SubsystemBase {
     return pigeon.getPitch();
   }
 
+  public double getRoll(){
+    return pigeon.getRoll();
+  }
+
   public void visionEstimatedPose(){
     Pair<Pose2d,Double> pair = camera.estimateRobotPose(getPose());
     m_poseEstimator.addVisionMeasurement(
@@ -288,5 +292,9 @@ public class SwerveDrive extends SubsystemBase {
       ),
       new InstantCommand(() -> this.defenseMode())
     );
+  }
+
+  public double getChargeStationAngle(){
+    return (Math.cos(getYawDegrees()) * getRoll() + Math.sin(getYawDegrees()) * getPitch());
   }
 }

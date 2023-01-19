@@ -128,6 +128,7 @@ public class RobotContainer {
     m_AutoChooser.addOption("Test Path", TestAuto());
     m_AutoChooser.addOption("Test2", TestAuto2());
     m_AutoChooser.addOption("Testing Swerve Auto", returnAutoCommand());
+    m_AutoChooser.addOption("Testing Auto Balance", TestAutoBalance());
 
     //Put the auto chooser on the dashboard
     driverTab.add("Auto Mode",m_AutoChooser)
@@ -182,6 +183,18 @@ public class RobotContainer {
     driverTab.add("AutoBalance", new AutoBalance(drivetrain))
         .withSize(2,1)
         .withPosition(7,2);
+
+    driverTab.addNumber("RobotPitch", () -> drivetrain.getPitch())
+        .withSize(1,1)
+        .withPosition(7,1);
+
+    driverTab.addNumber("RobotRoll", () -> drivetrain.getRoll())
+        .withSize(1,1)
+        .withPosition(8,1);
+
+    driverTab.addNumber("Charging Station Angle", () -> drivetrain.getChargeStationAngle())
+        .withSize(1,1)
+        .withPosition(7,3);
     /*
     driverTab.addNumber("SwerveModule A Target Angle", () -> drivetrain.getTargetAngleRad(1))
         .withSize(1,1)
