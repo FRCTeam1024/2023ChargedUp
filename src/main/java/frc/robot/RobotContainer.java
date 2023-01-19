@@ -257,5 +257,25 @@ public class RobotContainer {
       new InstantCommand(() -> drivetrain.defenseMode())
     );
   }
-  
+
+  private Command TestAutoBalance(){
+    PathPlannerTrajectory path = PathPlanner.loadPath("AutoBalanceTest", new PathConstraints(1, 1));
+    return new SequentialCommandGroup(
+      new InstantCommand(() -> drivetrain.resetPosition(path.getInitialHolonomicPose())),
+      new ParallelCommandGroup(
+        new PPSwerveControllerCommand(
+          path,
+          drivetrain::getPose, // Pose supplier
+          drivetrain.getSwerveDriveKinematics(), // SwerveDriveKinematics
+          new PIDController(7.5, 0, 0), // X controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
+          new PIDController(7.5, 0, 0), // Y controller (usually the same values as X controller)
+          new PIDController(0.5, 0, 0.005), // Rotation controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
+          drivetrain::setModuleStates, // Module states consumer
+          drivetrain // Requires this drive subsystem
+        )
+      ),
+      new AutoBalance(drivetrain),
+      new InstantCommand(() -> drivetrain.defenseMode())
+    );
+  }
 }
