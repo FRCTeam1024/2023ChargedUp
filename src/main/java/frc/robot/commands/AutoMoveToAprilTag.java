@@ -36,7 +36,7 @@ public class AutoMoveToAprilTag extends CommandBase {
     // Use addRequirements() here to declare subsystem dependencies.
     m_swerve = swerve;
     m_camera = camera;
-    addRequirements(m_swerve, m_camera);
+    //addRequirements(m_swerve, m_camera);
   }
 
   // Called when the command is initially scheduled.
