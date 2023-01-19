@@ -9,11 +9,16 @@ import frc.robot.subsystems.SwerveDrive;
 
 public class AutoBalance extends CommandBase {
 
-  double currentAngle;
+  double roll; //corresponds to x movement for some reason on the practice bot
+  double pitch; //corresponds to y movement on the practice bot
+  double yaw;
   double goal = 0;
-  double error;
-  double kP = 0.0005; //value that turns degrees of error into speed for swerve drive - needs to be tested
-  double speed;
+  double xError;
+  double yError;
+  double averageError;
+  double kP = 0.04; //value that turns degrees of error into speed for swerve drive - needs to be tested
+  double xSpeed;
+  double ySpeed;
   boolean isDone = false;
   int balancedCounter = 0;
 
@@ -27,24 +32,32 @@ public class AutoBalance extends CommandBase {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    balancedCounter = 0;
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    currentAngle = swerve.getPitch();
-    error = goal - currentAngle;
-    if(error > 2){
-      speed = kP * error;
-      swerve.drive(speed, 0, 0, false);
+    roll = swerve.getRoll();
+    xError = goal - roll;
+    pitch = swerve.getPitch();
+    yError = goal - pitch;
+    yaw = swerve.getYawDegrees();
+    averageError = (Math.cos(yaw) * xError + Math.sin(yaw) * yError);
+    if(averageError > 2){
+      xSpeed = kP * xError;
+      ySpeed = kP * yError;
+      swerve.drive(xSpeed, ySpeed, 0, false);
       //for now this just uses speed in the x direction - we can make some tweaksif need be to 
       //adjust in both the x and y directions.
       balancedCounter = 0;
+    }if(averageError < -2){
+      xSpeed = kP * xError;
+      ySpeed = kP * yError;
+      swerve.drive(xSpeed, ySpeed, 0, false);
     }else{
       balancedCounter++;
-      if(balancedCounter >= 10){
-        isDone = true;
-      }
     }
   }
 
@@ -57,6 +70,10 @@ public class AutoBalance extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return isDone;
+    if(balancedCounter >= 50){
+      return true;
+    }else{
+      return false;
+    }
   }
 }
