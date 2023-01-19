@@ -12,7 +12,7 @@ public class AutoBalance extends CommandBase {
   double currentAngle;
   double goal = 0;
   double error;
-  double kP = 0.005; //value that turns degrees of error into speed for swerve drive - needs to be tested
+  double kP = 0.0005; //value that turns degrees of error into speed for swerve drive - needs to be tested
   double speed;
   boolean isDone = false;
   int balancedCounter = 0;
@@ -36,7 +36,7 @@ public class AutoBalance extends CommandBase {
     error = goal - currentAngle;
     if(error > 2){
       speed = kP * error;
-      swerve.drive(speed, 0, 0, true); 
+      swerve.drive(speed, 0, 0, false);
       //for now this just uses speed in the x direction - we can make some tweaksif need be to 
       //adjust in both the x and y directions.
       balancedCounter = 0;

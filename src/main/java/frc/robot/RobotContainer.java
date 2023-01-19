@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.AutoAlignAprilTag;
+import frc.robot.commands.AutoBalance;
 import frc.robot.commands.AutoMoveToAprilTag;
 import frc.robot.commands.DriveWithJoysticks;
 import frc.robot.commands.PathPlannerCommand;
@@ -177,6 +178,10 @@ public class RobotContainer {
     driverTab.add("AutoMoveToAprilTag", new AutoMoveToAprilTag(drivetrain, drivetrain.getCamera()))
         .withSize(2,1)
         .withPosition(7, 0);
+
+    driverTab.add("AutoBalance", new AutoBalance(drivetrain))
+        .withSize(2,1)
+        .withPosition(7,2);
     /*
     driverTab.addNumber("SwerveModule A Target Angle", () -> drivetrain.getTargetAngleRad(1))
         .withSize(1,1)
