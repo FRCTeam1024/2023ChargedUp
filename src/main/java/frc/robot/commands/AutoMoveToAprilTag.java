@@ -62,7 +62,24 @@ public class AutoMoveToAprilTag extends CommandBase {
       System.out.println(trajectoryToTag.getInitialState().toString());
       System.out.println(trajectoryToTag.getEndState().toString());
       //new PathPlannerCommand(trajectoryToTag, m_swerve, true);
-      m_swerve.followTrajectory(trajectoryToTag);
+      //m_swerve.followTrajectory(trajectoryToTag);
+      new SequentialCommandGroup(
+      new PrintCommand("Following Trajectory"),
+      new InstantCommand(() -> m_swerve.resetPosition(trajectoryToTag.getInitialHolonomicPose())),
+      new ParallelCommandGroup(
+        new PPSwerveControllerCommand(
+          trajectoryToTag,
+          m_swerve::getPose, // Pose supplier
+          m_swerve.getSwerveDriveKinematics(), // SwerveDriveKinematics
+          new PIDController(7.5, 0, 0), // X controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
+          new PIDController(7.5, 0, 0), // Y controller (usually the same values as X controller)
+          new PIDController(0.5, 0, 0.005), // Rotation controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
+          m_swerve::setModuleStates, // Module states consumer
+          m_swerve // Requires this drive subsystem
+        )
+      ),
+      new InstantCommand(() -> m_swerve.defenseMode())
+    );
     }
   }
 
