@@ -176,7 +176,7 @@ public class RobotContainer {
         .withSize(1,1)
         .withPosition(0,3);
 
-    driverTab.add("AutoMoveToAprilTag", new AutoMoveToAprilTag(drivetrain, drivetrain.getCamera()))
+    driverTab.add("AutoMoveToAprilTag", new AutoMoveToAprilTag(drivetrain, drivetrain.getCamera()).move())
         .withSize(2,1)
         .withPosition(7, 0);
 

@@ -30,19 +30,46 @@ public class AutoMoveToAprilTag extends CommandBase {
 
   private Transform3d camToTarget;
   private Pose2d targetPose;
+  private PathPlannerTrajectory trajectoryToTag;
 
   /** Creates a new AutoMoveToAprilTag. */
   public AutoMoveToAprilTag(SwerveDrive swerve, Vision camera) {
     // Use addRequirements() here to declare subsystem dependencies.
     m_swerve = swerve;
     m_camera = camera;
+    Pose2d robotPose = m_swerve.getPose();
+    Translation2d robotPosition = new Translation2d(robotPose.getX(), robotPose.getY());
+    Rotation2d robotRotation = robotPose.getRotation();
+    if (m_camera.hasTargets()) {  
+      camToTarget = m_camera.getBestTarget().getBestCameraToTarget();
+      System.out.println(camToTarget.toString());
+      targetPose = robotPose.plus(
+        new Transform2d(
+          new Translation2d(-camToTarget.getX() + 1, -camToTarget.getY()),
+          new Rotation2d(camToTarget.getRotation().getZ())
+        )
+      );
+      trajectoryToTag = PathPlanner.generatePath(
+        new PathConstraints(1, 1),
+        new PathPoint(robotPosition, robotRotation),
+        new PathPoint(targetPose.getTranslation(), targetPose.getRotation())
+      );
+      System.out.println(trajectoryToTag.getInitialState().toString());
+      System.out.println(trajectoryToTag.getEndState().toString());
+    }else{
+      trajectoryToTag = PathPlanner.generatePath(
+        new PathConstraints(1, 1),
+        new PathPoint(robotPosition, robotRotation),
+        new PathPoint(robotPosition, robotRotation)
+      );
+    }
     //addRequirements(m_swerve, m_camera);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    if (m_camera.hasTargets()) {  
+    /**if (m_camera.hasTargets()) {  
       Pose2d robotPose = m_swerve.getPose();
       Translation2d robotPosition = new Translation2d(robotPose.getX(), robotPose.getY());
       Rotation2d robotRotation = robotPose.getRotation();
@@ -54,33 +81,16 @@ public class AutoMoveToAprilTag extends CommandBase {
           new Rotation2d(camToTarget.getRotation().getZ())
         )
       );
-      PathPlannerTrajectory trajectoryToTag = PathPlanner.generatePath(
+      trajectoryToTag = PathPlanner.generatePath(
         new PathConstraints(1, 1),
         new PathPoint(robotPosition, robotRotation),
         new PathPoint(targetPose.getTranslation(), targetPose.getRotation())
       );
       System.out.println(trajectoryToTag.getInitialState().toString());
-      System.out.println(trajectoryToTag.getEndState().toString());
+      System.out.println(trajectoryToTag.getEndState().toString());*/
       //new PathPlannerCommand(trajectoryToTag, m_swerve, true);
       //m_swerve.followTrajectory(trajectoryToTag);
-      new SequentialCommandGroup(
-      new PrintCommand("Following Trajectory"),
-      new InstantCommand(() -> m_swerve.resetPosition(trajectoryToTag.getInitialHolonomicPose())),
-      new ParallelCommandGroup(
-        new PPSwerveControllerCommand(
-          trajectoryToTag,
-          m_swerve::getPose, // Pose supplier
-          m_swerve.getSwerveDriveKinematics(), // SwerveDriveKinematics
-          new PIDController(7.5, 0, 0), // X controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
-          new PIDController(7.5, 0, 0), // Y controller (usually the same values as X controller)
-          new PIDController(0.5, 0, 0.005), // Rotation controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
-          m_swerve::setModuleStates, // Module states consumer
-          m_swerve // Requires this drive subsystem
-        )
-      ),
-      new InstantCommand(() -> m_swerve.defenseMode())
-    );
-    }
+    //}
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -95,5 +105,9 @@ public class AutoMoveToAprilTag extends CommandBase {
   @Override
   public boolean isFinished() {
     return false;
+  }
+
+  public SequentialCommandGroup move(){
+    return new PathPlannerCommand(trajectoryToTag, m_swerve, true).configure();
   }
 }
