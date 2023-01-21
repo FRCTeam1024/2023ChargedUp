@@ -5,7 +5,6 @@
 package frc.robot.subsystems;
 
 import org.photonvision.targeting.PhotonTrackedTarget;
-
 import com.ctre.phoenix.sensors.WPI_PigeonIMU;
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
