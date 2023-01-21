@@ -253,7 +253,7 @@ public class RobotContainer {
   private Command TestAuto2(){
     PathPlannerTrajectory path = PathPlanner.loadPath("Circle Path", new PathConstraints(1, 1));
     return new SequentialCommandGroup(
-      new PathPlannerCommand(path,drivetrain,true),
+      new PathPlannerCommand(path,drivetrain,true).configure(),
       new InstantCommand(() -> drivetrain.defenseMode())
     );
   }

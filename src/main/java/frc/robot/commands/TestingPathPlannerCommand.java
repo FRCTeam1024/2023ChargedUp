@@ -38,9 +38,9 @@ public class TestingPathPlannerCommand extends CommandBase {
                  traj, 
                  m_drivetrain::getPose, // Pose supplier
                  m_drivetrain.getSwerveDriveKinematics(), // SwerveDriveKinematics
-                 new PIDController(1/**1.5*/, 0, 0), // X controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
-                 new PIDController(1/**1.5*/, 0, 0), // Y controller (usually the same values as X controller)
-                 new PIDController(0/**4*/, 0, 0.005), // Rotation controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
+                 new PIDController(7.5/**1.5*/, 0, 0), // X controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
+                 new PIDController(7.5/**1.5*/, 0, 0), // Y controller (usually the same values as X controller)
+                 new PIDController(.5/**4*/, 0, 0.005), // Rotation controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
                  m_drivetrain::setModuleStates, // Module states consumer
                  m_drivetrain // Requires this drive subsystem
              )
