@@ -10,10 +10,11 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.photonvision.PhotonCamera;
-import org.photonvision.RobotPoseEstimator;
-import org.photonvision.RobotPoseEstimator.PoseStrategy;
+import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
+import org.photonvision.EstimatedRobotPose;
 
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -85,12 +86,12 @@ public class Vision extends SubsystemBase {
 
   // 2023 field layout is not out yet...
   private final AprilTagFieldLayout fieldLayout2023 = new AprilTagFieldLayout(aprilTags, 16.54, 8.02);
-  private RobotPoseEstimator robotPoseEstimator;
+  private PhotonPoseEstimator robotPoseEstimator;
 
   /** Creates a new Vision. */
   public Vision() {
     camList.add(new Pair<PhotonCamera, Transform3d>(photon, robotToCam));
-    robotPoseEstimator = new RobotPoseEstimator(fieldLayout2023, PoseStrategy.AVERAGE_BEST_TARGETS, camList);
+    robotPoseEstimator = new PhotonPoseEstimator(fieldLayout2023, PoseStrategy.AVERAGE_BEST_TARGETS, photon, robotToCam);
   }
 
   @Override
@@ -121,9 +122,9 @@ public class Vision extends SubsystemBase {
     robotPoseEstimator.setReferencePose(prevEstimatedRobotPose);
 
     double currentTime = Timer.getFPGATimestamp();
-    Optional<Pair<Pose3d, Double>> result = robotPoseEstimator.update();
+    Optional<EstimatedRobotPose> result = robotPoseEstimator.update();
     if(result.isPresent()){
-      return new Pair<Pose2d, Double>(result.get().getFirst().toPose2d(), currentTime - result.get().getSecond());
+      return new Pair<Pose2d, Double>(result.get().estimatedPose.toPose2d(), currentTime - result.get().timestampSeconds);
     }else{
       return new Pair<Pose2d, Double>(null, 0.0);
     }
