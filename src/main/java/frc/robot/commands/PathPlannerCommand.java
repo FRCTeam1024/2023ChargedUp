@@ -15,47 +15,31 @@ import frc.robot.subsystems.SwerveDrive;
 
 public class PathPlannerCommand extends PPSwerveControllerCommand {
   /** Creates a new PathPlannerCommand. */
-  SwerveDrive m_Drivetrain;
-  PathPlannerTrajectory path;
-  boolean first;
+  private SwerveDrive m_Drivetrain;
+  private PathPlannerTrajectory path;
+  private boolean first;
+
   public PathPlannerCommand(PathPlannerTrajectory traj, SwerveDrive m_drivetrain, boolean isFirstPath) {
-    // Use addRequirements() here to declare subsystem dependencies.
     super(
       traj, 
       m_drivetrain::getPose, // Pose supplier
       m_drivetrain.getSwerveDriveKinematics(), // SwerveDriveKinematics
-      new PIDController(1/**1.5*/, 0, 0), // X controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
-      new PIDController(1/**1.5*/, 0, 0), // Y controller (usually the same values as X controller)
-      new PIDController(1/**4*/, 0, 0.005), // Rotation controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
+      new PIDController(5/**1.5*/, 0, 0), // X controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
+      new PIDController(5/**1.5*/, 0, 0), // Y controller (usually the same values as X controller)
+      new PIDController(0.5/**4*/, 0, 0.005), // Rotation controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
       m_drivetrain::setModuleStates, // Module states consumer
       m_drivetrain // Requires this drive subsystem
     );
     path = traj;
     m_Drivetrain = m_drivetrain;
     first = isFirstPath;
-    addRequirements(m_Drivetrain);
   }
 
-  // Called when the command is initially scheduled.
-  @Override
-  public void initialize() {
-    if(first){
-      m_Drivetrain.resetPosition(path.getInitialHolonomicPose());
-    }
+  public SequentialCommandGroup configure() {
+    return this.beforeStarting(new InstantCommand(()-> {
+          if(first) {
+            m_Drivetrain.resetPosition(path.getInitialHolonomicPose());
+          }
+        }));
   }
-
-  // Called every time the scheduler runs while the command is scheduled.
-  @Override
-  public void execute() {}
-
-  // Called once the command ends or is interrupted.
-  @Override
-  public void end(boolean interrupted) {
-  }
-
-  // Returns true when the command should end.
-  /**@Override
-  public boolean isFinished() {
-    return false;
-  }*/
 }

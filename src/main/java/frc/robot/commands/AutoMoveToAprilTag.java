@@ -16,6 +16,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -30,57 +31,68 @@ public class AutoMoveToAprilTag extends CommandBase {
 
   private Transform3d camToTarget;
   private Pose2d targetPose;
+  private PathPlannerTrajectory trajectoryToTag;
+  private Pose2d robotPose;
+  private Translation2d robotPosition;
+  private Rotation2d robotRotation;
 
   /** Creates a new AutoMoveToAprilTag. */
   public AutoMoveToAprilTag(SwerveDrive swerve, Vision camera) {
     // Use addRequirements() here to declare subsystem dependencies.
     m_swerve = swerve;
     m_camera = camera;
-    addRequirements(m_swerve, m_camera);
-  }
-
-  // Called when the command is initially scheduled.
-  @Override
-  public void initialize() {
+    robotPose = m_swerve.getPose();
+    robotPosition = new Translation2d(robotPose.getX(), robotPose.getY());
+    robotRotation = robotPose.getRotation();
     if (m_camera.hasTargets()) {  
-      Pose2d robotPose = m_swerve.getPose();
-      Translation2d robotPosition = new Translation2d(robotPose.getX(), robotPose.getY());
-      Rotation2d robotRotation = robotPose.getRotation();
       camToTarget = m_camera.getBestTarget().getBestCameraToTarget();
       System.out.println(camToTarget.toString());
       targetPose = robotPose.plus(
         new Transform2d(
-          new Translation2d(camToTarget.getX() + 1, camToTarget.getY()),
+          new Translation2d(-camToTarget.getX() + 1, -camToTarget.getY()),
           new Rotation2d(camToTarget.getRotation().getZ())
         )
       );
-      PathPlannerTrajectory trajectoryToTag = PathPlanner.generatePath(
+      trajectoryToTag = PathPlanner.generatePath(
         new PathConstraints(1, 1),
         new PathPoint(robotPosition, robotRotation),
         new PathPoint(targetPose.getTranslation(), targetPose.getRotation())
       );
       System.out.println(trajectoryToTag.getInitialState().toString());
       System.out.println(trajectoryToTag.getEndState().toString());
-      //new PathPlannerCommand(trajectoryToTag, m_swerve, true);
-      //m_swerve.followTrajectory(trajectoryToTag);
-      new SequentialCommandGroup(
-      new PrintCommand("Following Trajectory"),
-      new InstantCommand(() -> m_swerve.resetPosition(trajectoryToTag.getInitialHolonomicPose())),
-      new ParallelCommandGroup(
-        new PPSwerveControllerCommand(
-          trajectoryToTag,
-          m_swerve::getPose, // Pose supplier
-          m_swerve.getSwerveDriveKinematics(), // SwerveDriveKinematics
-          new PIDController(7.5, 0, 0), // X controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
-          new PIDController(7.5, 0, 0), // Y controller (usually the same values as X controller)
-          new PIDController(0.5, 0, 0.005), // Rotation controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
-          m_swerve::setModuleStates, // Module states consumer
-          m_swerve // Requires this drive subsystem
-        )
-      ),
-      new InstantCommand(() -> m_swerve.defenseMode())
-    );
+    }else{
+      trajectoryToTag = PathPlanner.generatePath(
+        new PathConstraints(1, 1),
+        new PathPoint(robotPosition, robotRotation),
+        new PathPoint(new Translation2d(robotPosition.getX() + 0.1, robotPosition.getY()), robotRotation)
+      );
     }
+    //addRequirements(m_swerve, m_camera);
+  }
+
+  // Called when the command is initially scheduled.
+  @Override
+  public void initialize() {
+    /**if (m_camera.hasTargets()) {  
+      robotPose = m_swerve.getPose();
+      robotPosition = new Translation2d(robotPose.getX(), robotPose.getY());
+      robotRotation = robotPose.getRotation();
+      camToTarget = m_camera.getBestTarget().getBestCameraToTarget();
+      System.out.println(camToTarget.toString());
+      targetPose = robotPose.plus(
+        new Transform2d(
+          new Translation2d(-camToTarget.getX() + 1, -camToTarget.getY()),
+          new Rotation2d(camToTarget.getRotation().getZ())
+        )
+      );
+      trajectoryToTag = PathPlanner.generatePath(
+        new PathConstraints(1, 1),
+        new PathPoint(robotPosition, robotRotation),
+        new PathPoint(targetPose.getTranslation(), targetPose.getRotation())
+      );
+      System.out.println(trajectoryToTag.getInitialState().toString());
+      System.out.println(trajectoryToTag.getEndState().toString());
+    }*/
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -95,5 +107,38 @@ public class AutoMoveToAprilTag extends CommandBase {
   @Override
   public boolean isFinished() {
     return false;
+  }
+
+  public PathPlannerTrajectory update(Pose2d robotPose){
+    robotPosition = new Translation2d(robotPose.getX(), robotPose.getY());
+    robotRotation = robotPose.getRotation();
+    if (m_camera.hasTargets()) {  
+      camToTarget = m_camera.getBestTarget().getBestCameraToTarget();
+      targetPose = robotPose.plus(
+        new Transform2d(
+          new Translation2d(-camToTarget.getX() + 1, -camToTarget.getY()),
+          new Rotation2d(camToTarget.getRotation().getZ() + Math.PI)
+        )
+      );
+      System.out.println("\n\n" + camToTarget.toString() + "\n\n" + targetPose.toString() + "\n\n");
+      trajectoryToTag = PathPlanner.generatePath(
+        new PathConstraints(0.5, 0.5),
+        new PathPoint(robotPosition, robotRotation),
+        new PathPoint(targetPose.getTranslation(), targetPose.getRotation())
+      );
+      System.out.println(trajectoryToTag.getInitialState().toString());
+      System.out.println(trajectoryToTag.getEndState().toString());
+    }else{
+      trajectoryToTag = PathPlanner.generatePath(
+        new PathConstraints(0.5, 0.5),
+        new PathPoint(robotPosition, robotRotation),
+        new PathPoint(new Translation2d(robotPosition.getX() + 0.1, robotPosition.getY()), robotRotation)
+      );
+    }
+    return trajectoryToTag;
+  }
+
+  public SequentialCommandGroup move(){
+    return new PathPlannerCommand(update(m_swerve.getPose()), m_swerve, true).configure().beforeStarting(new InstantCommand(() -> update(m_swerve.getPose())));
   }
 }
