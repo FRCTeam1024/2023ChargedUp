@@ -85,6 +85,11 @@ public final class Constants {
         public static final int turnEncoderD = 52;
     }
 
+    public static final class EndEffectorConstants {
+        public static final int neoID = 12;
+        public static final int snowblowerID = 13;
+    }
+
     public static final class LimelightConstants {
         public static final double driverPipe = 2.0;
         public static final double targetPipe = 1.0;
