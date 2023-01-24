@@ -147,6 +147,7 @@ public class RobotContainer {
     m_AutoChooser.addOption("Test2", TestAuto2());
     m_AutoChooser.addOption("Testing Swerve Auto", returnAutoCommand());
     m_AutoChooser.addOption("Testing Auto Balance", TestAutoBalance());
+    m_AutoChooser.addOption("C-Charge", C_Charge());
 
     //Put the auto chooser on the dashboard
     driverTab.add("Auto Mode",m_AutoChooser)
@@ -202,7 +203,11 @@ public class RobotContainer {
         .withSize(2,1)
         .withPosition(7,2);
 
-    driverTab.addNumber("RobotPitch", () -> drivetrain.getPitch())
+    driverTab.addString("Pose", () -> drivetrain.getPose().toString())
+        .withSize(2,1)
+        .withPosition(7,1);
+
+    /**driverTab.addNumber("RobotPitch", () -> drivetrain.getPitch())
         .withSize(1,1)
         .withPosition(7,1);
 
@@ -212,7 +217,7 @@ public class RobotContainer {
 
     driverTab.addNumber("Charging Station Angle", () -> drivetrain.getChargeStationAngle())
         .withSize(1,1)
-        .withPosition(7,3);
+        .withPosition(7,3);*/
     /*
     driverTab.addNumber("SwerveModule A Target Angle", () -> drivetrain.getTargetAngleRad(1))
         .withSize(1,1)
@@ -294,6 +299,26 @@ public class RobotContainer {
       ),
       new AutoBalance(drivetrain),
       new InstantCommand(() -> drivetrain.defenseMode())
+    );
+  }
+
+  private Command C_Charge(){
+    PathPlannerTrajectory path = PathPlanner.loadPath("C_Charge", new PathConstraints(1, 1));
+    return new SequentialCommandGroup(
+      new PrintCommand("\n\n" + path.getEndState().toString() + "\n\n"),
+      new InstantCommand(() -> drivetrain.resetPosition(path.getInitialHolonomicPose())),
+      new PPSwerveControllerCommand(
+        path,
+        drivetrain::getPose, // Pose supplier
+        drivetrain.getSwerveDriveKinematics(), // SwerveDriveKinematics
+        new PIDController(7.5, 0, 0), // X controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
+        new PIDController(7.5, 0, 0), // Y controller (usually the same values as X controller)
+        new PIDController(0.5, 0, 0.005), // Rotation controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
+        drivetrain::setModuleStates, // Module states consumer
+        false,
+        drivetrain // Requires this drive subsystem
+      ),
+      new AutoBalance(drivetrain)
     );
   }
 }
