@@ -34,6 +34,7 @@ import frc.robot.commands.PathPlannerCommand;
 import frc.robot.commands.TestingPathPlannerCommand;
 import frc.robot.oi.Logitech;
 import frc.robot.Constants.*;
+import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.SwerveDrive;
 import frc.robot.subsystems.Vision;
 
@@ -47,9 +48,11 @@ public class RobotContainer {
 
   //Subsystems
   private final SwerveDrive drivetrain = new SwerveDrive();
+  private final Arm arm = new Arm();
 
   //Operator Inputs
   private final Logitech driverController = new Logitech(0);
+  private final Logitech operatorController = new Logitech(1);
 
   //Default Commands
   private final DriveWithJoysticks driveWithController = new DriveWithJoysticks(drivetrain, driverController, true, 1);
@@ -99,6 +102,16 @@ public class RobotContainer {
     ));
     driverController.leftBumper.onTrue(new InstantCommand(() -> aprilTagMove.update(drivetrain.getPose())));
     //OPERATOR CONTROLS
+
+    //controls for arm - could change if hand needs more buttons
+    operatorController.dPadUp.whileTrue(new InstantCommand(() -> arm.move(0.5)));
+    operatorController.dPadDown.whileTrue(new InstantCommand(() -> arm.move(-0.5)));
+
+    operatorController.aButton.onTrue(new InstantCommand(() -> arm.moveTo(0)));
+    operatorController.xButton.onTrue(new InstantCommand(() -> arm.moveTo(ArmConstants.lowLevel)));
+    operatorController.bButton.onTrue(new InstantCommand(() -> arm.moveTo(ArmConstants.midLevel)));
+    operatorController.yButton.onTrue(new InstantCommand(() -> arm.moveTo(ArmConstants.highLevel)));
+
   }
 
    /**

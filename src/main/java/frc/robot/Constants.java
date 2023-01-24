@@ -100,4 +100,15 @@ public final class Constants {
         // 1 degree angle of error which is considered tolerable for the PID
         public static final double threshold = 0.1;
     }
+
+    public static final class ArmConstants {
+        public static final int leftArmID = 10;
+        public static final int rightArmID = 11;
+
+        public static final int camEncoderID = 14;
+        //random numbers for each of these levels, need to find accurate measurements later
+        public static final double highLevel = 45;
+        public static final double midLevel = 30;
+        public static final double lowLevel = 15;
+    }
 }
