@@ -277,7 +277,7 @@ public class RobotContainer {
   }
 
   private Command TestAutoBalance(){
-    PathPlannerTrajectory path = PathPlanner.loadPath("AutoBalanceTest", new PathConstraints(1, 1));
+    PathPlannerTrajectory path = PathPlanner.loadPath("AutoBalanceTest", new PathConstraints(2.5, 2.5));
     return new SequentialCommandGroup(
       new InstantCommand(() -> drivetrain.resetPosition(path.getInitialHolonomicPose())),
       new ParallelCommandGroup(
