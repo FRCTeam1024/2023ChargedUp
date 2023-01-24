@@ -30,10 +30,12 @@ import frc.robot.commands.AutoAlignAprilTag;
 import frc.robot.commands.AutoBalance;
 import frc.robot.commands.AutoMoveToAprilTag;
 import frc.robot.commands.DriveWithJoysticks;
+import frc.robot.commands.HoldEndEffectorPosition;
 import frc.robot.commands.PathPlannerCommand;
 import frc.robot.commands.TestingPathPlannerCommand;
 import frc.robot.oi.Logitech;
 import frc.robot.Constants.*;
+import frc.robot.subsystems.EndEffector;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.SwerveDrive;
 import frc.robot.subsystems.Vision;
@@ -49,6 +51,7 @@ public class RobotContainer {
   //Subsystems
   private final SwerveDrive drivetrain = new SwerveDrive();
   private final Arm arm = new Arm();
+  private final EndEffector endEffector = new EndEffector();
 
   //Operator Inputs
   private final Logitech driverController = new Logitech(0);
@@ -57,6 +60,7 @@ public class RobotContainer {
   //Default Commands
   private final DriveWithJoysticks driveWithController = new DriveWithJoysticks(drivetrain, driverController, true, 1);
   private final AutoMoveToAprilTag aprilTagMove = new AutoMoveToAprilTag(drivetrain, drivetrain.getCamera());
+  private final HoldEndEffectorPosition holdEndEffectorPosition = new HoldEndEffectorPosition(endEffector);
   //Chooser for auto
   SendableChooser<Command> m_AutoChooser = new SendableChooser<>();
 
@@ -70,6 +74,7 @@ public class RobotContainer {
 
     //Assign default commands
     drivetrain.setDefaultCommand(driveWithController);
+    endEffector.setDefaultCommand(holdEndEffectorPosition);
 
     // Configure the button bindings
     configureButtonBindings();
