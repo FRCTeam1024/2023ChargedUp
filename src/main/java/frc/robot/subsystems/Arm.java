@@ -54,15 +54,21 @@ public class Arm extends SubsystemBase {
     return camEncoder.getPosition();
   }
 
-  public void moveTo(double goalHeight){
+  public void moveTo(double goalAngle){
     double currentAngle = encoderAngle();
     //function to turn camAngle into armAngle and then motorpower - need to look at CAD and get measurements to do mathematically
     double currentArmAngle = -1 * Math.sin(currentAngle) + Math.PI; //very rough transformation - tried to do the actual math, graphed that, this comes pretty close
     currentArmAngle = currentArmAngle * 180 / Math.PI;
-    double goalAngle = Math.sinh(goalHeight / 48/**maxheight is just the distance between the center of rotation and end effector height */);
     double error = goalAngle - currentArmAngle;
-
     move(error * 0.05); //random proportional value to test
-    //need to test what angles 
+    //need to test what angles accurately represent each height
+  }
+
+  public double encoderToArmAngle(double encoderAngle){
+    return (-1 * Math.sin(encoderAngle) + Math.PI * 180)/Math.PI;
+  }
+
+  public double getHeight(){
+    return Math.sin(encoderToArmAngle(encoderAngle()))*48;//48 is arbitrary length of arm, need to check for accuracy
   }
 }

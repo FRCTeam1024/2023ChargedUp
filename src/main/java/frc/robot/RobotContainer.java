@@ -159,52 +159,65 @@ public class RobotContainer {
        .withSize(3,1)
        .withPosition(2,0);
 
-    driverTab.addNumber("SwerveModule A Angle", () -> drivetrain.getAngleRad(1))
+    driverTab.add(drivetrain.getCamera())
+        .withSize(3,3)
+        .withPosition(1,1); //double check obtaining camera streams
+
+    driverTab.addNumber("Arm Height", () -> arm.getHeight())
+        .withSize(1,1)
+        .withPosition(0,1);
+
+    driverTab.addNumber("AprilTag ID", () -> drivetrain.getCamera().getBestTarget().getFiducialId())
+        .withSize(1,1)
+        .withPosition(0,2);
+
+
+    diagnosticsTab.addNumber("SwerveModule A Angle", () -> drivetrain.getAngleRad(1))
         .withSize(1,1)
         .withPosition(5,0);
 
-    driverTab.addNumber("SwerveModule B Angle", () -> drivetrain.getAngleRad(2))
+    diagnosticsTab.addNumber("SwerveModule B Angle", () -> drivetrain.getAngleRad(2))
         .withSize(1,1)
         .withPosition(6,0);
 
-    driverTab.addNumber("SwerveModule C Angle", () -> drivetrain.getAngleRad(3))
+    diagnosticsTab.addNumber("SwerveModule C Angle", () -> drivetrain.getAngleRad(3))
         .withSize(1,1)
         .withPosition(5,1);
 
-    driverTab.addNumber("SwerveModule D Angle", () -> drivetrain.getAngleRad(4))
+    diagnosticsTab.addNumber("SwerveModule D Angle", () -> drivetrain.getAngleRad(4))
         .withSize(1,1)
         .withPosition(6,1);
 
-    driverTab.addNumber("Robot Yaw", () -> drivetrain.getYawDegrees())
+    diagnosticsTab.addNumber("Robot Yaw", () -> drivetrain.getYawDegrees())
         .withSize(1,1)
         .withPosition(0,0);
 
-    driverTab.addNumber("X-Position", () -> drivetrain.getPose().getX())
+    diagnosticsTab.addNumber("X-Position", () -> drivetrain.getPose().getX())
         .withSize(1,1)
         .withPosition(1,0);
 
     //putting the field in in case we want to have that visualization on shuffleboard
-    driverTab.add(field)
+    diagnosticsTab.add(field)
         .withSize(4,3)
         .withPosition(1,1);
 
-    driverTab.addString("Vision Estimated Pose", () -> drivetrain.getPose().toString())
+    diagnosticsTab.addString("Vision Estimated Pose", () -> drivetrain.getPose().toString())
         .withSize(4,1)
         .withPosition(0,4);
 
-    driverTab.add("AutoAlignAprilTag", new AutoAlignAprilTag(drivetrain, drivetrain.getCamera()))
+    diagnosticsTab.add("AutoAlignAprilTag", new AutoAlignAprilTag(drivetrain, drivetrain.getCamera()))
         .withSize(2,1)
         .withPosition(0,2);
 
-    driverTab.addNumber("Target Yaw", () -> drivetrain.getTargetYaw())
+    diagnosticsTab.addNumber("Target Yaw", () -> drivetrain.getTargetYaw())
         .withSize(1,1)
         .withPosition(0,3);
 
-    driverTab.add("AutoMoveToAprilTag", new AutoMoveToAprilTag(drivetrain, drivetrain.getCamera()).move())
+    diagnosticsTab.add("AutoMoveToAprilTag", new AutoMoveToAprilTag(drivetrain, drivetrain.getCamera()).move())
         .withSize(2,1)
         .withPosition(7, 0);
 
-    driverTab.add("AutoBalance", new AutoBalance(drivetrain))
+    diagnosticsTab.add("AutoBalance", new AutoBalance(drivetrain))
         .withSize(2,1)
         .withPosition(7,2);
 
@@ -212,18 +225,18 @@ public class RobotContainer {
         .withSize(2,1)
         .withPosition(7,1);
 
-    /**driverTab.addNumber("RobotPitch", () -> drivetrain.getPitch())
+    /**diagnosticsTab.addNumber("RobotPitch", () -> drivetrain.getPitch())
         .withSize(1,1)
         .withPosition(7,1);
 
-    driverTab.addNumber("RobotRoll", () -> drivetrain.getRoll())
+    diagnosticsTab.addNumber("RobotRoll", () -> drivetrain.getRoll())
         .withSize(1,1)
         .withPosition(8,1);
 
-    driverTab.addNumber("Charging Station Angle", () -> drivetrain.getChargeStationAngle())
+    diagnosticsTab.addNumber("Charging Station Angle", () -> drivetrain.getChargeStationAngle())
         .withSize(1,1)
         .withPosition(7,3);*/
-    /*
+    /**
     driverTab.addNumber("SwerveModule A Target Angle", () -> drivetrain.getTargetAngleRad(1))
         .withSize(1,1)
         .withPosition(4,3);
