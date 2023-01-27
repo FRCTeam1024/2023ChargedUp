@@ -59,7 +59,7 @@ public class RobotContainer {
 
   //Default Commands
   private final DriveWithJoysticks driveWithController = new DriveWithJoysticks(drivetrain, driverController, true, 1);
-  private final AutoMoveToAprilTag aprilTagMove = new AutoMoveToAprilTag(drivetrain, drivetrain.getCamera());
+ // private final AutoMoveToAprilTag aprilTagMove = new AutoMoveToAprilTag(drivetrain, drivetrain.getCamera());
   private final HoldEndEffectorPosition holdEndEffectorPosition = new HoldEndEffectorPosition(endEffector);
   //Chooser for auto
   SendableChooser<Command> m_AutoChooser = new SendableChooser<>();
@@ -101,11 +101,11 @@ public class RobotContainer {
     driverController.aButton.onTrue(new InstantCommand(() -> drivetrain.zeroHeading()));
     driverController.rightTrigger.whileTrue(new DriveWithJoysticks(drivetrain, driverController, false, 1));
     driverController.leftTrigger.whileTrue(new DriveWithJoysticks(drivetrain,driverController,true, 0.35));
-    driverController.rightBumper.onTrue(new SequentialCommandGroup(
-      new InstantCommand(() -> aprilTagMove.update(drivetrain.getPose())),
-      new PathPlannerCommand(aprilTagMove.update(drivetrain.getPose()), drivetrain, false).configure()
-    ));
-    driverController.leftBumper.onTrue(new InstantCommand(() -> aprilTagMove.update(drivetrain.getPose())));
+    //driverController.rightBumper.onTrue(new SequentialCommandGroup(
+    //  new InstantCommand(() -> aprilTagMove.update()),
+    //  new PathPlannerCommand(aprilTagMove.update(), drivetrain, false).configure()
+    //));
+    //driverController.leftBumper.onTrue(new InstantCommand(() -> aprilTagMove.move()));
     //OPERATOR CONTROLS
 
     //controls for arm - could change if hand needs more buttons
@@ -167,9 +167,9 @@ public class RobotContainer {
         .withSize(1,1)
         .withPosition(0,1);
 
-    driverTab.addNumber("AprilTag ID", () -> drivetrain.getCamera().getBestTarget().getFiducialId())
-        .withSize(1,1)
-        .withPosition(0,2);
+    //driverTab.addNumber("AprilTag ID", () -> drivetrain.getCamera().getBestTarget().getFiducialId())
+    //    .withSize(1,1)
+    //    .withPosition(0,2);
 
 
     diagnosticsTab.addNumber("SwerveModule A Angle", () -> drivetrain.getAngleRad(1))
