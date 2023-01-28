@@ -44,7 +44,8 @@ public class AutoMoveToAprilTag extends CommandBase {
     robotPose = m_swerve.getPose();
     robotPosition = new Translation2d(robotPose.getX(), robotPose.getY());
     robotRotation = robotPose.getRotation();
-    if (m_camera.hasTargets()) {  
+    if (m_camera.hasTargets()) {
+      System.out.println(m_camera.hasTargets());  
       camToTarget = m_camera.getBestTarget().getBestCameraToTarget();
       System.out.println(camToTarget.toString());
       targetPose = robotPose.plus(

@@ -10,14 +10,20 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import java.util.Arrays;
 import java.util.Random;
 
+import javax.swing.plaf.ComponentInputMapUIResource;
+
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
+import edu.wpi.first.hal.DriverStationJNI;
+import edu.wpi.first.hal.simulation.DriverStationDataJNI;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -25,6 +31,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
+import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.AutoAlignAprilTag;
 import frc.robot.commands.AutoBalance;
@@ -50,7 +57,7 @@ public class RobotContainer {
 
   //Subsystems
   private final SwerveDrive drivetrain = new SwerveDrive();
-  private final Arm arm = new Arm();
+  //private final Arm arm = new Arm();
   private final EndEffector endEffector = new EndEffector();
 
   //Operator Inputs
@@ -101,21 +108,27 @@ public class RobotContainer {
     driverController.aButton.onTrue(new InstantCommand(() -> drivetrain.zeroHeading()));
     driverController.rightTrigger.whileTrue(new DriveWithJoysticks(drivetrain, driverController, false, 1));
     driverController.leftTrigger.whileTrue(new DriveWithJoysticks(drivetrain,driverController,true, 0.35));
-    driverController.rightBumper.onTrue(new SequentialCommandGroup(
-      new InstantCommand(() -> aprilTagMove.update(drivetrain.getPose())),
-      new PathPlannerCommand(aprilTagMove.update(drivetrain.getPose()), drivetrain, false).configure()
+    /**driverController.rightBumper.onTrue(new SequentialCommandGroup(
+      new PrintCommand(drivetrain.calculatePathToTag().toString()),
+      new Command(() -> drivetrain.followTrajectory(
+        PathPlanner.loadPath("Test Path", new PathConstraints(1, 1))
+      ))
+    ));*/
+    driverController.rightBumper.onTrue(new ProxyCommand(
+      () -> drivetrain.followVisionTrajectory()
     ));
     driverController.leftBumper.onTrue(new InstantCommand(() -> aprilTagMove.update(drivetrain.getPose())));
     //OPERATOR CONTROLS
 
+
     //controls for arm - could change if hand needs more buttons
-    operatorController.dPadUp.whileTrue(new InstantCommand(() -> arm.move(0.5)));
+    /**operatorController.dPadUp.whileTrue(new InstantCommand(() -> arm.move(0.5)));
     operatorController.dPadDown.whileTrue(new InstantCommand(() -> arm.move(-0.5)));
 
     operatorController.aButton.onTrue(new InstantCommand(() -> arm.moveTo(0)));
     operatorController.xButton.onTrue(new InstantCommand(() -> arm.moveTo(ArmConstants.lowLevel)));
     operatorController.bButton.onTrue(new InstantCommand(() -> arm.moveTo(ArmConstants.midLevel)));
-    operatorController.yButton.onTrue(new InstantCommand(() -> arm.moveTo(ArmConstants.highLevel)));
+    operatorController.yButton.onTrue(new InstantCommand(() -> arm.moveTo(ArmConstants.highLevel)));*/
 
   }
 
@@ -163,14 +176,17 @@ public class RobotContainer {
         .withSize(3,3)
         .withPosition(1,1); //double check obtaining camera streams
 
-    driverTab.addNumber("Arm Height", () -> arm.getHeight())
+    driverTab.addNumber("Arm Height", () -> 0)
         .withSize(1,1)
         .withPosition(0,1);
 
-    driverTab.addNumber("AprilTag ID", () -> drivetrain.getCamera().getBestTarget().getFiducialId())
+    /**driverTab.addNumber("AprilTag ID", () -> drivetrain.getCamera().getBestTarget().getFiducialId())
         .withSize(1,1)
         .withPosition(0,2);
 
+    driverTab.addBoolean("AprilTag targets", () -> drivetrain.getCamera().hasTargets())
+        .withSize(1,1)
+        .withPosition(0,3);*/
 
     diagnosticsTab.addNumber("SwerveModule A Angle", () -> drivetrain.getAngleRad(1))
         .withSize(1,1)
@@ -221,7 +237,7 @@ public class RobotContainer {
         .withSize(2,1)
         .withPosition(7,2);
 
-    driverTab.addString("Pose", () -> drivetrain.getPose().toString())
+    diagnosticsTab.addString("Pose", () -> drivetrain.getPose().toString())
         .withSize(2,1)
         .withPosition(7,1);
 
@@ -253,7 +269,10 @@ public class RobotContainer {
         .withSize(1,1)
         .withPosition(5,4);
         */
-    
+
+    driverTab.addNumber("Battery Voltage", () -> RobotController.getBatteryVoltage())
+        .withSize(1,1)
+        .withPosition(1,3);
   }
 
   /**

@@ -90,6 +90,7 @@ public class SwerveDrive extends SubsystemBase {
 
     m_poseEstimator.update(pigeon.getRotation2d(), modulePositions);
 
+    //System.out.println(calculatePathToTag().getEndState().toString());
   }
 
   public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
@@ -255,8 +256,8 @@ public class SwerveDrive extends SubsystemBase {
       Transform3d camToTarget = camera.getBestTarget().getBestCameraToTarget();
       Pose2d targetPose = robotPose.plus(
         new Transform2d(
-          new Translation2d(camToTarget.getX() + 1, camToTarget.getY()),
-          new Rotation2d(camToTarget.getRotation().getZ() + Math.PI)
+          new Translation2d(-camToTarget.getX() + 1, -camToTarget.getY()),
+          new Rotation2d(camToTarget.getRotation().getZ())
         )
       );
       return PathPlanner.generatePath(
@@ -275,7 +276,28 @@ public class SwerveDrive extends SubsystemBase {
 
   public Command followTrajectory(PathPlannerTrajectory path){
     return new SequentialCommandGroup(
-      new PrintCommand("Following Trajectory"),
+      new PrintCommand("\n\n" + path.getInitialState().toString() + "\n\n" + path.getEndState().toString() + "\n\n"),
+      new InstantCommand(() -> this.resetPosition(path.getInitialHolonomicPose())),
+      new ParallelCommandGroup(
+        new PPSwerveControllerCommand(
+          path,
+          this::getPose, // Pose supplier
+          this.getSwerveDriveKinematics(), // SwerveDriveKinematics
+          new PIDController(7.5, 0, 0), // X controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
+          new PIDController(7.5, 0, 0), // Y controller (usually the same values as X controller)
+          new PIDController(0.5, 0, 0.005), // Rotation controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
+          this::setModuleStates, // Module states consumer
+          this // Requires this drive subsystem
+        )
+      ),
+      new InstantCommand(() -> this.defenseMode())
+    );
+  }
+
+  public Command followVisionTrajectory(){
+    PathPlannerTrajectory path = calculatePathToTag();
+    return new SequentialCommandGroup(
+      new PrintCommand("\n\n" + path.getInitialState().toString() + "\n\n" + path.getEndState().toString() + "\n\n"),
       new InstantCommand(() -> this.resetPosition(path.getInitialHolonomicPose())),
       new ParallelCommandGroup(
         new PPSwerveControllerCommand(
@@ -296,4 +318,6 @@ public class SwerveDrive extends SubsystemBase {
   public double getChargeStationAngle(){
     return (Math.cos(getYawDegrees()) * getRoll() + Math.sin(getYawDegrees()) * getPitch());
   }
+
+
 }
