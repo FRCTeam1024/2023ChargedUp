@@ -59,6 +59,7 @@ public class RobotContainer {
   private final SwerveDrive drivetrain = new SwerveDrive();
   //private final Arm arm = new Arm();
   private final EndEffector endEffector = new EndEffector();
+  private final Vision vision = new Vision();
 
   //Operator Inputs
   private final Logitech driverController = new Logitech(0);
@@ -66,7 +67,7 @@ public class RobotContainer {
 
   //Default Commands
   private final DriveWithJoysticks driveWithController = new DriveWithJoysticks(drivetrain, driverController, true, 1);
-  private final AutoMoveToAprilTag aprilTagMove = new AutoMoveToAprilTag(drivetrain, drivetrain.getCamera());
+ // private final AutoMoveToAprilTag aprilTagMove = new AutoMoveToAprilTag(drivetrain, drivetrain.getCamera());
   private final HoldEndEffectorPosition holdEndEffectorPosition = new HoldEndEffectorPosition(endEffector);
   //Chooser for auto
   SendableChooser<Command> m_AutoChooser = new SendableChooser<>();

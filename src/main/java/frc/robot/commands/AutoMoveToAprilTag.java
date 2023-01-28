@@ -110,12 +110,13 @@ public class AutoMoveToAprilTag extends CommandBase {
     return false;
   }
 
-  public PathPlannerTrajectory update(Pose2d robotPose){
-    robotPosition = new Translation2d(robotPose.getX(), robotPose.getY());
-    robotRotation = robotPose.getRotation();
+  public PathPlannerTrajectory update(){
+    Pose2d currentPose = m_swerve.getPose();
+    robotPosition = new Translation2d(currentPose.getX(), currentPose.getY());
+    robotRotation = currentPose.getRotation();
     if (m_camera.hasTargets()) {  
       camToTarget = m_camera.getBestTarget().getBestCameraToTarget();
-      targetPose = robotPose.plus(
+      targetPose = currentPose.plus(
         new Transform2d(
           new Translation2d(-camToTarget.getX() + 1, -camToTarget.getY()),
           new Rotation2d(camToTarget.getRotation().getZ() + Math.PI)
@@ -140,6 +141,6 @@ public class AutoMoveToAprilTag extends CommandBase {
   }
 
   public SequentialCommandGroup move(){
-    return new PathPlannerCommand(update(m_swerve.getPose()), m_swerve, true).configure().beforeStarting(new InstantCommand(() -> update(m_swerve.getPose())));
+    return new PathPlannerCommand(update(), m_swerve, true).configure();
   }
 }
