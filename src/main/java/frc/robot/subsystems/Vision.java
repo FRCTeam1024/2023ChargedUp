@@ -27,6 +27,13 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathConstraints;
+import com.pathplanner.lib.PathPoint;
 
 public class Vision extends SubsystemBase {
   private final PhotonCamera photon = new PhotonCamera("OV5647");
@@ -129,5 +136,36 @@ public class Vision extends SubsystemBase {
       return new Pair<Pose2d, Double>(null, 0.0);
     }
     
+  }
+
+  public PathPlannerTrajectory getPathToAprilTag(Pose2d robotPose) {
+    PathPlannerTrajectory trajectoryToTag;
+    Translation2d robotPosition = new Translation2d(robotPose.getX(), robotPose.getY());
+    Rotation2d robotRotation = robotPose.getRotation();
+    if (hasTargets()) {  
+      Transform3d camToTarget = getBestTarget().getBestCameraToTarget();
+      System.out.println(camToTarget.toString());
+      Pose2d targetPose = robotPose.plus(
+        new Transform2d(
+          new Translation2d(-camToTarget.getX() + 1, -camToTarget.getY()),
+          new Rotation2d(camToTarget.getRotation().getZ())
+        )
+      );
+      trajectoryToTag = PathPlanner.generatePath(
+        new PathConstraints(1, 1),
+        new PathPoint(robotPosition, robotRotation),
+        new PathPoint(targetPose.getTranslation(), targetPose.getRotation())
+      );
+      System.out.println(trajectoryToTag.getInitialState().toString());
+      System.out.println(trajectoryToTag.getEndState().toString());
+    }else{
+      trajectoryToTag = PathPlanner.generatePath(
+        new PathConstraints(1, 1),
+        new PathPoint(robotPosition, robotRotation),
+        new PathPoint(new Translation2d(robotPosition.getX() + 0.1, robotPosition.getY()), robotRotation)
+      );
+    }
+
+    return trajectoryToTag;
   }
 }

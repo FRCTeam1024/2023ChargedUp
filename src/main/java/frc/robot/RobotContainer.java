@@ -52,6 +52,7 @@ public class RobotContainer {
   private final SwerveDrive drivetrain = new SwerveDrive();
   private final Arm arm = new Arm();
   private final EndEffector endEffector = new EndEffector();
+  private final Vision vision = new Vision();
 
   //Operator Inputs
   private final Logitech driverController = new Logitech(0);
@@ -105,8 +106,9 @@ public class RobotContainer {
     //  new InstantCommand(() -> aprilTagMove.update()),
     //  new PathPlannerCommand(aprilTagMove.update(), drivetrain, false).configure()
     //));
-    //driverController.leftBumper.onTrue(new InstantCommand(() -> aprilTagMove.move()));
+    driverController.leftBumper.whileTrue(new PathPlannerCommand(vision.getPathToAprilTag(drivetrain.getPose()),drivetrain,true));
     //OPERATOR CONTROLS
+
 
     //controls for arm - could change if hand needs more buttons
     operatorController.dPadUp.whileTrue(new InstantCommand(() -> arm.move(0.5)));
