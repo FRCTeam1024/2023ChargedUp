@@ -99,6 +99,7 @@ public class Vision extends SubsystemBase {
   public Vision() {
     camList.add(new Pair<PhotonCamera, Transform3d>(photon, robotToCam));
     robotPoseEstimator = new PhotonPoseEstimator(fieldLayout2023, PoseStrategy.AVERAGE_BEST_TARGETS, photon, robotToCam);
+    
   }
 
   @Override

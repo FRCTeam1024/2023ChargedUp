@@ -4,6 +4,11 @@
 
 package frc.robot.subsystems;
 
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+import org.photonvision.PhotonTargetSortMode;
 import org.photonvision.targeting.PhotonTrackedTarget;
 import com.ctre.phoenix.sensors.WPI_PigeonIMU;
 import com.pathplanner.lib.PathConstraints;
@@ -20,6 +25,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
@@ -28,9 +34,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
+import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.commands.AutoAlignAprilTag;
+import frc.robot.commands.AutoTurn;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 public class SwerveDrive extends SubsystemBase {
@@ -248,12 +257,48 @@ public class SwerveDrive extends SubsystemBase {
     }
   }
 
+  public void sortTargetsByArea(List<PhotonTrackedTarget> targets){
+    Collections.sort(targets, new Comparator<PhotonTrackedTarget>() {
+      @Override
+      public int compare(PhotonTrackedTarget a, PhotonTrackedTarget b){
+        double area1 = a.getArea();
+        double area2 = b.getArea();
+        if(area2 > area1){
+          return -1;
+        }else if(area1 > area2){
+          return 1;
+        }else{
+          return 0;
+        }
+      }
+    });
+  }
+
   public PathPlannerTrajectory calculatePathToTag() {
     Pose2d robotPose = getPose();
     Translation2d robotPosition = new Translation2d(robotPose.getX(), robotPose.getY());
     Rotation2d robotRotation = robotPose.getRotation();
     if (camera.hasTargets()) {  
-      Transform3d camToTarget = camera.getBestTarget().getBestCameraToTarget();
+      List<PhotonTrackedTarget> targets = camera.getTargets();
+      targets.sort(new Comparator<PhotonTrackedTarget>() {
+        @Override
+        public int compare(PhotonTrackedTarget a, PhotonTrackedTarget b){
+          Translation3d translate1 = a.getBestCameraToTarget().getTranslation();
+          double dist1 = Math.sqrt(Math.pow(translate1.getX(),2)+Math.pow(translate1.getY(),2));
+          Translation3d translate2 = b.getBestCameraToTarget().getTranslation();
+          double dist2 = Math.sqrt(Math.pow(translate2.getX(),2)+Math.pow(translate2.getY(),2));
+          if(dist2 > dist1){
+            return -1;
+          }else if(dist1 > dist2){
+            return 1;
+          }else{
+            return 0;
+          }
+        }
+      });
+      Transform3d camToTarget = targets.get(0).getBestCameraToTarget();
+      
+      System.out.println(targets.toString());
       Pose2d targetPose = robotPose.plus(
         new Transform2d(
           new Translation2d(-camToTarget.getX() + 1, -camToTarget.getY()),
@@ -261,13 +306,13 @@ public class SwerveDrive extends SubsystemBase {
         )
       );
       return PathPlanner.generatePath(
-        new PathConstraints(1, 1),
+        new PathConstraints(2, 2),
         new PathPoint(robotPosition, robotRotation),
         new PathPoint(targetPose.getTranslation(), targetPose.getRotation())
       );
     } else {
       return PathPlanner.generatePath(
-        new PathConstraints(1, 1),
+        new PathConstraints(2, 2),
         new PathPoint(robotPosition, robotRotation),
         new PathPoint(robotPosition, robotRotation)
       );
@@ -311,6 +356,7 @@ public class SwerveDrive extends SubsystemBase {
           this // Requires this drive subsystem
         )
       ),
+      new AutoTurn(this, 0),
       new InstantCommand(() -> this.defenseMode())
     );
   }

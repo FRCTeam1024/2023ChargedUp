@@ -118,7 +118,7 @@ public class RobotContainer {
     driverController.rightBumper.onTrue(new ProxyCommand(
       () -> drivetrain.followVisionTrajectory()
     ));
-    driverController.leftBumper.onTrue(new InstantCommand(() -> aprilTagMove.update(drivetrain.getPose())));
+    //driverController.leftBumper.onTrue(new InstantCommand(() -> aprilTagMove.update(drivetrain.getPose())));
     //OPERATOR CONTROLS
 
 
