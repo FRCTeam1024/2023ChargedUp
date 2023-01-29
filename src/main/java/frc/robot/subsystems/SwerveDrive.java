@@ -143,17 +143,7 @@ public class SwerveDrive extends SubsystemBase {
     }
   }
 
-  private double getRawYaw() {
-    pigeon.getYawPitchRoll(yawPitchRoll);
-    return yawPitchRoll[0];
-  }
-
-  public Rotation2d getYawRotation2d() {
-    return new Rotation2d(Math.PI * getRawYaw()/180);
-  }
-
   public double getYawDegrees() {
-    //return getYawRotation2d().getDegrees();
     return m_odometry.getPoseMeters().getRotation().getDegrees();
   }
 

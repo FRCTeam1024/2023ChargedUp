@@ -59,15 +59,13 @@ public class RobotContainer {
   private final SwerveDrive drivetrain = new SwerveDrive();
   //private final Arm arm = new Arm();
   private final EndEffector endEffector = new EndEffector();
-  private final Vision vision = new Vision();
 
   //Operator Inputs
   private final Logitech driverController = new Logitech(0);
   private final Logitech operatorController = new Logitech(1);
 
   //Default Commands
-  private final DriveWithJoysticks driveWithController = new DriveWithJoysticks(drivetrain, driverController, true, 1);
- // private final AutoMoveToAprilTag aprilTagMove = new AutoMoveToAprilTag(drivetrain, drivetrain.getCamera());
+  private final DriveWithJoysticks driveWithController = new DriveWithJoysticks(drivetrain, driverController, 1);
   private final HoldEndEffectorPosition holdEndEffectorPosition = new HoldEndEffectorPosition(endEffector);
   //Chooser for auto
   SendableChooser<Command> m_AutoChooser = new SendableChooser<>();
@@ -107,18 +105,12 @@ public class RobotContainer {
 
     // DRIVER CONTROLS
     driverController.aButton.onTrue(new InstantCommand(() -> drivetrain.zeroHeading()));
-    driverController.rightTrigger.whileTrue(new DriveWithJoysticks(drivetrain, driverController, false, 1));
-    driverController.leftTrigger.whileTrue(new DriveWithJoysticks(drivetrain,driverController,true, 0.35));
-    /**driverController.rightBumper.onTrue(new SequentialCommandGroup(
-      new PrintCommand(drivetrain.calculatePathToTag().toString()),
-      new Command(() -> drivetrain.followTrajectory(
-        PathPlanner.loadPath("Test Path", new PathConstraints(1, 1))
-      ))
-    ));*/
+    driverController.leftTrigger.whileTrue(new DriveWithJoysticks(drivetrain,driverController,0.35));
+ 
     driverController.rightBumper.onTrue(new ProxyCommand(
       () -> drivetrain.followVisionTrajectory()
     ));
-    //driverController.leftBumper.onTrue(new InstantCommand(() -> aprilTagMove.update(drivetrain.getPose())));
+
     //OPERATOR CONTROLS
 
 
@@ -253,23 +245,6 @@ public class RobotContainer {
     diagnosticsTab.addNumber("Charging Station Angle", () -> drivetrain.getChargeStationAngle())
         .withSize(1,1)
         .withPosition(7,3);*/
-    /**
-    driverTab.addNumber("SwerveModule A Target Angle", () -> drivetrain.getTargetAngleRad(1))
-        .withSize(1,1)
-        .withPosition(4,3);
-
-    driverTab.addNumber("SwerveModule B Target Angle", () -> drivetrain.getTargetAngleRad(2))
-        .withSize(1,1)
-        .withPosition(5,3);
-
-    driverTab.addNumber("SwerveModule C Target Angle", () -> drivetrain.getTargetAngleRad(3))
-        .withSize(1,1)
-        .withPosition(4,4);
-
-    driverTab.addNumber("SwerveModule D Target Angle", () -> drivetrain.getTargetAngleRad(4))
-        .withSize(1,1)
-        .withPosition(5,4);
-        */
 
     driverTab.addNumber("Battery Voltage", () -> RobotController.getBatteryVoltage())
         .withSize(1,1)

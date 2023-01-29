@@ -101,11 +101,7 @@ public class SwerveModule {
       state.angle = new Rotation2d(defaultAngle);
     }
     // Calculate the drive output from the drive PID controller.
-    // 
-    // DP: I think we can configure the selected sensor in the constructor with the desired resolution so we done have 
-    // to perform that math here.  Also to note, SwerveModuleState expects velocity in m/s, so wheel diameter woul
-    // need to be include in this conversion somehow.
-    //
+    
     final double driveOutput =
         m_drivePIDController.calculate(getDriveVelocity(), state.speedMetersPerSecond);
 
@@ -142,7 +138,6 @@ public class SwerveModule {
 
   public SwerveModulePosition getPosition(){
     return new SwerveModulePosition(
-      //m_driveMotor.getSelectedSensorPosition()*DriveConstants.wheelCircumference/(DriveConstants.encoderTicks*DriveConstants.gearRatio), new Rotation2d(getAngleRadians())
       m_driveMotor.getSelectedSensorPosition()*DriveConstants.wheelCircumference/(DriveConstants.encoderTicks*DriveConstants.gearRatio), new Rotation2d(getAngleRadians())
     );
   }
