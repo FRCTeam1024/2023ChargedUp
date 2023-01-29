@@ -115,8 +115,8 @@ public class RobotContainer {
 
 
     //controls for arm - could change if hand needs more buttons
-    /**operatorController.dPadUp.whileTrue(new InstantCommand(() -> arm.move(0.5)));
-    operatorController.dPadDown.whileTrue(new InstantCommand(() -> arm.move(-0.5)));
+    /**operatorController.dPadUp.whileTrue(new InstantCommand(() -> arm.move(0.5)));  //Use moveTo(ArmConstant.MaxArmAngle)
+    operatorController.dPadDown.whileTrue(new InstantCommand(() -> arm.move(-0.5)));  //Use moveTo(ArmConstants.MinArmAngle)
 
     operatorController.aButton.onTrue(new InstantCommand(() -> arm.moveTo(0)));
     operatorController.xButton.onTrue(new InstantCommand(() -> arm.moveTo(ArmConstants.lowLevel)));
