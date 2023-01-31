@@ -110,7 +110,7 @@ public class RobotContainer {
     driverController.rightBumper.onTrue(new ProxyCommand(
       () -> drivetrain.followVisionTrajectory()
     ));
-    driverController.rightTrigger.onTrue(new ProxyCommand(() -> C_4_I()));
+    
 
     //OPERATOR CONTROLS
 
@@ -162,6 +162,14 @@ public class RobotContainer {
     m_AutoChooser.addOption("C-Charge", new ProxyCommand(() -> C_Charge()));
     m_AutoChooser.addOption("C-Cross-Charge", new ProxyCommand(() -> C_Cross_Charge()));
     m_AutoChooser.addOption("C-1-O", new ProxyCommand(() -> C_1_O()));
+    m_AutoChooser.addOption("C-2-O", new ProxyCommand(() -> C_2_O()));
+    m_AutoChooser.addOption("C-OuterRoute-Charge", new ProxyCommand(() -> C_OuterRoute_Charge()));
+    m_AutoChooser.addOption("C-4-I", new ProxyCommand(() -> C_4_I()));
+    m_AutoChooser.addOption("C-3-I", new ProxyCommand(() -> C_3_I()));
+    m_AutoChooser.addOption("I-3-I", new ProxyCommand(() -> I_3_I()));
+    m_AutoChooser.addOption("I-4-I", new ProxyCommand(() -> I_4_I()));
+    m_AutoChooser.addOption("O-1-O", new ProxyCommand(() -> O_1_O()));
+    m_AutoChooser.addOption("O-2-O", new ProxyCommand(() -> O_2_O()));
 
     //Put the auto chooser on the dashboard
     driverTab.add("Auto Mode",m_AutoChooser)
@@ -336,7 +344,7 @@ public class RobotContainer {
   }
 
   private Command C_1_O(){
-    PathPlannerTrajectory path = PathPlanner.loadPath("C-1-O", new PathConstraints(1,1));
+    PathPlannerTrajectory path = PathPlanner.loadPath("C-1-O", new PathConstraints(2,2));
     return new SequentialCommandGroup(
       drivetrain.followTrajectory(path)
     );
@@ -350,14 +358,14 @@ public class RobotContainer {
   }
 
   private Command C_3_I(){
-    PathPlannerTrajectory path = PathPlanner.loadPath("C-3_I", new PathConstraints(1,1));
+    PathPlannerTrajectory path = PathPlanner.loadPath("C-3-I", new PathConstraints(1,1));
     return new SequentialCommandGroup(
       drivetrain.followTrajectory(path)
     );
   }
 
   private Command C_4_I(){
-    PathPlannerTrajectory path = PathPlanner.loadPath("C-4-I", new PathConstraints(1,1));
+    PathPlannerTrajectory path = PathPlanner.loadPath("C-4-I", new PathConstraints(2,2));
     return new SequentialCommandGroup(
       drivetrain.followTrajectory(path)
     );
@@ -372,7 +380,7 @@ public class RobotContainer {
   }
 
   private Command C_OuterRoute_Charge(){
-    PathPlannerTrajectory path = PathPlanner.loadPath("C-OuterRoute-Charge", new PathConstraints(1,1));
+    PathPlannerTrajectory path = PathPlanner.loadPath("C-OuterRoute-Charge", new PathConstraints(1.5,1.5));
     return new SequentialCommandGroup(
       drivetrain.followTrajectory(path),
       new AutoBalance(drivetrain)
@@ -380,14 +388,14 @@ public class RobotContainer {
   }
 
   private Command I_3_I(){
-    PathPlannerTrajectory path = PathPlanner.loadPath("I-3-I", new PathConstraints(1,1));
+    PathPlannerTrajectory path = PathPlanner.loadPath("I-3-I", new PathConstraints(2,2));
     return new SequentialCommandGroup(
       drivetrain.followTrajectory(path)
     );
   }
 
   private Command I_4_I(){
-    PathPlannerTrajectory path = PathPlanner.loadPath("I-4-I", new PathConstraints(1,1));
+    PathPlannerTrajectory path = PathPlanner.loadPath("I-4-I", new PathConstraints(2,2));
     return new SequentialCommandGroup(
       drivetrain.followTrajectory(path)
     );

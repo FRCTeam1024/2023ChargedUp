@@ -41,6 +41,8 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.commands.AutoAlignAprilTag;
 import frc.robot.commands.AutoTurn;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 public class SwerveDrive extends SubsystemBase {
 
@@ -309,7 +311,14 @@ public class SwerveDrive extends SubsystemBase {
     }
   }
 
-  public Command followTrajectory(PathPlannerTrajectory path){
+  public Command followTrajectory(PathPlannerTrajectory inputPath){
+    //attempts to manually change path planning
+    PathPlannerTrajectory path;
+    if(DriverStation.getAlliance() == Alliance.Red){
+      path = PathPlannerTrajectory.transformTrajectoryForAlliance(inputPath, Alliance.Red);
+    }else{
+      path = inputPath;
+    }
     return new SequentialCommandGroup(
       new PrintCommand("\n\n" + path.getInitialState().toString() + "\n\n" + path.getEndState().toString() + "\n\n"),
       new InstantCommand(() -> this.resetPosition(path.getInitialHolonomicPose())),
@@ -322,7 +331,7 @@ public class SwerveDrive extends SubsystemBase {
           new PIDController(7.5, 0, 0), // Y controller (usually the same values as X controller)
           new PIDController(1.5, 0, 0.005), // Rotation controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
           this::setModuleStates, // Module states consumer
-          true,
+          false,
           this // Requires this drive subsystem
         )
       ),
