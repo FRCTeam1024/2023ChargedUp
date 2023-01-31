@@ -320,7 +320,7 @@ public class SwerveDrive extends SubsystemBase {
           this.getSwerveDriveKinematics(), // SwerveDriveKinematics
           new PIDController(7.5, 0, 0), // X controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
           new PIDController(7.5, 0, 0), // Y controller (usually the same values as X controller)
-          new PIDController(0.5, 0, 0.005), // Rotation controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
+          new PIDController(1.5, 0, 0.005), // Rotation controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
           this::setModuleStates, // Module states consumer
           this // Requires this drive subsystem
         )
@@ -343,6 +343,7 @@ public class SwerveDrive extends SubsystemBase {
           new PIDController(7.5, 0, 0), // Y controller (usually the same values as X controller)
           new PIDController(0.5, 0, 0.005), // Rotation controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
           this::setModuleStates, // Module states consumer
+          true,
           this // Requires this drive subsystem
         )
       ),

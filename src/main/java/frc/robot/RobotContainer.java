@@ -110,6 +110,7 @@ public class RobotContainer {
     driverController.rightBumper.onTrue(new ProxyCommand(
       () -> drivetrain.followVisionTrajectory()
     ));
+    driverController.rightTrigger.onTrue(new ProxyCommand(() -> C_4_I()));
 
     //OPERATOR CONTROLS
 
@@ -154,11 +155,13 @@ public class RobotContainer {
 
     //Add commands to auto chooser, set default to null to avoid surprise operation
     m_AutoChooser.setDefaultOption("None", null);
-    m_AutoChooser.addOption("Test Path", TestAuto());
-    m_AutoChooser.addOption("Test2", TestAuto2());
-    m_AutoChooser.addOption("Testing Swerve Auto", returnAutoCommand());
-    m_AutoChooser.addOption("Testing Auto Balance", TestAutoBalance());
-    m_AutoChooser.addOption("C-Charge", C_Charge());
+    m_AutoChooser.addOption("Test Path", new ProxyCommand(() -> TestAuto()));
+    m_AutoChooser.addOption("Test2", new ProxyCommand(() -> TestAuto2()));
+    m_AutoChooser.addOption("Testing Swerve Auto", new ProxyCommand(() -> returnAutoCommand()));
+    m_AutoChooser.addOption("Testing Auto Balance", new ProxyCommand(() -> TestAutoBalance()));
+    m_AutoChooser.addOption("C-Charge", new ProxyCommand(() -> C_Charge()));
+    m_AutoChooser.addOption("C-Cross-Charge", new ProxyCommand(() -> C_Cross_Charge()));
+    m_AutoChooser.addOption("C-1-O", new ProxyCommand(() -> C_1_O()));
 
     //Put the auto chooser on the dashboard
     driverTab.add("Auto Mode",m_AutoChooser)
@@ -319,19 +322,102 @@ public class RobotContainer {
     PathPlannerTrajectory path = PathPlanner.loadPath("C_Charge", new PathConstraints(1, 1));
     return new SequentialCommandGroup(
       new PrintCommand("\n\n" + path.getEndState().toString() + "\n\n"),
-      new InstantCommand(() -> drivetrain.resetPosition(path.getInitialHolonomicPose())),
-      new PPSwerveControllerCommand(
-        path,
-        drivetrain::getPose, // Pose supplier
-        drivetrain.getSwerveDriveKinematics(), // SwerveDriveKinematics
-        new PIDController(7.5, 0, 0), // X controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
-        new PIDController(7.5, 0, 0), // Y controller (usually the same values as X controller)
-        new PIDController(0.5, 0, 0.005), // Rotation controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
-        drivetrain::setModuleStates, // Module states consumer
-        false,
-        drivetrain // Requires this drive subsystem
-      ),
+      drivetrain.followTrajectory(path),
       new AutoBalance(drivetrain)
+    );
+  }
+
+  private Command C_Cross_Charge(){
+    PathPlannerTrajectory path = PathPlanner.loadPath("C-Cross-Charge", new PathConstraints(1.5,1.5));
+    return new SequentialCommandGroup(
+      drivetrain.followTrajectory(path),
+      new AutoBalance(drivetrain)
+    );
+  }
+
+  private Command C_1_O(){
+    PathPlannerTrajectory path = PathPlanner.loadPath("C-1-O", new PathConstraints(1,1));
+    return new SequentialCommandGroup(
+      drivetrain.followTrajectory(path)
+    );
+  }
+
+  private Command C_2_O(){
+    PathPlannerTrajectory path = PathPlanner.loadPath("C-2-O", new PathConstraints(1,1));
+    return new SequentialCommandGroup(
+      drivetrain.followTrajectory(path)
+    );
+  }
+
+  private Command C_3_I(){
+    PathPlannerTrajectory path = PathPlanner.loadPath("C-3_I", new PathConstraints(1,1));
+    return new SequentialCommandGroup(
+      drivetrain.followTrajectory(path)
+    );
+  }
+
+  private Command C_4_I(){
+    PathPlannerTrajectory path = PathPlanner.loadPath("C-4-I", new PathConstraints(1,1));
+    return new SequentialCommandGroup(
+      drivetrain.followTrajectory(path)
+    );
+  }
+
+  private Command C_InnerRoute_Charge(){
+    PathPlannerTrajectory path = PathPlanner.loadPath("C-InnerRoute-Charge", new PathConstraints(1,1));
+    return new SequentialCommandGroup(
+      drivetrain.followTrajectory(path),
+      new AutoBalance(drivetrain)
+    );
+  }
+
+  private Command C_OuterRoute_Charge(){
+    PathPlannerTrajectory path = PathPlanner.loadPath("C-OuterRoute-Charge", new PathConstraints(1,1));
+    return new SequentialCommandGroup(
+      drivetrain.followTrajectory(path),
+      new AutoBalance(drivetrain)
+    );
+  }
+
+  private Command I_3_I(){
+    PathPlannerTrajectory path = PathPlanner.loadPath("I-3-I", new PathConstraints(1,1));
+    return new SequentialCommandGroup(
+      drivetrain.followTrajectory(path)
+    );
+  }
+
+  private Command I_4_I(){
+    PathPlannerTrajectory path = PathPlanner.loadPath("I-4-I", new PathConstraints(1,1));
+    return new SequentialCommandGroup(
+      drivetrain.followTrajectory(path)
+    );
+  }
+
+  private Command I_Charge(){
+    PathPlannerTrajectory path = PathPlanner.loadPath("I-Charge", new PathConstraints(1,1));
+    return new SequentialCommandGroup(
+      drivetrain.followTrajectory(path)
+    );
+  }
+
+  private Command O_1_O(){
+    PathPlannerTrajectory path = PathPlanner.loadPath("O-1-O", new PathConstraints(1,1));
+    return new SequentialCommandGroup(
+      drivetrain.followTrajectory(path)
+    );
+  }
+
+  private Command O_2_O(){
+    PathPlannerTrajectory path = PathPlanner.loadPath("O-2-O", new PathConstraints(1,1));
+    return new SequentialCommandGroup(
+      drivetrain.followTrajectory(path)
+    );
+  }
+
+  private Command O_Charge(){
+    PathPlannerTrajectory path = PathPlanner.loadPath("O_Charge", new PathConstraints(1,1));
+    return new SequentialCommandGroup(
+      drivetrain.followTrajectory(path)
     );
   }
 }

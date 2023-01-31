@@ -16,7 +16,7 @@ public class AutoBalance extends CommandBase {
   double xError;
   double yError;
   double averageError;
-  double kP = 0.04; //value that turns degrees of error into speed for swerve drive - needs to be tested
+  double kP = 0.03; //value that turns degrees of error into speed for swerve drive - needs to be tested
   double xSpeed;
   double ySpeed;
   boolean isDone = false;
