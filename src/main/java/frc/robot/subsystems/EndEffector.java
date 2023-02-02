@@ -6,8 +6,10 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.sensors.CANCoder;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
+import edu.wpi.first.wpilibj2.command.PIDCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -40,28 +42,64 @@ public class EndEffector extends SubsystemBase {
     neo.set(speed);
   }
 
+  public void turnWrist(double speed){
+    if(snowblowerEncoder.getAbsolutePosition() >= 90 && speed > 0){
+      speed = 0;
+    }else if(snowblowerEncoder.getAbsolutePosition() <= -90 && speed < 0){
+      speed = 0;
+    }
+    snowblower.set(speed);
+  }
+
+  public PIDCommand turnWristToAngle(double goalAngle){
+    double currentAngle = snowblowerEncoder.getAbsolutePosition();
+    double error = goalAngle - currentAngle;
+    PIDController turnWristController = new PIDController(0.05, 0, 0);
+    return new PIDCommand(turnWristController, () -> snowblowerEncoder.getAbsolutePosition(), goalAngle, output -> turnWrist(output), this);
+  }
+
   public void intakeCone(boolean isForward) {
     // if isForward
       // Set snowblower (wrist) to angle
       // Run intake proper direction
+      if(isForward){
+        turnWristToAngle(-90);
+        runIntake(0.5);
+      }else{
+        turnWristToAngle(90);
+        runIntake(-0.5);
+      }
     // else
       // Set snowblower (wrist) to angle
       // Run intake proper direction
   }
 
   public void flipCone() {
-
+    //words words words
+    if(snowblowerEncoder.getAbsolutePosition() < -10){
+      turnWristToAngle(10);
+    }else if(snowblowerEncoder.getAbsolutePosition() > 10){
+      turnWristToAngle(-10);
+    }
   }
 
   public void releaseCone() {
-    
+    // stuff stuff stuff
+    if(snowblowerEncoder.getAbsolutePosition() > 5){
+      runIntake(-0.5);
+    }else if(snowblowerEncoder.getAbsolutePosition() < 5){
+      runIntake(0.5);
+    }
   }
 
   public void intakeCube() {
     // blah blah blah
+    runIntake(0.5); //assumption is being made that a positive value intakes and a negative value spits out
   }
 
   public void releaseCube() {
-    // 
+    // Code code code
+    runIntake(-0.5); //assumption is being made that a positive value intakes and a negative value spits out
+    //speed may need to be lowered to output more safely
   }
 }

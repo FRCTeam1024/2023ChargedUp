@@ -18,6 +18,8 @@ import org.photonvision.EstimatedRobotPose;
 
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.HttpCamera;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -25,6 +27,9 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableEvent;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -39,6 +44,10 @@ public class Vision extends SubsystemBase {
   private final PhotonCamera photon = new PhotonCamera("OV5647");
   private ArrayList<Pair<PhotonCamera, Transform3d>> camList = new ArrayList<Pair<PhotonCamera, Transform3d>>();
   private final Transform3d robotToCam = new Transform3d(new Translation3d(0.0, Units.inchesToMeters(10), Units.inchesToMeters(-3)), new Rotation3d(0, 0, 0));
+
+  private final HttpCamera camera = new HttpCamera(
+      "limelight", "http://photonvision.local:1182/stream.mjpg?1675300761194", HttpCamera.HttpCameraKind.kMJPGStreamer
+  );
 
   public static final List<AprilTag> aprilTags =
     List.of(
@@ -99,7 +108,7 @@ public class Vision extends SubsystemBase {
   public Vision() {
     camList.add(new Pair<PhotonCamera, Transform3d>(photon, robotToCam));
     robotPoseEstimator = new PhotonPoseEstimator(fieldLayout2023, PoseStrategy.AVERAGE_BEST_TARGETS, photon, robotToCam);
-    
+    CameraServer.addCamera(camera);
   }
 
   @Override
@@ -168,5 +177,9 @@ public class Vision extends SubsystemBase {
     }
 
     return trajectoryToTag;
+  }
+
+  public HttpCamera getFeed(){
+    return camera;
   }
 }

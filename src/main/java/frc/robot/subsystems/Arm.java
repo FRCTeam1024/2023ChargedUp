@@ -6,8 +6,13 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
+import edu.wpi.first.wpilibj2.command.PIDCommand;
+import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
 
@@ -117,6 +122,10 @@ public class Arm extends SubsystemBase {
     return Math.toDegrees(Math.atan((Y2-Y1)/(X2-X1)));
   }
 
+  private void moveArm(double speed){
+    armMotors.set(speed);
+  }
+
   /**
    * 
    * This method should use a trapezoid motion profile to govern the arm angle 
@@ -126,7 +135,7 @@ public class Arm extends SubsystemBase {
    * 
    * @param goalAngle The desired arm angle
    */
-  public void moveTo(double goalAngle){
+  public ProfiledPIDCommand moveTo(double goalAngle){
 
     /** 
     double currentAngle = encoderAngle();
@@ -137,6 +146,13 @@ public class Arm extends SubsystemBase {
     move(error * 0.05); //random proportional value to test
     //need to test what angles accurately represent each height
     */
+
+    double crankGoal = armToCrank(goalAngle);
+    double currentAngle = getCrankAngle();
+    TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(Math.PI/8,Math.PI/8);
+    TrapezoidProfile profile = new TrapezoidProfile(constraints, new TrapezoidProfile.State(crankGoal,0), new TrapezoidProfile.State(getCrankAngle(),0));
+    ProfiledPIDController crankController = new ProfiledPIDController(0.05, 0, 0, constraints);
+    return new ProfiledPIDCommand(crankController, () -> getCrankAngle(), crankGoal, (output,setpoint) -> moveArm(output), this);
   }
 
 

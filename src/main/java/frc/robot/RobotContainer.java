@@ -17,10 +17,15 @@ import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.hal.DriverStationJNI;
 import edu.wpi.first.hal.simulation.DriverStationDataJNI;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableEvent;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.NetworkTableValue;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotController;
@@ -57,7 +62,7 @@ public class RobotContainer {
 
   //Subsystems
   private final SwerveDrive drivetrain = new SwerveDrive();
-  //private final Arm arm = new Arm();
+  private final Arm arm = new Arm();
   private final EndEffector endEffector = new EndEffector();
 
   //Operator Inputs
@@ -116,13 +121,13 @@ public class RobotContainer {
 
 
     //controls for arm - could change if hand needs more buttons
-    /**operatorController.dPadUp.whileTrue(new InstantCommand(() -> arm.move(0.5)));  //Use moveTo(ArmConstant.MaxArmAngle)
-    operatorController.dPadDown.whileTrue(new InstantCommand(() -> arm.move(-0.5)));  //Use moveTo(ArmConstants.MinArmAngle)
+    operatorController.dPadUp.whileTrue(new ProxyCommand(() -> arm.moveTo(ArmConstants.highLevel)));  //Use moveTo(ArmConstant.MaxArmAngle)
+    operatorController.dPadDown.whileTrue(new ProxyCommand(() -> arm.moveTo(0)));  //Use moveTo(ArmConstants.MinArmAngle)
 
-    operatorController.aButton.onTrue(new InstantCommand(() -> arm.moveTo(0)));
-    operatorController.xButton.onTrue(new InstantCommand(() -> arm.moveTo(ArmConstants.lowLevel)));
-    operatorController.bButton.onTrue(new InstantCommand(() -> arm.moveTo(ArmConstants.midLevel)));
-    operatorController.yButton.onTrue(new InstantCommand(() -> arm.moveTo(ArmConstants.highLevel)));*/
+    operatorController.aButton.onTrue(new ProxyCommand(() -> arm.moveTo(0)));
+    operatorController.xButton.onTrue(new ProxyCommand(() -> arm.moveTo(ArmConstants.lowLevel)));
+    operatorController.bButton.onTrue(new ProxyCommand(() -> arm.moveTo(ArmConstants.midLevel)));
+    operatorController.yButton.onTrue(new ProxyCommand(() -> arm.moveTo(ArmConstants.highLevel)));
 
   }
 
@@ -174,11 +179,11 @@ public class RobotContainer {
     //Put the auto chooser on the dashboard
     driverTab.add("Auto Mode",m_AutoChooser)
        .withSize(3,1)
-       .withPosition(2,0);
+       .withPosition(0,0);
 
-    driverTab.add(drivetrain.getCamera())
-        .withSize(3,3)
-        .withPosition(1,1); //double check obtaining camera streams
+    driverTab.addCamera("limelight", "OV5647", "http://photonvision.local:1182/stream.mjpg")
+        .withSize(4,4)
+        .withPosition(3,0); //double check obtaining camera streams
 
     driverTab.addNumber("Arm Height", () -> 0)
         .withSize(1,1)
