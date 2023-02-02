@@ -73,8 +73,8 @@ public class Arm extends SubsystemBase {
    * 
    * @return the angle of the crank in degrees (0 deg. being horizontal forward)
    */
-  private double getCrankAngle(){
-    return camEncoder.getAbsolutePosition(); //Not sure if this is returning a 0-360 degrees or a 0-1 value.
+  public double getCrankAngle(){
+    return camEncoder.getAbsolutePosition() * 360; //Not sure if this is returning a 0-360 degrees or a 0-1 value.
   }
 
   /**

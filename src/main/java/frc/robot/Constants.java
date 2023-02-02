@@ -110,7 +110,7 @@ public final class Constants {
         public static final int leftArmID = 10;
         public static final int rightArmID = 11;
 
-        public static final int camEncoderDIO = 1;
+        public static final int camEncoderDIO = 7;
 
         //Kinematics values based on arm geometry.  All of this is in inches and degrees for easy comparison to CAD
         public static final double R1 = 6.125; //Crank length
