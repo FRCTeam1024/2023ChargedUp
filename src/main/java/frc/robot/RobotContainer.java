@@ -21,6 +21,7 @@ import edu.wpi.first.hal.DriverStationJNI;
 import edu.wpi.first.hal.simulation.DriverStationDataJNI;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotController;
@@ -57,7 +58,7 @@ public class RobotContainer {
 
   //Subsystems
   private final SwerveDrive drivetrain = new SwerveDrive();
-  //private final Arm arm = new Arm();
+  private final Arm arm = new Arm();
   private final EndEffector endEffector = new EndEffector();
 
   //Operator Inputs
@@ -248,6 +249,13 @@ public class RobotContainer {
     diagnosticsTab.addString("Pose", () -> drivetrain.getPose().toString())
         .withSize(2,1)
         .withPosition(7,1);
+
+    diagnosticsTab.addNumber("armEncoder", () -> arm.getCrankAngle())
+        .withSize(1,1)
+        .withPosition(0,1);
+
+    
+
 
     /**diagnosticsTab.addNumber("RobotPitch", () -> drivetrain.getPitch())
         .withSize(1,1)
