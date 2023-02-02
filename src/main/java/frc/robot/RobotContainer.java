@@ -170,6 +170,10 @@ public class RobotContainer {
     m_AutoChooser.addOption("I-4-I", new ProxyCommand(() -> I_4_I()));
     m_AutoChooser.addOption("O-1-O", new ProxyCommand(() -> O_1_O()));
     m_AutoChooser.addOption("O-2-O", new ProxyCommand(() -> O_2_O()));
+    m_AutoChooser.addOption("C-InnerRoute-Charge", new ProxyCommand(() -> C_InnerRoute_Charge()));
+    m_AutoChooser.addOption("I-Charge", new ProxyCommand(() -> I_Charge()));
+    m_AutoChooser.addOption("O-Charge", new ProxyCommand(() -> O_Charge()));
+    
 
     //Put the auto chooser on the dashboard
     driverTab.add("Auto Mode",m_AutoChooser)
