@@ -5,23 +5,34 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.sensors.CANCoder;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkMaxAbsoluteEncoder;
+import com.revrobotics.SparkMaxRelativeEncoder;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.SparkMaxRelativeEncoder.Type;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
+import edu.wpi.first.wpilibj2.command.ProxyCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class EndEffector extends SubsystemBase {
-  private final Spark neo = new Spark(Constants.EndEffectorConstants.neoID);
-  private final Spark snowblower = new Spark(Constants.EndEffectorConstants.snowblowerID);
+  private final CANSparkMax neo = new CANSparkMax(Constants.EndEffectorConstants.neoID, MotorType.kBrushed); //check if neo is brushed
+  private final CANSparkMax snowblower = new CANSparkMax(Constants.EndEffectorConstants.snowblowerID, MotorType.kBrushed);
 
-  private final CANCoder snowblowerEncoder = new CANCoder(Constants.EndEffectorConstants.snowblowerID);
+  private final RelativeEncoder snowblowerEncoder = snowblower.getEncoder(Type.kQuadrature, 8192);
 
   /** Creates a new EndEffector. */
   public EndEffector() {
     // Reset the snowblower encoder
+    snowblower.restoreFactoryDefaults();
+    snowblowerEncoder.setPositionConversionFactor(360);
   }
 
   @Override
@@ -38,57 +49,69 @@ public class EndEffector extends SubsystemBase {
       // brake intake
   }
 
+  public double getWristAngle(){
+    return snowblowerEncoder.getPosition();
+  }
+
   public void runIntake(double speed) {
     neo.set(speed);
   }
 
   public void turnWrist(double speed){
-    if(snowblowerEncoder.getAbsolutePosition() >= 90 && speed > 0){
+    if(snowblowerEncoder.getPosition() >= 90 && speed > 0){
       speed = 0;
-    }else if(snowblowerEncoder.getAbsolutePosition() <= -90 && speed < 0){
+    }else if(snowblowerEncoder.getPosition() <= -90 && speed < 0){
       speed = 0;
     }
     snowblower.set(speed);
   }
 
   public PIDCommand turnWristToAngle(double goalAngle){
-    double currentAngle = snowblowerEncoder.getAbsolutePosition();
+    double currentAngle = snowblowerEncoder.getPosition();
     double error = goalAngle - currentAngle;
     PIDController turnWristController = new PIDController(0.05, 0, 0);
-    return new PIDCommand(turnWristController, () -> snowblowerEncoder.getAbsolutePosition(), goalAngle, output -> turnWrist(output), this);
+    return new PIDCommand(turnWristController, () -> snowblowerEncoder.getPosition(), goalAngle, output -> turnWrist(output), this);
   }
 
-  public void intakeCone(boolean isForward) {
+  public SequentialCommandGroup intakeCone(boolean isForward) {
     // if isForward
       // Set snowblower (wrist) to angle
       // Run intake proper direction
       if(isForward){
-        turnWristToAngle(-90);
-        runIntake(0.5);
+        return new SequentialCommandGroup(
+          turnWristToAngle(-90),
+          new InstantCommand(() -> runIntake(0.5))
+        );
       }else{
-        turnWristToAngle(90);
-        runIntake(-0.5);
+        return new SequentialCommandGroup(
+          turnWristToAngle(90),
+          new InstantCommand(() -> runIntake(-0.5))
+        );
       }
     // else
       // Set snowblower (wrist) to angle
       // Run intake proper direction
   }
 
-  public void flipCone() {
+  public ProxyCommand flipCone() {
     //words words words
-    if(snowblowerEncoder.getAbsolutePosition() < -10){
-      turnWristToAngle(10);
-    }else if(snowblowerEncoder.getAbsolutePosition() > 10){
-      turnWristToAngle(-10);
+    if(snowblowerEncoder.getPosition() < -10){
+      return new ProxyCommand(() -> turnWristToAngle(10));
+    }else if(snowblowerEncoder.getPosition() > 10){
+      return new ProxyCommand(() -> turnWristToAngle(-10));
+    }else {
+      return new ProxyCommand(() -> turnWristToAngle(snowblowerEncoder.getPosition()));
     }
   }
 
-  public void releaseCone() {
+  public InstantCommand releaseCone() {
     // stuff stuff stuff
-    if(snowblowerEncoder.getAbsolutePosition() > 5){
-      runIntake(-0.5);
-    }else if(snowblowerEncoder.getAbsolutePosition() < 5){
-      runIntake(0.5);
+    if(snowblowerEncoder.getPosition() > 5){
+      return new InstantCommand(() -> runIntake(-0.5));
+    }else if(snowblowerEncoder.getPosition() < -5){
+      return new InstantCommand(() -> runIntake(0.5));
+    }else{
+      return new InstantCommand(() -> runIntake(0));
     }
   }
 
@@ -101,5 +124,10 @@ public class EndEffector extends SubsystemBase {
     // Code code code
     runIntake(-0.5); //assumption is being made that a positive value intakes and a negative value spits out
     //speed may need to be lowered to output more safely
+  }
+
+  public void stop(){
+    runIntake(0);
+    turnWrist(0);
   }
 }

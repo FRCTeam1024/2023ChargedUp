@@ -112,6 +112,8 @@ public final class Constants {
 
         public static final int camEncoderDIO = 7;
 
+        public static final double armGearRatio = 200; //this is what's listed in the arm engineering notebook, no idea if that's right
+
         //Kinematics values based on arm geometry.  All of this is in inches and degrees for easy comparison to CAD
         public static final double R1 = 6.125; //Crank length
         public static final double R2 = 42.4;  //Connecting rod length
@@ -122,8 +124,10 @@ public final class Constants {
         public static final double maxCrankAngle = 241.11; //degrees for horizontal forward.
 
         //random numbers for each of these levels, need to find accurate measurements later
-        public static final double highLevel = 45;
-        public static final double midLevel = 30;
-        public static final double lowLevel = 15;
+        //angles for other levels are assuming that 0 is the position where the end effector is fully stowed
+        public static final double highLevel = 90;
+        public static final double midLevel = 50;
+        public static final double lowLevel = 25;
+        public static final double stowLevel = 0;
     }
 }

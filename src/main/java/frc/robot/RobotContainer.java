@@ -123,13 +123,21 @@ public class RobotContainer {
 
     //controls for arm - could change if hand needs more buttons
     operatorController.dPadUp.whileTrue(new ProxyCommand(() -> arm.moveTo(ArmConstants.highLevel)));  //Use moveTo(ArmConstant.MaxArmAngle)
-    operatorController.dPadDown.whileTrue(new ProxyCommand(() -> arm.moveTo(0)));  //Use moveTo(ArmConstants.MinArmAngle)
+    operatorController.dPadDown.whileTrue(new ProxyCommand(() -> arm.moveTo(ArmConstants.stowLevel)));  //Use moveTo(ArmConstants.MinArmAngle)
 
-    operatorController.aButton.onTrue(new ProxyCommand(() -> arm.moveTo(0)));
+    operatorController.aButton.onTrue(new ProxyCommand(() -> arm.moveTo(ArmConstants.stowLevel)));
     operatorController.xButton.onTrue(new ProxyCommand(() -> arm.moveTo(ArmConstants.lowLevel)));
     operatorController.bButton.onTrue(new ProxyCommand(() -> arm.moveTo(ArmConstants.midLevel)));
     operatorController.yButton.onTrue(new ProxyCommand(() -> arm.moveTo(ArmConstants.highLevel)));
 
+    //need to test and see if these should be instantcommands or proxycommands, as well as if we need an automatic stop after movement
+    operatorController.dPadLeft.whileTrue(new ProxyCommand(() -> endEffector.intakeCone(true)));
+    operatorController.dPadRight.whileTrue(new ProxyCommand(() -> endEffector.intakeCone(false)));
+
+    operatorController.leftTrigger.whileTrue(new ProxyCommand(() -> endEffector.flipCone()));
+    operatorController.leftBumper.whileTrue(new ProxyCommand(() -> endEffector.releaseCone()));
+    operatorController.rightTrigger.whileTrue(new InstantCommand(() -> endEffector.intakeCube()));
+    operatorController.rightBumper.whileTrue(new InstantCommand(() -> endEffector.releaseCube()));
   }
 
    /**
