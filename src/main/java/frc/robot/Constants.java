@@ -122,8 +122,12 @@ public final class Constants {
         public static final double maxCrankAngle = 241.11; //degrees for horizontal forward.
 
         //random numbers for each of these levels, need to find accurate measurements later
-        public static final double highLevel = 45;
-        public static final double midLevel = 30;
-        public static final double lowLevel = 15;
+        public static final double highLevel = 5;
+        public static final double midLevel = -30;
+        public static final double lowLevel = -50;
+
+        public static final double kS = 0.3;
+        public static final double kV = 3;
+
     }
 }
