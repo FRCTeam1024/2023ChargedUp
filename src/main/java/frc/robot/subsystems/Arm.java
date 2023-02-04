@@ -8,7 +8,9 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
@@ -24,6 +26,7 @@ public class Arm extends SubsystemBase {
 
   private final DutyCycleEncoder camEncoder;
 
+
   /** Creates a new Arm. */
   public Arm() {
     leftArmMotor = new WPI_TalonFX(ArmConstants.leftArmID);
@@ -38,6 +41,7 @@ public class Arm extends SubsystemBase {
     rightArmMotor.setInverted(false);
 
     armMotors = new MotorControllerGroup(leftArmMotor, rightArmMotor);
+    
   }
 
   @Override
@@ -49,11 +53,10 @@ public class Arm extends SubsystemBase {
   /**
    * 
    * @param volts voltage setting for both motors, generally to be provided by the moveTo method.
+   * @param setpoint the setpoint from the profiledPID command
    */
-  public void move(double volts){
-    //leftArmMotor.set(speed);
-    //rightArmMotor.set(speed);
-    armMotors.setVoltage(volts);
+  public void move(double volts, State setpoint){
+    armMotors.setVoltage(volts + ArmConstants.kS + setpoint.velocity*ArmConstants.kV);
   }
 
   public void resetEncoder(){
@@ -125,10 +128,6 @@ public class Arm extends SubsystemBase {
     return Math.toDegrees(Math.atan((Y2-Y1)/(X2-X1)));
   }
 
-  private void moveArm(double speed){
-    armMotors.set(speed);
-  }
-
   /**
    * 
    * This method should use a trapezoid motion profile to govern the arm angle 
@@ -150,12 +149,13 @@ public class Arm extends SubsystemBase {
     //need to test what angles accurately represent each height
     */
 
-    double crankGoal = armToCrank(goalAngle);
-    double currentAngle = getCrankAngle();
-    TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(Math.PI/8,Math.PI/8);
-    TrapezoidProfile profile = new TrapezoidProfile(constraints, new TrapezoidProfile.State(crankGoal,0), new TrapezoidProfile.State(getCrankAngle(),0));
-    ProfiledPIDController crankController = new ProfiledPIDController(0.05, 0, 0, constraints);
-    return new ProfiledPIDCommand(crankController, () -> getCrankAngle(), crankGoal, (output,setpoint) -> moveArm(output), this);
+
+    //double crankGoal = armToCrank(goalAngle);
+    //double currentAngle = getCrankAngle();
+    TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(90,45); //We'll work in degrees here since the arm angle methods return degrees
+    //TrapezoidProfile profile = new TrapezoidProfile(constraints, new TrapezoidProfile.State(crankGoal,0), new TrapezoidProfile.State(getCrankAngle(),0));
+    ProfiledPIDController crankController = new ProfiledPIDController(0.5, 0, 0, constraints);
+    return new ProfiledPIDCommand(crankController, () -> getArmAngle(), goalAngle, (output,setpoint) -> move(output,setpoint), this);
   }
 
 
