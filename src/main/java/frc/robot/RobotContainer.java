@@ -198,9 +198,17 @@ public class RobotContainer {
         .withSize(4,4)
         .withPosition(3,0); //double check obtaining camera streams
 
-    driverTab.addNumber("Arm Height", () -> 0)
+    driverTab.addNumber("Arm Angle", () -> arm.getArmAngle())
         .withSize(1,1)
         .withPosition(0,1);
+
+    driverTab.addNumber("Crank Angle", () -> arm.getCrankAngle())
+        .withSize(1,1)
+        .withPosition(0,2);
+
+    driverTab.addNumber("Raw Crank Angle", () -> arm.getRawCrankAngle())
+        .withSize(1,1)
+        .withPosition(0,3);
 
     /**driverTab.addNumber("AprilTag ID", () -> drivetrain.getCamera().getBestTarget().getFiducialId())
         .withSize(1,1)

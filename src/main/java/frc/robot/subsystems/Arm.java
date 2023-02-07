@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -37,10 +38,15 @@ public class Arm extends SubsystemBase {
     leftArmMotor.configFactoryDefault();
     rightArmMotor.configFactoryDefault();
 
-    leftArmMotor.setInverted(true); //inverting the left side motor for now - may need to be switched later
-    rightArmMotor.setInverted(false);
+    leftArmMotor.setInverted(false); //inverting the left side motor for now - may need to be switched later
+    rightArmMotor.setInverted(true);
+
+    leftArmMotor.setNeutralMode(NeutralMode.Brake);
+    rightArmMotor.setNeutralMode(NeutralMode.Brake);
 
     armMotors = new MotorControllerGroup(leftArmMotor, rightArmMotor);
+    double angle = (armToCrank(-95) * 2048 * ArmConstants.armGearRatio/360);
+    rightArmMotor.setSelectedSensorPosition(227328);
     
   }
 
@@ -86,6 +92,10 @@ public class Arm extends SubsystemBase {
     return rightArmMotor.getSelectedSensorPosition() * 360 / (2048 * ArmConstants.armGearRatio);
     //     need to see left vs right motors for sensor        double check sensor units value
     //     could check if the inversion of the left motor allows us to use an average of the two values
+  }
+
+  public double getRawCrankAngle(){
+    return rightArmMotor.getSelectedSensorPosition();
   }
 
   /**
@@ -152,7 +162,7 @@ public class Arm extends SubsystemBase {
 
     //double crankGoal = armToCrank(goalAngle);
     //double currentAngle = getCrankAngle();
-    TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(90,45); //We'll work in degrees here since the arm angle methods return degrees
+    TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(45,22.5); //We'll work in degrees here since the arm angle methods return degrees
     //TrapezoidProfile profile = new TrapezoidProfile(constraints, new TrapezoidProfile.State(crankGoal,0), new TrapezoidProfile.State(getCrankAngle(),0));
     ProfiledPIDController crankController = new ProfiledPIDController(0.5, 0, 0, constraints);
     return new ProfiledPIDCommand(crankController, () -> getArmAngle(), goalAngle, (output,setpoint) -> move(output,setpoint), this);
@@ -169,4 +179,8 @@ public class Arm extends SubsystemBase {
   }
 
   */
+
+  public void resetArmAngle(){
+    rightArmMotor.setSelectedSensorPosition(armToCrank(0) * 2048 * ArmConstants.armGearRatio/360);
+  }
 }
