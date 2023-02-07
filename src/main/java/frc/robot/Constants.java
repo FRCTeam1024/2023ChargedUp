@@ -112,13 +112,13 @@ public final class Constants {
 
         public static final int camEncoderDIO = 7;
 
-        public static final double armGearRatio = 200; //this is what's listed in the arm engineering notebook, no idea if that's right
+        public static final double armGearRatio = 166.5; //this is what's listed in the arm engineering notebook, no idea if that's right
 
         //Kinematics values based on arm geometry.  All of this is in inches and degrees for easy comparison to CAD
         public static final double R1 = 6.125; //Crank length
-        public static final double R2 = 42.4;  //Connecting rod length
-        public static final double R3 = 7.49; //Connecting rod pivot to arm pivot
-        public static final double PHI = 10.4;  //Angle that connecting rod leads arm
+        public static final double R2 = 42.5;  //Connecting rod length
+        public static final double R3 = 7.25; //Connecting rod pivot to arm pivot
+        public static final double PHI = 9.1;  //Angle that connecting rod leads arm
         public static final double X3 = 18.18; // horizontal distance between crank pivot and arm pivot
         public static final double Y3 =  39.304; //vertical distance between crank pivot and arm pivot
         public static final double maxCrankAngle = 241.11; //degrees for horizontal forward.
@@ -127,9 +127,10 @@ public final class Constants {
         public static final double highLevel = 5;
         public static final double midLevel = -30;
         public static final double lowLevel = -50;
+        public static final double stowLevel = -126;//-106
 
-        public static final double kS = 0.3;
-        public static final double kV = 3;
+        public static final double kS = 0.6;//0.3
+        public static final double kV = 0.06;
 
     }
 }
