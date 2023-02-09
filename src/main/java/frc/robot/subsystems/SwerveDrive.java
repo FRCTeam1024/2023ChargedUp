@@ -45,16 +45,16 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 public class SwerveDrive extends SubsystemBase {
+  //0.3016 as magnitude for other robot
+  private final Translation2d m_ALocation = new Translation2d(0.2762, 0.2762); 
+  private final Translation2d m_BLocation = new Translation2d(-0.2762, 0.2762);
+  private final Translation2d m_CLocation = new Translation2d(-0.2762, -0.2762);
+  private final Translation2d m_DLocation = new Translation2d(0.2762, -0.2762);
 
-  private final Translation2d m_ALocation = new Translation2d(0.3016, 0.3016); 
-  private final Translation2d m_BLocation = new Translation2d(-0.3016, 0.3016);
-  private final Translation2d m_CLocation = new Translation2d(-0.3016, -0.3016);
-  private final Translation2d m_DLocation = new Translation2d(0.3016, -0.3016);
-
-  private final SwerveModule a = new SwerveModule(DriveConstants.angleMotorA, DriveConstants.driveMotorA, DriveConstants.turnEncoderA, DriveConstants.turnOffsetA, true, true, Math.PI/4);
-  private final SwerveModule b = new SwerveModule(DriveConstants.angleMotorB, DriveConstants.driveMotorB, DriveConstants.turnEncoderB, DriveConstants.turnOffsetB, true, false, 3*Math.PI/4);
-  private final SwerveModule c = new SwerveModule(DriveConstants.angleMotorC, DriveConstants.driveMotorC, DriveConstants.turnEncoderC, DriveConstants.turnOffsetC, true, false, Math.PI/4);
-  private final SwerveModule d = new SwerveModule(DriveConstants.angleMotorD, DriveConstants.driveMotorD, DriveConstants.turnEncoderD, DriveConstants.turnOffsetD, true, true, 3*Math.PI/4);
+  private final SwerveModule a = new SwerveModule(DriveConstants.angleMotorA, DriveConstants.driveMotorA, DriveConstants.turnEncoderA, DriveConstants.moduleA.turnOffset(), true, true, Math.PI/4);
+  private final SwerveModule b = new SwerveModule(DriveConstants.angleMotorB, DriveConstants.driveMotorB, DriveConstants.turnEncoderB, DriveConstants.moduleB.turnOffset(), true, false, 3*Math.PI/4);
+  private final SwerveModule c = new SwerveModule(DriveConstants.angleMotorC, DriveConstants.driveMotorC, DriveConstants.turnEncoderC, DriveConstants.moduleC.turnOffset(), true, false, Math.PI/4);
+  private final SwerveModule d = new SwerveModule(DriveConstants.angleMotorD, DriveConstants.driveMotorD, DriveConstants.turnEncoderD, DriveConstants.moduleD.turnOffset(), true, true, 3*Math.PI/4);
   
   private final Vision camera = new Vision();
 
@@ -327,8 +327,8 @@ public class SwerveDrive extends SubsystemBase {
           path,
           this::getPose, // Pose supplier
           this.getSwerveDriveKinematics(), // SwerveDriveKinematics
-          new PIDController(7.5, 0, 0), // X controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
-          new PIDController(7.5, 0, 0), // Y controller (usually the same values as X controller)
+          new PIDController(5, 0, 0.05), // X controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
+          new PIDController(5, 0, 0.05), // Y controller (usually the same values as X controller)
           new PIDController(1.5, 0, 0.005), // Rotation controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
           this::setModuleStates, // Module states consumer
           false,

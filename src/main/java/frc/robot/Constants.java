@@ -16,14 +16,16 @@ public final class Constants {
 
     public static final double PI = 3.14159;
     public static final boolean CompBot = Robot.isCompBot();
+    public static final boolean PracticeBot = Robot.isPracticeBot();
+    public static final boolean OtherBot = Robot.isOtherBot();
 
     public static final int PCMID = 3;  // CAN ID for PCM
 
     // IDs for physical input devices
     // Make sure order matches that of DriverStation
     public static final class Inputs {
-    public static final int driverControllerID = 0; // ID for Xbox/Logitech controller
-    public static final int operatorControllerID = 1;
+        public static final int driverControllerID = 0; // ID for Xbox/Logitech controller
+        public static final int operatorControllerID = 1;
     }
 
     //Swerve Drive Drivetrain Related Constants
@@ -59,12 +61,56 @@ public final class Constants {
         public static final double kMaxWheelSpeedMetersPerSecond = 2.3; //3
         public static final double kMaxAngularSpeedRadiansPerSecond = Math.PI * 2; 
 
-
-        //Turn encoder magnet offsets in degrees.  
-        public static final double turnOffsetA = 79; //May need finer adjustment on these.
+        //Turn encoder magnet offsets in degrees for swerve chassis  
+        /**public static final double turnOffsetA = 79; //May need finer adjustment on these.
         public static final double turnOffsetB = -96;
         public static final double turnOffsetC = 104;
-        public static final double turnOffsetD = -52;
+        public static final double turnOffsetD = -52;*/
+
+        public static final class moduleA {
+            public static final double otherTurnOffset = 79; //May need finer adjustment on these.
+            public static final double practiceTurnOffset = -57; //May need finer adjustment on these.
+            public static final double compTurnOffset = 0;
+
+            public static double turnOffset() {
+                return (CompBot) ? compTurnOffset : (PracticeBot ? practiceTurnOffset : otherTurnOffset);
+            }
+        }
+
+        public static final class moduleB {
+            public static final double otherTurnOffset = -96; //May need finer adjustment on these.
+            public static final double practiceTurnOffset = 53; //May need finer adjustment on these.
+            public static final double compTurnOffset = 0;
+
+            public static double turnOffset() {
+                return (CompBot) ? compTurnOffset : (PracticeBot ? practiceTurnOffset : otherTurnOffset);
+            }
+        }
+
+        public static final class moduleC {
+            public static final double otherTurnOffset = 104; //May need finer adjustment on these.
+            public static final double practiceTurnOffset = -14; //May need finer adjustment on these.
+            public static final double compTurnOffset = 0;
+
+            public static double turnOffset() {
+                return (CompBot) ? compTurnOffset : (PracticeBot ? practiceTurnOffset : otherTurnOffset);
+            }
+        }
+        
+        public static final class moduleD {
+            public static final double otherTurnOffset = -52; //May need finer adjustment on these.
+            public static final double practiceTurnOffset = 18; //May need finer adjustment on these.
+            public static final double compTurnOffset = 0;
+
+            public static double turnOffset() {
+                return (CompBot) ? compTurnOffset : (PracticeBot ? practiceTurnOffset : otherTurnOffset);
+            }
+        }
+
+        /*public static final double turnOffsetA = -57; //May need finer adjustment on these.
+        public static final double turnOffsetB = 53;
+        public static final double turnOffsetC = -14;
+        public static final double turnOffsetD = 18;*/
 
         //CAN IDs
         public static final int gyroID = 1;
@@ -126,8 +172,8 @@ public final class Constants {
         //random numbers for each of these levels, need to find accurate measurements later
         public static final double highLevel = 5;
         public static final double midLevel = -30;
-        public static final double lowLevel = -50;
-        public static final double stowLevel = -126;//-106
+        public static final double lowLevel = -80;
+        public static final double stowLevel = -116;//-106
 
         public static final double kS = 0.6;//0.3
         public static final double kV = 0.06;

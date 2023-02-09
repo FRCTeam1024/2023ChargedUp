@@ -27,7 +27,8 @@ public class Arm extends SubsystemBase {
 
   private final DutyCycleEncoder camEncoder;
 
-
+  private State goal = new State(-1,-1);
+  private double voltage = -1;
   /** Creates a new Arm. */
   public Arm() {
     leftArmMotor = new WPI_TalonFX(ArmConstants.leftArmID);
@@ -46,7 +47,7 @@ public class Arm extends SubsystemBase {
 
     armMotors = new MotorControllerGroup(leftArmMotor, rightArmMotor);
     double angle = (armToCrank(-95) * 2048 * ArmConstants.armGearRatio/360);
-    rightArmMotor.setSelectedSensorPosition(227328);
+    rightArmMotor.setSelectedSensorPosition(0);
     
   }
 
@@ -62,6 +63,8 @@ public class Arm extends SubsystemBase {
    * @param setpoint the setpoint from the profiledPID command
    */
   public void move(double volts, State setpoint){
+    goal = setpoint;
+    voltage = (volts + ArmConstants.kS + setpoint.velocity*ArmConstants.kV);
     armMotors.setVoltage(volts + ArmConstants.kS + setpoint.velocity*ArmConstants.kV);
   }
 
@@ -89,13 +92,14 @@ public class Arm extends SubsystemBase {
    */
   public double getCrankAngle(){
     //return camEncoder.getAbsolutePosition() * 360; //Not sure if this is returning a 0-360 degrees or a 0-1 value.
-    return rightArmMotor.getSelectedSensorPosition() * 360 / (2048 * ArmConstants.armGearRatio);
+    return (rightArmMotor.getSelectedSensorPosition() + 227328) * 360 / (2048 * ArmConstants.armGearRatio);
     //     need to see left vs right motors for sensor        double check sensor units value
     //     could check if the inversion of the left motor allows us to use an average of the two values
   }
 
   public double getRawCrankAngle(){
     return rightArmMotor.getSelectedSensorPosition();
+    //227328 added in code
   }
 
   /**
@@ -182,5 +186,13 @@ public class Arm extends SubsystemBase {
 
   public void resetArmAngle(){
     rightArmMotor.setSelectedSensorPosition(armToCrank(0) * 2048 * ArmConstants.armGearRatio/360);
+  }
+
+  public double getGoalVelocity(){
+    return goal.velocity;
+  }
+
+  public double getVoltage(){
+    return voltage;
   }
 }

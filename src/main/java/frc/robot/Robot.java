@@ -38,8 +38,11 @@ public class Robot extends TimedRobot {
 
   private RobotContainer m_robotContainer;
 
-  private final DigitalInput compBotJumper = new DigitalInput(9);
+  private final DigitalInput otherBotJumper = new DigitalInput(9);
   private static boolean compBotState;
+  private static boolean otherBotState;
+  private final DigitalInput practiceBotJumper = new DigitalInput(8);
+  private static boolean practiceBotState;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -63,10 +66,25 @@ public class Robot extends TimedRobot {
     }
 
     // Check whether the current robot is the competition robot or the practice robot:
-    if(compBotJumper.get() == false) {
-      compBotState = false;
+    if(otherBotJumper.get() == false) {
+      otherBotState = false;
     } else {
+      otherBotState = true;
+    }
+    if(practiceBotJumper.get() == false){
+      practiceBotState = false;
+    } else {
+      practiceBotState = true;
+    }
+    if(!otherBotState && !practiceBotState){
       compBotState = true;
+    }else if(otherBotState && practiceBotState){
+      System.out.println("\n\n\n\n\n ROBOT IS IN QUANTUM SUPERPOSITION STATE: BOTH PRACTICE AND COMP BOT\n   INITIALIZING TO COMP BOT STATE\n\n\n\n\n");
+      practiceBotState = false;
+      otherBotState = false;
+      compBotState = true;
+    }else{
+      compBotState = false;
     }
 
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
@@ -154,5 +172,13 @@ public class Robot extends TimedRobot {
   */
   public static boolean isCompBot() {
     return compBotState;
+  }
+
+  public static boolean isPracticeBot(){
+    return practiceBotState;
+  }
+
+  public static boolean isOtherBot(){
+    return otherBotState;
   }
 }

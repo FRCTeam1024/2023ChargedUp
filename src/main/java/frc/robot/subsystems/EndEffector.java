@@ -23,7 +23,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class EndEffector extends SubsystemBase {
-  private final CANSparkMax neo = new CANSparkMax(Constants.EndEffectorConstants.neoID, MotorType.kBrushed); //check if neo is brushed
+  private final CANSparkMax neo = new CANSparkMax(Constants.EndEffectorConstants.neoID, MotorType.kBrushless); //check if neo is brushed
   private final CANSparkMax snowblower = new CANSparkMax(Constants.EndEffectorConstants.snowblowerID, MotorType.kBrushed);
 
   private final RelativeEncoder snowblowerEncoder = snowblower.getEncoder(Type.kQuadrature, 8192);
@@ -32,6 +32,9 @@ public class EndEffector extends SubsystemBase {
   public EndEffector() {
     // Reset the snowblower encoder
     snowblower.restoreFactoryDefaults();
+    neo.restoreFactoryDefaults();
+    neo.setSmartCurrentLimit(25);//limit is set to 10 amps, no idea if this is good or not
+    neo.setSecondaryCurrentLimit(25);
     snowblowerEncoder.setPositionConversionFactor(360);
   }
 
@@ -54,7 +57,8 @@ public class EndEffector extends SubsystemBase {
   }
 
   public void runIntake(double speed) {
-    neo.set(speed);
+    double voltage = speed * 12;
+    neo.setVoltage(voltage);
   }
 
   public void turnWrist(double speed){

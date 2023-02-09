@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 import javax.swing.plaf.ComponentInputMapUIResource;
@@ -36,9 +37,11 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.AutoAlignAprilTag;
 import frc.robot.commands.AutoBalance;
 import frc.robot.commands.AutoMoveToAprilTag;
@@ -137,7 +140,9 @@ public class RobotContainer {
     operatorController.leftTrigger.whileTrue(new ProxyCommand(() -> endEffector.flipCone()));
     operatorController.leftBumper.whileTrue(new ProxyCommand(() -> endEffector.releaseCone()));
     operatorController.rightTrigger.whileTrue(new InstantCommand(() -> endEffector.intakeCube()));
+    operatorController.rightTrigger.onFalse(new InstantCommand(() -> endEffector.stop()));
     operatorController.rightBumper.whileTrue(new InstantCommand(() -> endEffector.releaseCube()));
+    operatorController.rightBumper.onFalse(new InstantCommand(() -> endEffector.stop()));
   }
 
    /**
@@ -234,7 +239,11 @@ public class RobotContainer {
         .withSize(1,1)
         .withPosition(6,1);
 
-    diagnosticsTab.addNumber("Robot Yaw", () -> drivetrain.getYawDegrees())
+      diagnosticsTab.addBoolean("Is Practice Bot", () -> Constants.PracticeBot)
+        .withSize(1,1)
+        .withPosition(4,1);
+
+    /**diagnosticsTab.addNumber("Robot Yaw", () -> drivetrain.getYawDegrees())
         .withSize(1,1)
         .withPosition(0,0);
 
@@ -269,13 +278,19 @@ public class RobotContainer {
 
     diagnosticsTab.addString("Pose", () -> drivetrain.getPose().toString())
         .withSize(2,1)
-        .withPosition(7,1);
+        .withPosition(7,1); */
 
-    diagnosticsTab.addNumber("armEncoder", () -> arm.getCrankAngle())
+    diagnosticsTab.addNumber("CrankAngle", () -> arm.getCrankAngle())
         .withSize(1,1)
-        .withPosition(0,1);
+        .withPosition(1,1);
 
-    
+    diagnosticsTab.addNumber("GoalVelocity", () -> arm.getGoalVelocity())
+        .withSize(1,1)
+        .withPosition(3,1);
+
+    diagnosticsTab.addNumber("ArmVoltage", () -> arm.getVoltage())
+        .withSize(1,1)
+        .withPosition(5,1);
 
 
     /**diagnosticsTab.addNumber("RobotPitch", () -> drivetrain.getPitch())
@@ -442,9 +457,24 @@ public class RobotContainer {
   }
 
   private Command O_1_O(){
-    PathPlannerTrajectory path = PathPlanner.loadPath("O-1-O", new PathConstraints(1,1));
+    //PathPlannerTrajectory path = PathPlanner.loadPath("O-1-O", new PathConstraints(1,1));
+    List<PathPlannerTrajectory> path = PathPlanner.loadPathGroup("O-1-O", new PathConstraints(2,2), new PathConstraints(2,2));
     return new SequentialCommandGroup(
-      drivetrain.followTrajectory(path)
+      new ParallelDeadlineGroup(
+        drivetrain.followTrajectory(path.get(0)),
+        new ProxyCommand(() -> arm.moveTo(ArmConstants.lowLevel))
+      ),
+      new PrintCommand("Finished first path"),
+      /**new InstantCommand(() -> endEffector.intakeCube()),
+      new WaitCommand(0.1),
+      new InstantCommand(() -> endEffector.stop()),*/
+      new ParallelCommandGroup(
+        drivetrain.followTrajectory(path.get(1)),
+        new PrintCommand(path.get(1).getEndState().toString())
+      )
+      /**new InstantCommand(() -> endEffector.releaseCube()),
+      new WaitCommand(0.1),
+      new InstantCommand(() -> endEffector.stop())*/
     );
   }
 
