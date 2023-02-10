@@ -38,10 +38,10 @@ public class Robot extends TimedRobot {
 
   private RobotContainer m_robotContainer;
 
-  private final DigitalInput otherBotJumper = new DigitalInput(9);
+  private final DigitalInput otherBotJumper = new DigitalInput(8);
   private static boolean compBotState;
   private static boolean otherBotState;
-  private final DigitalInput practiceBotJumper = new DigitalInput(8);
+  private final DigitalInput practiceBotJumper = new DigitalInput(9);
   private static boolean practiceBotState;
 
   /**
@@ -66,15 +66,16 @@ public class Robot extends TimedRobot {
     }
 
     // Check whether the current robot is the competition robot or the practice robot:
+    // FALSE from the DIO means the jumper is present.
     if(otherBotJumper.get() == false) {
-      otherBotState = false;
-    } else {
       otherBotState = true;
+    } else {
+      otherBotState = false;
     }
     if(practiceBotJumper.get() == false){
-      practiceBotState = false;
-    } else {
       practiceBotState = true;
+    } else {
+      practiceBotState = false;
     }
     if(!otherBotState && !practiceBotState){
       compBotState = true;
