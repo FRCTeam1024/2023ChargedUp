@@ -52,15 +52,23 @@ public class EndEffector extends SubsystemBase {
       // brake intake
   }
 
+
   public double getWristAngle(){
     return snowblowerEncoder.getPosition();
   }
 
+  /**
+   * Sets intake motor to a specific voltage
+   * @param speed - a double between 0 and 1, representing the speed that we want the motor to run at
+   */
   public void runIntake(double speed) {
     double voltage = speed * 12;
     neo.setVoltage(voltage);
   }
-
+  /**
+   * Turns the wrist mechanism at the input speed, but ideally will automatically stop it if the wrist has moved beyond its limits.
+   * @param speed  - a double between 0 and 1, representing the speed that we want the wrist to turn at
+   */
   public void turnWrist(double speed){
     if(snowblowerEncoder.getPosition() >= 90 && speed > 0){
       speed = 0;
@@ -70,6 +78,11 @@ public class EndEffector extends SubsystemBase {
     snowblower.set(speed);
   }
 
+  /**
+   * Automatically turns the wrist to a specified angle.
+   * @param goalAngle - input angle that the wrist should turn to
+   * @return a PIDCommand for usage with controllers and auto routines
+   */
   public PIDCommand turnWristToAngle(double goalAngle){
     double currentAngle = snowblowerEncoder.getPosition();
     double error = goalAngle - currentAngle;
@@ -77,6 +90,11 @@ public class EndEffector extends SubsystemBase {
     return new PIDCommand(turnWristController, () -> snowblowerEncoder.getPosition(), goalAngle, output -> turnWrist(output), this);
   }
 
+  /**
+   * More complex command that should automatically intake a cone based on input orientation
+   * @param isForward - true if cone is facing forward (point is away from robot), false if reversed
+   * @return SeqeuntialCommandGroup for usage with controllers and auto routines
+   */
   public SequentialCommandGroup intakeCone(boolean isForward) {
     // if isForward
       // Set snowblower (wrist) to angle
@@ -96,7 +114,11 @@ public class EndEffector extends SubsystemBase {
       // Set snowblower (wrist) to angle
       // Run intake proper direction
   }
-
+  /**
+   * If the cone is pointed forwards (and wrist pointed backwards), this command flips the wrist forwards
+   * to put the cone upright. Otherwise, it flips the wrist backwards to put a reversed cone upright.
+   * @return ProxyCommand
+   */
   public ProxyCommand flipCone() {
     //words words words
     if(snowblowerEncoder.getPosition() < -10){
@@ -108,6 +130,11 @@ public class EndEffector extends SubsystemBase {
     }
   }
 
+  /**
+   * If the wrist is pointed forwards, it reverses the intake to release a cone,
+   * and if the wrist is pointed backwards, it runs the intake forwards to release.
+   * @return InstantCommand
+   */
   public InstantCommand releaseCone() {
     // stuff stuff stuff
     if(snowblowerEncoder.getPosition() > 5){
@@ -119,17 +146,26 @@ public class EndEffector extends SubsystemBase {
     }
   }
 
+  /**
+   * Runs the intake forwards to intake a cube
+   */
   public void intakeCube() {
     // blah blah blah
     runIntake(0.5); //assumption is being made that a positive value intakes and a negative value spits out
   }
 
+  /**
+   * Runs the intake backwards to release a cube
+   */
   public void releaseCube() {
     // Code code code
     runIntake(-0.5); //assumption is being made that a positive value intakes and a negative value spits out
     //speed may need to be lowered to output more safely
   }
 
+  /**
+   * Stops all motors on the end effector.
+   */
   public void stop(){
     runIntake(0);
     turnWrist(0);

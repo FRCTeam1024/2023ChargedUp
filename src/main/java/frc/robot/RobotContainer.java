@@ -194,26 +194,31 @@ public class RobotContainer {
     m_AutoChooser.addOption("O-Charge", new ProxyCommand(() -> O_Charge()));
     
 
-    //Put the auto chooser on the dashboard
+    //Puts the auto chooser on the dashboard
     driverTab.add("Auto Mode",m_AutoChooser)
        .withSize(3,1)
        .withPosition(0,0);
 
+    //Adds the limelight camera feed
     driverTab.addCamera("limelight", "OV5647", "http://photonvision.local:1182/stream.mjpg")
         .withSize(4,4)
-        .withPosition(3,0); //double check obtaining camera streams
+        .withPosition(3,0); 
+
+    driverTab.add("Arm Camera", arm.getFeed())
+        .withSize(3,3)
+        .withPosition(0,1);
 
     driverTab.addNumber("Arm Angle", () -> arm.getArmAngle())
         .withSize(1,1)
-        .withPosition(0,1);
+        .withPosition(7,0);
 
     driverTab.addNumber("Crank Angle", () -> arm.getCrankAngle())
         .withSize(1,1)
-        .withPosition(0,2);
+        .withPosition(7,1);
 
     driverTab.addNumber("Raw Crank Angle", () -> arm.getRawCrankAngle())
         .withSize(1,1)
-        .withPosition(0,3);
+        .withPosition(7,2);
 
     /**driverTab.addNumber("AprilTag ID", () -> drivetrain.getCamera().getBestTarget().getFiducialId())
         .withSize(1,1)
@@ -223,6 +228,7 @@ public class RobotContainer {
         .withSize(1,1)
         .withPosition(0,3);*/
 
+    //Swerve module angles A-D
     diagnosticsTab.addNumber("SwerveModule A Angle", () -> drivetrain.getAngleRad(1))
         .withSize(1,1)
         .withPosition(5,0);
@@ -239,6 +245,7 @@ public class RobotContainer {
         .withSize(1,1)
         .withPosition(6,1);
 
+      //Tells if it is practice bot for different swevrve module offsets
       diagnosticsTab.addBoolean("Is Practice Bot", () -> Constants.PracticeBot)
         .withSize(1,1)
         .withPosition(4,1);
@@ -307,7 +314,7 @@ public class RobotContainer {
 
     driverTab.addNumber("Battery Voltage", () -> RobotController.getBatteryVoltage())
         .withSize(1,1)
-        .withPosition(1,3);
+        .withPosition(7,3);
   }
 
   /**
@@ -323,7 +330,7 @@ public class RobotContainer {
   public Command returnAutoCommand(){
     return drivetrain.followTrajectory(PathPlanner.loadPath("Test Path", new PathConstraints(2.5, 2.5)));
   }
-
+  // Test path that moves in a straight line and back, while turning
   private Command TestAuto(){
     PathPlannerTrajectory path = PathPlanner.loadPath("Test Path", new PathConstraints(2.5, 2.5));
     return new SequentialCommandGroup(
@@ -345,6 +352,7 @@ public class RobotContainer {
   }
 
   //Attempting to pass auto into a separate command has not worked, even with the exact same arguments
+  // Test path that moves into a circle
   private Command TestAuto2(){
     PathPlannerTrajectory path = PathPlanner.loadPath("Circle Path", new PathConstraints(1, 1));
     return new SequentialCommandGroup(
@@ -352,7 +360,7 @@ public class RobotContainer {
       new InstantCommand(() -> drivetrain.defenseMode())
     );
   }
-
+  //Initial test of just driving on to the charging station and running auto balance
   private Command TestAutoBalance(){
     PathPlannerTrajectory path = PathPlanner.loadPath("AutoBalanceTest", new PathConstraints(2.5, 2.5));
     return new SequentialCommandGroup(
@@ -374,6 +382,7 @@ public class RobotContainer {
     );
   }
 
+  //Moves from the center grid, on to the charge station, then attempts to auto balance
   private Command C_Charge(){
     PathPlannerTrajectory path = PathPlanner.loadPath("C_Charge", new PathConstraints(1, 1));
     return new SequentialCommandGroup(
@@ -383,6 +392,7 @@ public class RobotContainer {
     );
   }
 
+  //Moves from center grid onto and over the charge station, and then moves directly back onto the charge station to auto balance
   private Command C_Cross_Charge(){
     PathPlannerTrajectory path = PathPlanner.loadPath("C-Cross-Charge", new PathConstraints(1.5,1.5));
     return new SequentialCommandGroup(
@@ -391,6 +401,7 @@ public class RobotContainer {
     );
   }
 
+  // Moves from center grid, to the first cube, picks it up, and then moves to the outer grid to score it.
   private Command C_1_O(){
     PathPlannerTrajectory path = PathPlanner.loadPath("C-1-O", new PathConstraints(2,2));
     return new SequentialCommandGroup(
@@ -398,27 +409,28 @@ public class RobotContainer {
     );
   }
 
+  // Moves from center grid, to the second cube, picks it up, and then moves to the outer grid to score it.
   private Command C_2_O(){
     PathPlannerTrajectory path = PathPlanner.loadPath("C-2-O", new PathConstraints(1,1));
     return new SequentialCommandGroup(
       drivetrain.followTrajectory(path)
     );
   }
-
+  // Moves from center grid, to the third cube, picks it up, and then moves to the inner grid to score it.
   private Command C_3_I(){
     PathPlannerTrajectory path = PathPlanner.loadPath("C-3-I", new PathConstraints(1,1));
     return new SequentialCommandGroup(
       drivetrain.followTrajectory(path)
     );
   }
-
+  // Moves from center grid, to the fourth cube, picks it up, and then moves to the inner grid to score it.
   private Command C_4_I(){
     PathPlannerTrajectory path = PathPlanner.loadPath("C-4-I", new PathConstraints(2,2));
     return new SequentialCommandGroup(
       drivetrain.followTrajectory(path)
     );
   }
-
+  // Moves from the center grid, towards the inner grid, and then proceeds to go all the way around, drives up onto the charge station and auto balances.
   private Command C_InnerRoute_Charge(){
     PathPlannerTrajectory path = PathPlanner.loadPath("C-InnerRoute-Charge", new PathConstraints(1,1));
     return new SequentialCommandGroup(
@@ -426,7 +438,7 @@ public class RobotContainer {
       new AutoBalance(drivetrain)
     );
   }
-
+  // Moves from the center grid, towards the outer grid, and then proceeds to go all the way around, drives up onto the charge station and auto balances.
   private Command C_OuterRoute_Charge(){
     PathPlannerTrajectory path = PathPlanner.loadPath("C-OuterRoute-Charge", new PathConstraints(1.5,1.5));
     return new SequentialCommandGroup(
@@ -434,28 +446,28 @@ public class RobotContainer {
       new AutoBalance(drivetrain)
     );
   }
-
+  // Moves from inner grid, to the third cube, picks it up, and then moves back to the inner grid to score it.
   private Command I_3_I(){
     PathPlannerTrajectory path = PathPlanner.loadPath("I-3-I", new PathConstraints(2,2));
     return new SequentialCommandGroup(
       drivetrain.followTrajectory(path)
     );
   }
-
+  // Moves from inner grid, to the third cube, picks it up, and then moves back to the inner grid to score it.
   private Command I_4_I(){
     PathPlannerTrajectory path = PathPlanner.loadPath("I-4-I", new PathConstraints(2,2));
     return new SequentialCommandGroup(
       drivetrain.followTrajectory(path)
     );
   }
-
+  // Moves from the inner grid, goes around the side, and then moves up onto the charge station to auto balance
   private Command I_Charge(){
     PathPlannerTrajectory path = PathPlanner.loadPath("I-Charge", new PathConstraints(1,1));
     return new SequentialCommandGroup(
       drivetrain.followTrajectory(path)
     );
   }
-
+  // Moves from outer grid, to the first cube, picks it up, and then moves back to the outer grid to score it.
   private Command O_1_O(){
     //PathPlannerTrajectory path = PathPlanner.loadPath("O-1-O", new PathConstraints(1,1));
     List<PathPlannerTrajectory> path = PathPlanner.loadPathGroup("O-1-O", new PathConstraints(2,2), new PathConstraints(2,2));
@@ -477,14 +489,14 @@ public class RobotContainer {
       new InstantCommand(() -> endEffector.stop())*/
     );
   }
-
+  // Moves from outer grid, to the second cube, picks it up, and then moves back to the outer grid to score it.
   private Command O_2_O(){
     PathPlannerTrajectory path = PathPlanner.loadPath("O-2-O", new PathConstraints(1,1));
     return new SequentialCommandGroup(
       drivetrain.followTrajectory(path)
     );
   }
-
+  // Moves from the outer grid, goes around the side, then goes onto the charge station to auto balance
   private Command O_Charge(){
     PathPlannerTrajectory path = PathPlanner.loadPath("O_Charge", new PathConstraints(1,1));
     return new SequentialCommandGroup(

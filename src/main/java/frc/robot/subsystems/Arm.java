@@ -7,6 +7,8 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -20,6 +22,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
 
 public class Arm extends SubsystemBase {
+
+  private final UsbCamera armCamera;
 
   private final WPI_TalonFX leftArmMotor;
   private final WPI_TalonFX rightArmMotor;
@@ -48,6 +52,8 @@ public class Arm extends SubsystemBase {
     armMotors = new MotorControllerGroup(leftArmMotor, rightArmMotor);
     double angle = (armToCrank(-95) * 2048 * ArmConstants.armGearRatio/360);
     rightArmMotor.setSelectedSensorPosition(0);
+
+    armCamera = CameraServer.startAutomaticCapture();
     
   }
 
@@ -194,5 +200,9 @@ public class Arm extends SubsystemBase {
 
   public double getVoltage(){
     return voltage;
+  }
+
+  public UsbCamera getFeed(){
+    return armCamera;
   }
 }
