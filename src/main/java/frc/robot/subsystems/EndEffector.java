@@ -22,10 +22,18 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
+/**
+ * Check if switch is set correctly on encoder
+ * test current code with fudge factor to keep encoder in range.
+ * Maybe add periodic thing that checks if encoder has gone past 0 to overflow, and then autocorrects itself.
+ */
+
 public class EndEffector extends SubsystemBase {
   private final CANSparkMax neo = new CANSparkMax(Constants.EndEffectorConstants.neoID, MotorType.kBrushless); //check if neo is brushed
   private final CANSparkMax snowblower = new CANSparkMax(Constants.EndEffectorConstants.snowblowerID, MotorType.kBrushed);
 
+
+  //private final SparkMaxAbsoluteEncoder absoluteEncoder = snowblower.getAbsoluteEncoder(SparkMaxAbsoluteEncoder.Type.kDutyCycle);
   private final RelativeEncoder snowblowerEncoder = snowblower.getEncoder(Type.kQuadrature, 8192);
 
   /** Creates a new EndEffector. */
@@ -35,13 +43,17 @@ public class EndEffector extends SubsystemBase {
     neo.restoreFactoryDefaults();
     neo.setSmartCurrentLimit(25);//limit is set to 10 amps, no idea if this is good or not
     neo.setSecondaryCurrentLimit(25);
-    snowblowerEncoder.setPositionConversionFactor(360);
+    snowblowerEncoder.setPositionConversionFactor(1);
+    snowblowerEncoder.setPosition(2.667);
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
 
+    /**if(snowblowerEncoder.getPosition() >= 6){
+      snowblowerEncoder.setPosition(2.667);
+    }*/
     // If snowblowerSpeed > 0 and encoder >= maxAngle
       // brake intake
     // else if snowblowerSpeed < 0 and encoder <= minAngle
@@ -54,8 +66,30 @@ public class EndEffector extends SubsystemBase {
 
 
   public double getWristAngle(){
-    return snowblowerEncoder.getPosition();
+    //getPosition() returns rotations of motor, which is identical to rotations of encoder since mirrored gearing
+    //Rotations of motor * gear ratio (1/2.667) = rotations of wrist
+    //rotations of wrist * 360 = degrees
+
+    /**
+     * Encoder count seems to max out at 4,500,000
+     * 4500000 / 8192 = 549.31640625
+     * Hence the encoder maxes out number of revolutions at 549.31640625
+     * If set the initial position to 2.667, and then subtract 2.667 from all positions for the return number, 
+     * we can get numbers between (2.667,-2.667), so we divide by 2.667 to get from rotations of the motor to rotations of wrist
+     */
+    return ((snowblowerEncoder.getPosition() - 2.667) * 180 / 2.667);
   }
+
+  /**public double getConsolidatedAngle(){
+    //On boot up, relative encoder will read its current position as 0. (Double check this)
+    //Relative encoder reading should be added to absolute encoder reading in order to get a more accurate measurement
+    return (getWristAngle() + getAbsoluteAngle()); //Maybe, idk exactly what the relative encoder is actually doing
+    //return ((getWristAngle() + getAbsoluteAngle())%180);
+  }*/
+
+  /**public double getAbsoluteAngle(){
+    return absoluteEncoder.getPosition(); //check what exactly this returns - rotations vs degrees
+  }*/
 
   /**
    * Sets intake motor to a specific voltage
@@ -67,14 +101,14 @@ public class EndEffector extends SubsystemBase {
   }
   /**
    * Turns the wrist mechanism at the input speed, but ideally will automatically stop it if the wrist has moved beyond its limits.
-   * @param speed  - a double between 0 and 1, representing the speed that we want the wrist to turn at
+   * @param speed - a double between 0 and 1, representing the speed that we want the wrist to turn at
    */
   public void turnWrist(double speed){
-    if(snowblowerEncoder.getPosition() >= 90 && speed > 0){
+    /**if(snowblowerEncoder.getPosition() >= 120 && speed > 0){ //double check that angle and speed match up correctly
       speed = 0;
-    }else if(snowblowerEncoder.getPosition() <= -90 && speed < 0){
+    }else if(snowblowerEncoder.getPosition() <= -120 && speed < 0){
       speed = 0;
-    }
+    }*/
     snowblower.set(speed);
   }
 
@@ -84,7 +118,7 @@ public class EndEffector extends SubsystemBase {
    * @return a PIDCommand for usage with controllers and auto routines
    */
   public PIDCommand turnWristToAngle(double goalAngle){
-    double currentAngle = snowblowerEncoder.getPosition();
+    double currentAngle = getWristAngle();
     double error = goalAngle - currentAngle;
     PIDController turnWristController = new PIDController(0.05, 0, 0);
     return new PIDCommand(turnWristController, () -> snowblowerEncoder.getPosition(), goalAngle, output -> turnWrist(output), this);

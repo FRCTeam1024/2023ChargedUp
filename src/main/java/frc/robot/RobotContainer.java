@@ -134,11 +134,13 @@ public class RobotContainer {
     operatorController.yButton.onTrue(new ProxyCommand(() -> arm.moveTo(ArmConstants.highLevel)));
 
     //need to test and see if these should be instantcommands or proxycommands, as well as if we need an automatic stop after movement
-    operatorController.dPadLeft.whileTrue(new ProxyCommand(() -> endEffector.intakeCone(true)));
-    operatorController.dPadRight.whileTrue(new ProxyCommand(() -> endEffector.intakeCone(false)));
+    operatorController.dPadLeft.whileTrue(new InstantCommand(() -> endEffector.turnWrist(0.3)));
+    operatorController.dPadLeft.onFalse(new InstantCommand(() -> endEffector.stop()));
+    operatorController.dPadRight.whileTrue(new InstantCommand(() -> endEffector.turnWrist(-0.3)));
+    operatorController.dPadRight.onFalse(new InstantCommand(() -> endEffector.stop()));
 
-    operatorController.leftTrigger.whileTrue(new ProxyCommand(() -> endEffector.flipCone()));
-    operatorController.leftBumper.whileTrue(new ProxyCommand(() -> endEffector.releaseCone()));
+    //operatorController.leftTrigger.whileTrue(new ProxyCommand(() -> endEffector.flipCone()));
+    //operatorController.leftBumper.whileTrue(new ProxyCommand(() -> endEffector.releaseCone()));
     operatorController.rightTrigger.whileTrue(new InstantCommand(() -> endEffector.intakeCube()));
     operatorController.rightTrigger.onFalse(new InstantCommand(() -> endEffector.stop()));
     operatorController.rightBumper.whileTrue(new InstantCommand(() -> endEffector.releaseCube()));
@@ -249,6 +251,14 @@ public class RobotContainer {
       diagnosticsTab.addBoolean("Is Practice Bot", () -> Constants.PracticeBot)
         .withSize(1,1)
         .withPosition(4,1);
+
+    diagnosticsTab.addNumber("Wrist Angle", () -> endEffector.getWristAngle())
+        .withSize(1,1)
+        .withPosition(2,3);
+
+    /**diagnosticsTab.addNumber("AbsoluteAngle", () -> endEffector.getAbsoluteAngle())
+        .withSize(1,1)
+        .withPosition(3,3);*/
 
     /**diagnosticsTab.addNumber("Robot Yaw", () -> drivetrain.getYawDegrees())
         .withSize(1,1)
@@ -387,7 +397,14 @@ public class RobotContainer {
     PathPlannerTrajectory path = PathPlanner.loadPath("C_Charge", new PathConstraints(1, 1));
     return new SequentialCommandGroup(
       new PrintCommand("\n\n" + path.getEndState().toString() + "\n\n"),
-      drivetrain.followTrajectory(path),
+      arm.moveTo(ArmConstants.lowLevel),
+      new InstantCommand(() -> endEffector.releaseCube()),
+      new WaitCommand(0.5),
+      new InstantCommand(() -> endEffector.stop()),
+      new ParallelDeadlineGroup(
+        drivetrain.followTrajectory(path),
+        arm.moveTo(ArmConstants.stowLevel)
+      ),
       new AutoBalance(drivetrain)
     );
   }
@@ -396,16 +413,41 @@ public class RobotContainer {
   private Command C_Cross_Charge(){
     PathPlannerTrajectory path = PathPlanner.loadPath("C-Cross-Charge", new PathConstraints(1.5,1.5));
     return new SequentialCommandGroup(
-      drivetrain.followTrajectory(path),
+      new PrintCommand("\n\n" + path.getEndState().toString() + "\n\n"),
+      arm.moveTo(ArmConstants.lowLevel),
+      new InstantCommand(() -> endEffector.releaseCube()),
+      new WaitCommand(0.5),
+      new InstantCommand(() -> endEffector.stop()),
+      new ParallelDeadlineGroup(
+        drivetrain.followTrajectory(path),
+        arm.moveTo(ArmConstants.stowLevel)
+      ),
       new AutoBalance(drivetrain)
     );
   }
 
   // Moves from center grid, to the first cube, picks it up, and then moves to the outer grid to score it.
   private Command C_1_O(){
-    PathPlannerTrajectory path = PathPlanner.loadPath("C-1-O", new PathConstraints(2,2));
+    List<PathPlannerTrajectory> path = PathPlanner.loadPathGroup("C-1-O",
+                                      new PathConstraints(1,1),
+                                      new PathConstraints(1,1));
     return new SequentialCommandGroup(
-      drivetrain.followTrajectory(path)
+      arm.moveTo(ArmConstants.lowLevel),
+      new InstantCommand(() -> endEffector.releaseCube()),
+      new WaitCommand(0.5),
+      new InstantCommand(() -> endEffector.stop()),
+      new ParallelDeadlineGroup(
+        drivetrain.followTrajectory(path.get(0))
+      ),
+      new InstantCommand(() -> endEffector.intakeCube()),
+      new WaitCommand(0.5),
+      new InstantCommand(() -> endEffector.stop()),
+      new ParallelDeadlineGroup(
+        drivetrain.followTrajectory(path.get(1))
+      ),
+      new InstantCommand(() -> endEffector.releaseCube()),
+      new WaitCommand(0.5),
+      new InstantCommand(() -> endEffector.stop())
     );
   }
 
@@ -476,17 +518,16 @@ public class RobotContainer {
         drivetrain.followTrajectory(path.get(0)),
         new ProxyCommand(() -> arm.moveTo(ArmConstants.lowLevel))
       ),
-      new PrintCommand("Finished first path"),
-      /**new InstantCommand(() -> endEffector.intakeCube()),
+      new InstantCommand(() -> endEffector.intakeCube()),
       new WaitCommand(0.1),
-      new InstantCommand(() -> endEffector.stop()),*/
+      new InstantCommand(() -> endEffector.stop()),
       new ParallelCommandGroup(
         drivetrain.followTrajectory(path.get(1)),
         new PrintCommand(path.get(1).getEndState().toString())
-      )
-      /**new InstantCommand(() -> endEffector.releaseCube()),
+      ),
+      new InstantCommand(() -> endEffector.releaseCube()),
       new WaitCommand(0.1),
-      new InstantCommand(() -> endEffector.stop())*/
+      new InstantCommand(() -> endEffector.stop())
     );
   }
   // Moves from outer grid, to the second cube, picks it up, and then moves back to the outer grid to score it.
