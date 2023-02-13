@@ -50,7 +50,6 @@ public class Arm extends SubsystemBase {
     rightArmMotor.setNeutralMode(NeutralMode.Brake);
 
     armMotors = new MotorControllerGroup(leftArmMotor, rightArmMotor);
-    double angle = (armToCrank(-95) * 2048 * ArmConstants.armGearRatio/360);
     rightArmMotor.setSelectedSensorPosition(0);
 
     armCamera = CameraServer.startAutomaticCapture();
@@ -97,15 +96,14 @@ public class Arm extends SubsystemBase {
    * @return the angle of the crank in degrees (0 deg. being horizontal forward)
    */
   public double getCrankAngle(){
-    //return camEncoder.getAbsolutePosition() * 360; //Not sure if this is returning a 0-360 degrees or a 0-1 value.
-    return (rightArmMotor.getSelectedSensorPosition() + 227328) * 360 / (2048 * ArmConstants.armGearRatio);
+    return rightArmMotor.getSelectedSensorPosition() * 360 / (2048 * ArmConstants.armGearRatio) + 240; 
     //     need to see left vs right motors for sensor        double check sensor units value
     //     could check if the inversion of the left motor allows us to use an average of the two values
   }
 
   public double getRawCrankAngle(){
     return rightArmMotor.getSelectedSensorPosition();
-    //227328 added in code
+    //227328 added in code (adding 240 degrees instead as this is more intuitive)
   }
 
   /**
@@ -177,18 +175,6 @@ public class Arm extends SubsystemBase {
     ProfiledPIDController crankController = new ProfiledPIDController(0.5, 0, 0, constraints);
     return new ProfiledPIDCommand(crankController, () -> getArmAngle(), goalAngle, (output,setpoint) -> move(output,setpoint), this);
   }
-
-
-  /* DP: Dont think we need these 
-  public double encoderToArmAngle(double encoderAngle){
-    return (-1 * Math.sin(encoderAngle) + Math.PI * 180)/Math.PI;
-  }
-
-  public double getHeight(){
-    return Math.sin(encoderToArmAngle(encoderAngle()))*48;//48 is arbitrary length of arm, need to check for accuracy
-  }
-
-  */
 
   public void resetArmAngle(){
     rightArmMotor.setSelectedSensorPosition(armToCrank(0) * 2048 * ArmConstants.armGearRatio/360);

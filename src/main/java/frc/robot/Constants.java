@@ -61,12 +61,6 @@ public final class Constants {
         public static final double kMaxWheelSpeedMetersPerSecond = 2.3; //3
         public static final double kMaxAngularSpeedRadiansPerSecond = Math.PI * 2; 
 
-        //Turn encoder magnet offsets in degrees for swerve chassis  
-        /**public static final double turnOffsetA = 79; //May need finer adjustment on these.
-        public static final double turnOffsetB = -96;
-        public static final double turnOffsetC = 104;
-        public static final double turnOffsetD = -52;*/
-
         public static final class moduleA {
             public static final double otherTurnOffset = 79; //May need finer adjustment on these.
             public static final double practiceTurnOffset = -57; //May need finer adjustment on these.
@@ -106,11 +100,6 @@ public final class Constants {
                 return (CompBot) ? compTurnOffset : (PracticeBot ? practiceTurnOffset : otherTurnOffset);
             }
         }
-
-        /*public static final double turnOffsetA = -57; //May need finer adjustment on these.
-        public static final double turnOffsetB = 53;
-        public static final double turnOffsetC = -14;
-        public static final double turnOffsetD = 18;*/
 
         //CAN IDs
         public static final int gyroID = 1;
