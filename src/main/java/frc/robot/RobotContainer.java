@@ -396,15 +396,17 @@ public class RobotContainer {
   private Command C_Charge(){
     PathPlannerTrajectory path = PathPlanner.loadPath("C_Charge", new PathConstraints(1, 1));
     return new SequentialCommandGroup(
-      new PrintCommand("\n\n" + path.getEndState().toString() + "\n\n"),
-      arm.moveTo(ArmConstants.lowLevel),
+      new ProxyCommand(() -> arm.moveTo(-75)).withTimeout(1),
       new InstantCommand(() -> endEffector.releaseCube()),
-      new WaitCommand(0.5),
+      new WaitCommand(1),
       new InstantCommand(() -> endEffector.stop()),
       new ParallelDeadlineGroup(
         drivetrain.followTrajectory(path),
-        arm.moveTo(ArmConstants.stowLevel)
+        //arm.moveTo(ArmConstants.stowLevel) just removed for sketchy testing
+        new ProxyCommand(() -> arm.moveTo(-120)).withTimeout(1)
       ),
+      new PrintCommand("Does this finish these commands?"),
+      new InstantCommand(() -> drivetrain.defenseMode()),
       new AutoBalance(drivetrain)
     );
   }
