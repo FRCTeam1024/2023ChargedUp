@@ -10,7 +10,7 @@
         "x": 1.6439926466551282,
         "y": 5.217230767003102
       },
-      "holonomicAngle": 0,
+      "holonomicAngle": 180.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -35,7 +35,7 @@
         "x": 5.528731049875326,
         "y": 4.9923866027922426
       },
-      "holonomicAngle": 0.0,
+      "holonomicAngle": 180.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -60,7 +60,7 @@
         "x": 5.823489556717808,
         "y": 5.474284107713285
       },
-      "holonomicAngle": 141.14662565964665,
+      "holonomicAngle": 322.15,
       "isReversal": true,
       "velOverride": null,
       "isLocked": false,
@@ -82,7 +82,7 @@
         "y": 4.522234697676046
       },
       "nextControl": null,
-      "holonomicAngle": 0,
+      "holonomicAngle": 180.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,

@@ -134,9 +134,9 @@ public class RobotContainer {
     operatorController.yButton.onTrue(new ProxyCommand(() -> arm.moveTo(ArmConstants.highLevel)));
 
     //need to test and see if these should be instantcommands or proxycommands, as well as if we need an automatic stop after movement
-    operatorController.dPadLeft.whileTrue(new InstantCommand(() -> endEffector.turnWrist(0.3)));
+    operatorController.dPadLeft.whileTrue(new InstantCommand(() -> endEffector.turnWrist(0.5)));
     operatorController.dPadLeft.onFalse(new InstantCommand(() -> endEffector.stop()));
-    operatorController.dPadRight.whileTrue(new InstantCommand(() -> endEffector.turnWrist(-0.3)));
+    operatorController.dPadRight.whileTrue(new InstantCommand(() -> endEffector.turnWrist(-0.5)));
     operatorController.dPadRight.onFalse(new InstantCommand(() -> endEffector.stop()));
 
     //operatorController.leftTrigger.whileTrue(new ProxyCommand(() -> endEffector.flipCone()));
@@ -517,18 +517,21 @@ public class RobotContainer {
     List<PathPlannerTrajectory> path = PathPlanner.loadPathGroup("O-1-O", new PathConstraints(2,2), new PathConstraints(2,2));
     return new SequentialCommandGroup(
       new ParallelDeadlineGroup(
-        drivetrain.followTrajectory(path.get(0)),
-        new ProxyCommand(() -> arm.moveTo(ArmConstants.lowLevel))
+        new SequentialCommandGroup(
+          drivetrain.followTrajectory(path.get(0)),
+          new WaitCommand(1)
+        ),
+        new ProxyCommand(() -> arm.moveTo(ArmConstants.lowLevel)),
+        new InstantCommand(() -> endEffector.intakeCube())
       ),
-      new InstantCommand(() -> endEffector.intakeCube()),
-      new WaitCommand(0.1),
       new InstantCommand(() -> endEffector.stop()),
-      new ParallelCommandGroup(
+      new ParallelDeadlineGroup(
+        new WaitCommand(4),
         drivetrain.followTrajectory(path.get(1)),
-        new PrintCommand(path.get(1).getEndState().toString())
+        new ProxyCommand(() -> arm.moveTo(ArmConstants.midLevel))
       ),
       new InstantCommand(() -> endEffector.releaseCube()),
-      new WaitCommand(0.1),
+      new WaitCommand(0.5),
       new InstantCommand(() -> endEffector.stop())
     );
   }

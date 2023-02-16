@@ -161,7 +161,7 @@ public final class Constants {
         //random numbers for each of these levels, need to find accurate measurements later
         public static final double highLevel = 10;
         public static final double midLevel = -10;
-        public static final double lowLevel = -85;
+        public static final double lowLevel = -88;
         public static final double stowLevel = -110;//-106
 
         public static final double kS = 0.6;//0.3

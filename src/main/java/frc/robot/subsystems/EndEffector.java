@@ -41,8 +41,8 @@ public class EndEffector extends SubsystemBase {
     // Reset the snowblower encoder
     snowblower.restoreFactoryDefaults();
     neo.restoreFactoryDefaults();
-    neo.setSmartCurrentLimit(25);//limit is set to 10 amps, no idea if this is good or not
-    neo.setSecondaryCurrentLimit(25);
+    neo.setSmartCurrentLimit(20);//limit is set to 10 amps, no idea if this is good or not
+    neo.setSecondaryCurrentLimit(20);
     snowblowerEncoder.setPositionConversionFactor(1);
     snowblowerEncoder.setPosition(2.667);
   }
@@ -130,23 +130,17 @@ public class EndEffector extends SubsystemBase {
    * @return SeqeuntialCommandGroup for usage with controllers and auto routines
    */
   public SequentialCommandGroup intakeCone(boolean isForward) {
-    // if isForward
-      // Set snowblower (wrist) to angle
-      // Run intake proper direction
-      if(isForward){
-        return new SequentialCommandGroup(
-          turnWristToAngle(-90),
-          new InstantCommand(() -> runIntake(0.5))
-        );
-      }else{
-        return new SequentialCommandGroup(
-          turnWristToAngle(90),
-          new InstantCommand(() -> runIntake(-0.5))
-        );
-      }
-    // else
-      // Set snowblower (wrist) to angle
-      // Run intake proper direction
+    if(isForward){
+      return new SequentialCommandGroup(
+        turnWristToAngle(-90),
+        new InstantCommand(() -> runIntake(0.5))
+      );
+    }else{
+      return new SequentialCommandGroup(
+        turnWristToAngle(90),
+        new InstantCommand(() -> runIntake(-0.5))
+      );
+    }
   }
   /**
    * If the cone is pointed forwards (and wrist pointed backwards), this command flips the wrist forwards
@@ -154,7 +148,6 @@ public class EndEffector extends SubsystemBase {
    * @return ProxyCommand
    */
   public ProxyCommand flipCone() {
-    //words words words
     if(snowblowerEncoder.getPosition() < -10){
       return new ProxyCommand(() -> turnWristToAngle(10));
     }else if(snowblowerEncoder.getPosition() > 10){
@@ -170,7 +163,6 @@ public class EndEffector extends SubsystemBase {
    * @return InstantCommand
    */
   public InstantCommand releaseCone() {
-    // stuff stuff stuff
     if(snowblowerEncoder.getPosition() > 5){
       return new InstantCommand(() -> runIntake(-0.5));
     }else if(snowblowerEncoder.getPosition() < -5){
@@ -184,17 +176,14 @@ public class EndEffector extends SubsystemBase {
    * Runs the intake forwards to intake a cube
    */
   public void intakeCube() {
-    // blah blah blah
-    runIntake(0.5); //assumption is being made that a positive value intakes and a negative value spits out
+    runIntake(0.75); //assumption is being made that a positive value intakes and a negative value spits out
   }
 
   /**
    * Runs the intake backwards to release a cube
    */
   public void releaseCube() {
-    // Code code code
-    runIntake(-0.5); //assumption is being made that a positive value intakes and a negative value spits out
-    //speed may need to be lowered to output more safely
+    runIntake(-0.75); //assumption is being made that a positive value intakes and a negative value spits out
   }
 
   /**
