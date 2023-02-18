@@ -213,7 +213,7 @@ public class RobotContainer {
     driverTab.add("Arm Camera", arm.getFeed())
         .withSize(3,3)
         .withPosition(0,1)
-        .withProperties(Map.of("ROTATION", 180));
+        .withProperties(Map.of("ROTATION", "HALF"));
 
     driverTab.addNumber("Arm Angle", () -> arm.getArmAngle())
         .withSize(1,1)
@@ -315,7 +315,7 @@ public class RobotContainer {
         .withPosition(5,1);
 
 
-    /**diagnosticsTab.addNumber("RobotPitch", () -> drivetrain.getPitch())
+    diagnosticsTab.addNumber("RobotPitch", () -> drivetrain.getPitch())
         .withSize(1,1)
         .withPosition(7,1);
 
@@ -323,7 +323,7 @@ public class RobotContainer {
         .withSize(1,1)
         .withPosition(8,1);
 
-    diagnosticsTab.addNumber("Charging Station Angle", () -> drivetrain.getChargeStationAngle())
+    /**diagnosticsTab.addNumber("Charging Station Angle", () -> drivetrain.getChargeStationAngle())
         .withSize(1,1)
         .withPosition(7,3);*/
 
@@ -400,7 +400,7 @@ public class RobotContainer {
   //Moves from the center grid, on to the charge station, then attempts to auto balance
   private Command C_Charge(){
     PathPlannerTrajectory path = PathPlanner.loadPath("C_Charge", new PathConstraints(1, 1));
-    return new SequentialCommandGroup(
+    /**return new SequentialCommandGroup(
       new ProxyCommand(() -> arm.moveTo(-75)).withTimeout(1),
       new InstantCommand(() -> endEffector.releaseCube()),
       new WaitCommand(1),
@@ -413,6 +413,11 @@ public class RobotContainer {
       new PrintCommand("Does this finish these commands?"),
       new InstantCommand(() -> drivetrain.defenseMode()),
       new AutoBalance(drivetrain)
+    );*/
+    return new SequentialCommandGroup(
+      drivetrain.followTrajectory(path).withTimeout(6),
+      new AutoBalance(drivetrain),
+      new InstantCommand(() -> drivetrain.defenseMode())
     );
   }
 

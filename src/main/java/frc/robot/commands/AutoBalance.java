@@ -16,7 +16,7 @@ public class AutoBalance extends CommandBase {
   double xError;
   double yError;
   double averageError;
-  double kP = 0.03; //value that turns degrees of error into speed for swerve drive - needs to be tested
+  double kP = 0.02; //value that turns degrees of error into speed for swerve drive - needs to be tested
   double xSpeed;
   double ySpeed;
   boolean isDone = false;
@@ -45,16 +45,16 @@ public class AutoBalance extends CommandBase {
     yError = goal - pitch;
     yaw = swerve.getYawDegrees();
     averageError = (Math.cos(yaw) * xError + Math.sin(yaw) * yError);
-    if(averageError > 2){
-      xSpeed = kP * xError;
-      ySpeed = kP * yError;
+    if(xError > 2){
+      xSpeed = kP * xError * (-1);
+      ySpeed = kP * yError * (-1);
       swerve.drive(xSpeed, ySpeed, 0, false);
       //for now this just uses speed in the x direction - we can make some tweaksif need be to 
       //adjust in both the x and y directions.
       balancedCounter = 0;
-    }if(averageError < -2){
-      xSpeed = kP * xError;
-      ySpeed = kP * yError;
+    }if(xError < -2){
+      xSpeed = kP * xError * (-1);
+      ySpeed = kP * yError * (-1);
       swerve.drive(xSpeed, ySpeed, 0, false);
     }else{
       balancedCounter++;

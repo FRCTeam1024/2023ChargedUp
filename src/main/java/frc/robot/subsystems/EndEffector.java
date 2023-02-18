@@ -44,7 +44,7 @@ public class EndEffector extends SubsystemBase {
     neo.setSmartCurrentLimit(20);//limit is set to 10 amps, no idea if this is good or not
     neo.setSecondaryCurrentLimit(20);
     snowblowerEncoder.setPositionConversionFactor(1);
-    snowblowerEncoder.setPosition(2.667);
+    snowblowerEncoder.setPosition(4.889);
   }
 
   @Override
