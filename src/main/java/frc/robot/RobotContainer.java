@@ -223,7 +223,7 @@ public class RobotContainer {
         .withSize(1,1)
         .withPosition(7,1);
 
-    driverTab.addNumber("Raw Crank Angle", () -> arm.getRawCrankAngle())
+    driverTab.addNumber("Wrist Angle", () -> endEffector.getWristAngle())
         .withSize(1,1)
         .withPosition(7,2);
 
