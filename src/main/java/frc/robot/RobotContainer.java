@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import javax.swing.plaf.ComponentInputMapUIResource;
@@ -49,6 +50,7 @@ import frc.robot.commands.DriveWithJoysticks;
 import frc.robot.commands.HoldEndEffectorPosition;
 import frc.robot.commands.PathPlannerCommand;
 import frc.robot.commands.TestingPathPlannerCommand;
+import frc.robot.commands.TurnWristWithJoysticks;
 import frc.robot.oi.Logitech;
 import frc.robot.Constants.*;
 import frc.robot.subsystems.EndEffector;
@@ -75,7 +77,8 @@ public class RobotContainer {
 
   //Default Commands
   private final DriveWithJoysticks driveWithController = new DriveWithJoysticks(drivetrain, driverController, 1);
-  private final HoldEndEffectorPosition holdEndEffectorPosition = new HoldEndEffectorPosition(endEffector);
+  private final HoldEndEffectorPosition holdEndEffectorPosition = new HoldEndEffectorPosition(endEffector, operatorController);
+  private final TurnWristWithJoysticks turnWristWithJoysticks = new TurnWristWithJoysticks(endEffector, operatorController);
   //Chooser for auto
   SendableChooser<Command> m_AutoChooser = new SendableChooser<>();
 
@@ -89,7 +92,8 @@ public class RobotContainer {
 
     //Assign default commands
     drivetrain.setDefaultCommand(driveWithController);
-    endEffector.setDefaultCommand(holdEndEffectorPosition);
+    //endEffector.setDefaultCommand(holdEndEffectorPosition);
+    endEffector.setDefaultCommand(turnWristWithJoysticks);
 
     // Configure the button bindings
     configureButtonBindings();
@@ -208,7 +212,8 @@ public class RobotContainer {
 
     driverTab.add("Arm Camera", arm.getFeed())
         .withSize(3,3)
-        .withPosition(0,1);
+        .withPosition(0,1)
+        .withProperties(Map.of("ROTATION", 180));
 
     driverTab.addNumber("Arm Angle", () -> arm.getArmAngle())
         .withSize(1,1)
@@ -492,16 +497,58 @@ public class RobotContainer {
   }
   // Moves from inner grid, to the third cube, picks it up, and then moves back to the inner grid to score it.
   private Command I_3_I(){
-    PathPlannerTrajectory path = PathPlanner.loadPath("I-3-I", new PathConstraints(2,2));
+   List<PathPlannerTrajectory> path = PathPlanner.loadPathGroup("I-3-I", new PathConstraints(2,2),
+                                                                              new PathConstraints(2,2));
     return new SequentialCommandGroup(
-      drivetrain.followTrajectory(path)
+      new ParallelDeadlineGroup(
+        new SequentialCommandGroup(
+          drivetrain.followTrajectory(path.get(0)),
+          new WaitCommand(1)
+        ),
+        new ProxyCommand(() -> arm.moveTo(ArmConstants.lowLevel)),
+        new InstantCommand(() -> endEffector.intakeCube())
+      ),
+      new InstantCommand(() -> endEffector.stop()),
+      new ParallelDeadlineGroup(
+        new WaitCommand(4),
+        drivetrain.followTrajectory(path.get(1)),
+        new SequentialCommandGroup(
+          new WaitCommand(2),
+          new ProxyCommand(() -> arm.moveTo(ArmConstants.midLevel))
+        )
+      ),
+      new AutoMoveToAprilTag(drivetrain, drivetrain.getCamera()).withTimeout(1),
+      new InstantCommand(() -> endEffector.releaseCube()),
+      new WaitCommand(0.5),
+      new InstantCommand(() -> endEffector.stop())
     );
   }
   // Moves from inner grid, to the third cube, picks it up, and then moves back to the inner grid to score it.
   private Command I_4_I(){
-    PathPlannerTrajectory path = PathPlanner.loadPath("I-4-I", new PathConstraints(2,2));
+    List<PathPlannerTrajectory> path = PathPlanner.loadPathGroup("I-3-I", new PathConstraints(2,2),
+                                                                              new PathConstraints(2,2));
     return new SequentialCommandGroup(
-      drivetrain.followTrajectory(path)
+      new ParallelDeadlineGroup(
+        new SequentialCommandGroup(
+          drivetrain.followTrajectory(path.get(0)),
+          new WaitCommand(1)
+        ),
+        new ProxyCommand(() -> arm.moveTo(ArmConstants.lowLevel)),
+        new InstantCommand(() -> endEffector.intakeCube())
+      ),
+      new InstantCommand(() -> endEffector.stop()),
+      new ParallelDeadlineGroup(
+        new WaitCommand(4),
+        drivetrain.followTrajectory(path.get(1)),
+        new SequentialCommandGroup(
+          new WaitCommand(2),
+          new ProxyCommand(() -> arm.moveTo(ArmConstants.midLevel))
+        )
+      ),
+      new AutoMoveToAprilTag(drivetrain, drivetrain.getCamera()).withTimeout(1),
+      new InstantCommand(() -> endEffector.releaseCube()),
+      new WaitCommand(0.5),
+      new InstantCommand(() -> endEffector.stop())
     );
   }
   // Moves from the inner grid, goes around the side, and then moves up onto the charge station to auto balance
@@ -528,8 +575,12 @@ public class RobotContainer {
       new ParallelDeadlineGroup(
         new WaitCommand(4),
         drivetrain.followTrajectory(path.get(1)),
-        new ProxyCommand(() -> arm.moveTo(ArmConstants.midLevel))
+        new SequentialCommandGroup(
+          new WaitCommand(2),
+          new ProxyCommand(() -> arm.moveTo(ArmConstants.midLevel))
+        )
       ),
+      new AutoMoveToAprilTag(drivetrain, drivetrain.getCamera()).withTimeout(1),
       new InstantCommand(() -> endEffector.releaseCube()),
       new WaitCommand(0.5),
       new InstantCommand(() -> endEffector.stop())

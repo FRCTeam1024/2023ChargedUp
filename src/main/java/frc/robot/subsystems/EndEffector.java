@@ -124,6 +124,11 @@ public class EndEffector extends SubsystemBase {
     return new PIDCommand(turnWristController, () -> snowblowerEncoder.getPosition(), goalAngle, output -> turnWrist(output), this);
   }
 
+  public InstantCommand turnWristWithJoysticks(double joystickInput){
+    double actualSpeed = joystickInput/2;
+    return new InstantCommand(() -> turnWrist(actualSpeed));
+  }
+
   /**
    * More complex command that should automatically intake a cone based on input orientation
    * @param isForward - true if cone is facing forward (point is away from robot), false if reversed

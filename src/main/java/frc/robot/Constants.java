@@ -157,6 +157,7 @@ public final class Constants {
         public static final double X3 = 18.18; // horizontal distance between crank pivot and arm pivot
         public static final double Y3 =  39.304; //vertical distance between crank pivot and arm pivot
         public static final double maxCrankAngle = 241.11; //degrees for horizontal forward.
+        public static final double minCrankAngle = 421.11;
 
         //random numbers for each of these levels, need to find accurate measurements later
         public static final double highLevel = 10;
@@ -164,7 +165,7 @@ public final class Constants {
         public static final double lowLevel = -88;
         public static final double stowLevel = -110;//-106
 
-        public static final double kS = 0.6;//0.3
+        public static final double kS = 0.6;//0.6 most recently 0.3 original
         public static final double kV = 0.06;
 
     }

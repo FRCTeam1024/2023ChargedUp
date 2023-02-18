@@ -6,6 +6,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
+import frc.robot.oi.Logitech;
 import frc.robot.subsystems.EndEffector;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
@@ -13,8 +14,9 @@ import frc.robot.subsystems.EndEffector;
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class HoldEndEffectorPosition extends PIDCommand {
   private final EndEffector endEffector;
+  private final Logitech controller;
   /** Creates a new HoldEndEffectorPosition. */
-  public HoldEndEffectorPosition(EndEffector m_endEffector) {
+  public HoldEndEffectorPosition(EndEffector m_endEffector, Logitech controllerParam) {
     super(
         // The controller that the command will use
         new PIDController(0, 0, 0),
@@ -28,8 +30,10 @@ public class HoldEndEffectorPosition extends PIDCommand {
         });
     // Use addRequirements() here to declare subsystem dependencies.
     endEffector = m_endEffector;
+    controller = controllerParam;
     addRequirements(endEffector);
     // Configure additional PID options by calling `getController` here.
+    endEffector.turnWristWithJoysticks(controller.getRightStickY());
   }
 
   // Returns true when the command should end.

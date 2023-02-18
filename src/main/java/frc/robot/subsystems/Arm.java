@@ -70,7 +70,9 @@ public class Arm extends SubsystemBase {
   public void move(double volts, State setpoint){
     goal = setpoint;
     voltage = (volts + ArmConstants.kS + setpoint.velocity*ArmConstants.kV);
-    armMotors.setVoltage(volts + ArmConstants.kS + setpoint.velocity*ArmConstants.kV);
+    
+    
+    armMotors.setVoltage(voltage);
   }
 
   public void resetEncoder(){
