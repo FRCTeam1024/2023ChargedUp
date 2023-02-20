@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.function.BooleanSupplier;
 
 import javax.swing.plaf.ComponentInputMapUIResource;
 
@@ -35,6 +36,8 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -149,6 +152,18 @@ public class RobotContainer {
     operatorController.rightTrigger.onFalse(new InstantCommand(() -> endEffector.stop()));
     operatorController.rightBumper.whileTrue(new InstantCommand(() -> endEffector.releaseCube()));
     operatorController.rightBumper.onFalse(new InstantCommand(() -> endEffector.stop()));
+
+    //Arm position calibration
+    Trigger atLimit = new Trigger(arm::atCrankLimit);
+    operatorController.startButton.whileTrue(arm.calMove());
+    atLimit.onTrue(new SequentialCommandGroup(
+                    new InstantCommand(() -> arm.simpleMove(0),arm),
+                    new InstantCommand(arm::resetArmAngle,arm)
+    ));
+                                                        
+            
+
+
   }
 
    /**
