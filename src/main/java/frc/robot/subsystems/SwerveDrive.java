@@ -320,6 +320,29 @@ public class SwerveDrive extends SubsystemBase {
       path = inputPath;
     }
     return new SequentialCommandGroup(
+      basicFirstTrajectory(path),
+      new InstantCommand(() -> this.defenseMode())
+    );
+  }
+
+  public Command followVisionTrajectory(){
+    PathPlannerTrajectory path = calculatePathToTag();
+    return new SequentialCommandGroup(
+      basicFirstTrajectory(path),
+      new AutoTurn(this, 0),
+      new InstantCommand(() -> this.defenseMode())
+    );
+  }
+
+  /**
+   * Encapsulting the PPSwerveController Command generation here so that this code does not need
+   * to be repeated for path planner and vision trajectory following.
+   * 
+   * @param path the path to follow
+   * @return the command to follow the path
+   */
+  public Command basicFirstTrajectory(PathPlannerTrajectory path){
+    return new SequentialCommandGroup(
       new PrintCommand("\n\n" + path.getInitialState().toString() + "\n\n" + path.getEndState().toString() + "\n\n"),
       new InstantCommand(() -> this.resetPosition(path.getInitialHolonomicPose())),
       new ParallelCommandGroup(
@@ -334,32 +357,9 @@ public class SwerveDrive extends SubsystemBase {
           false,
           this // Requires this drive subsystem
         )
-      ),
-      new InstantCommand(() -> this.defenseMode())
+      )
     );
-  }
 
-  public Command followVisionTrajectory(){
-    PathPlannerTrajectory path = calculatePathToTag();
-    return new SequentialCommandGroup(
-      new PrintCommand("\n\n" + path.getInitialState().toString() + "\n\n" + path.getEndState().toString() + "\n\n"),
-      new InstantCommand(() -> this.resetPosition(path.getInitialHolonomicPose())),
-      new ParallelCommandGroup(
-        new PPSwerveControllerCommand(
-          path,
-          this::getPose, // Pose supplier
-          this.getSwerveDriveKinematics(), // SwerveDriveKinematics
-          new PIDController(7.5, 0, 0), // X controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
-          new PIDController(7.5, 0, 0), // Y controller (usually the same values as X controller)
-          new PIDController(0.5, 0, 0.005), // Rotation controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
-          this::setModuleStates, // Module states consumer
-          false,
-          this // Requires this drive subsystem
-        )
-      ),
-      new AutoTurn(this, 0),
-      new InstantCommand(() -> this.defenseMode())
-    );
   }
 
   public double getChargeStationAngle(){
