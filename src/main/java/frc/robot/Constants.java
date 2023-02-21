@@ -59,7 +59,7 @@ public final class Constants {
 
         //Some limits governing overall robot movement
         public static final double kMaxWheelSpeedMetersPerSecond = 2.3; //3
-        public static final double kMaxAngularSpeedRadiansPerSecond = Math.PI * 2; 
+        public static final double kMaxAngularSpeedRadiansPerSecond = Math.PI * 1; 
 
         public static final class moduleA {
             public static final double otherTurnOffset = 79; //May need finer adjustment on these.
@@ -164,6 +164,7 @@ public final class Constants {
         public static final double midLevel = -10;
         public static final double lowLevel = -88;
         public static final double stowLevel = -110;//-106
+        public static final double pickup = -77;
 
         public static final double kS = 0.6;//0.6 most recently 0.3 original
         public static final double kV = 0.06;

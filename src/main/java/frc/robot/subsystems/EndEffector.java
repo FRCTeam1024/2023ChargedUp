@@ -43,8 +43,9 @@ public class EndEffector extends SubsystemBase {
     neo.restoreFactoryDefaults();
     neo.setSmartCurrentLimit(20);//limit is set to 10 amps, no idea if this is good or not
     neo.setSecondaryCurrentLimit(20);
-    snowblowerEncoder.setPositionConversionFactor(1);
-    snowblowerEncoder.setPosition(4.889);
+    double conversionFactor = 1/2.667;
+    snowblowerEncoder.setPositionConversionFactor(conversionFactor);
+    snowblowerEncoder.setPosition(1);
   }
 
   @Override
@@ -77,7 +78,19 @@ public class EndEffector extends SubsystemBase {
      * If set the initial position to 2.667, and then subtract 2.667 from all positions for the return number, 
      * we can get numbers between (2.667,-2.667), so we divide by 2.667 to get from rotations of the motor to rotations of wrist
      */
-    return ((snowblowerEncoder.getPosition() - 2.667) * 180 / 2.667);
+    double angle = ((snowblowerEncoder.getPosition() - 2.667) * 180 / 2.667);
+    /**if(angle > 360){
+    return angle%360;
+    }else if(angle < 360 && angle > 180){
+    }else if(angle < 180 && angle > -180){
+      return angle;
+    }else if(angle < -180){
+    }*/
+    return ((snowblowerEncoder.getPosition() - 2.667));
+  }
+
+  public double getRawWristAngle(){
+    return snowblowerEncoder.getPosition();
   }
 
   /**public double getConsolidatedAngle(){
@@ -121,11 +134,11 @@ public class EndEffector extends SubsystemBase {
     double currentAngle = getWristAngle();
     double error = goalAngle - currentAngle;
     PIDController turnWristController = new PIDController(0.05, 0, 0);
-    return new PIDCommand(turnWristController, () -> snowblowerEncoder.getPosition(), goalAngle, output -> turnWrist(output), this);
+    return new PIDCommand(turnWristController, () -> getWristAngle(), goalAngle, output -> turnWrist(output), this);
   }
 
   public InstantCommand turnWristWithJoysticks(double joystickInput){
-    double actualSpeed = joystickInput/2;
+    double actualSpeed = joystickInput/1.5;
     return new InstantCommand(() -> turnWrist(actualSpeed));
   }
 

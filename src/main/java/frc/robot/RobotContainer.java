@@ -119,6 +119,7 @@ public class RobotContainer {
     // DRIVER CONTROLS
     driverController.aButton.onTrue(new InstantCommand(() -> drivetrain.zeroHeading()));
     driverController.leftTrigger.whileTrue(new DriveWithJoysticks(drivetrain,driverController,0.35));
+    driverController.leftBumper.whileTrue(new DriveWithJoysticks(drivetrain,driverController,1.3));
  
     driverController.rightBumper.onTrue(new ProxyCommand(
       () -> drivetrain.followVisionTrajectory()
@@ -133,17 +134,17 @@ public class RobotContainer {
     operatorController.dPadDown.whileTrue(new ProxyCommand(() -> arm.moveTo(ArmConstants.stowLevel)));  //Use moveTo(ArmConstants.MinArmAngle)
 
     operatorController.aButton.onTrue(new ProxyCommand(() -> arm.moveTo(ArmConstants.stowLevel)));
-    operatorController.xButton.onTrue(new ProxyCommand(() -> arm.moveTo(ArmConstants.lowLevel)));
+    operatorController.xButton.onTrue(new ProxyCommand(() -> arm.moveTo(ArmConstants.pickup)));
     operatorController.bButton.onTrue(new ProxyCommand(() -> arm.moveTo(ArmConstants.midLevel)));
     operatorController.yButton.onTrue(new ProxyCommand(() -> arm.moveTo(ArmConstants.highLevel)));
 
     //need to test and see if these should be instantcommands or proxycommands, as well as if we need an automatic stop after movement
-    operatorController.dPadLeft.whileTrue(new InstantCommand(() -> endEffector.turnWrist(0.5)));
+    operatorController.dPadLeft.whileTrue(new InstantCommand(() -> endEffector.turnWrist(0.6)));
     operatorController.dPadLeft.onFalse(new InstantCommand(() -> endEffector.stop()));
-    operatorController.dPadRight.whileTrue(new InstantCommand(() -> endEffector.turnWrist(-0.5)));
+    operatorController.dPadRight.whileTrue(new InstantCommand(() -> endEffector.turnWrist(-0.6)));
     operatorController.dPadRight.onFalse(new InstantCommand(() -> endEffector.stop()));
 
-    //operatorController.leftTrigger.whileTrue(new ProxyCommand(() -> endEffector.flipCone()));
+    operatorController.leftTrigger.whileTrue(new ProxyCommand(() -> endEffector.turnWristToAngle(90)));
     //operatorController.leftBumper.whileTrue(new ProxyCommand(() -> endEffector.releaseCone()));
     operatorController.rightTrigger.whileTrue(new InstantCommand(() -> endEffector.intakeCube()));
     operatorController.rightTrigger.onFalse(new InstantCommand(() -> endEffector.stop()));
@@ -219,7 +220,7 @@ public class RobotContainer {
         .withSize(1,1)
         .withPosition(7,0);
 
-    driverTab.addNumber("Crank Angle", () -> arm.getCrankAngle())
+    driverTab.addNumber("Raw Wrist Angle", () -> endEffector.getRawWristAngle())
         .withSize(1,1)
         .withPosition(7,1);
 

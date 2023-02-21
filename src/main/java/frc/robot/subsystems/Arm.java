@@ -172,7 +172,7 @@ public class Arm extends SubsystemBase {
 
     //double crankGoal = armToCrank(goalAngle);
     //double currentAngle = getCrankAngle();
-    TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(60,30); //We'll work in degrees here since the arm angle methods return degrees
+    TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(66,33); //We'll work in degrees here since the arm angle methods return degrees
     //TrapezoidProfile profile = new TrapezoidProfile(constraints, new TrapezoidProfile.State(crankGoal,0), new TrapezoidProfile.State(getCrankAngle(),0));
     ProfiledPIDController crankController = new ProfiledPIDController(0.5, 0, 0, constraints);
     return new ProfiledPIDCommand(crankController, () -> getArmAngle(), goalAngle, (output,setpoint) -> move(output,setpoint), this);
