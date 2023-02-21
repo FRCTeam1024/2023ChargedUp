@@ -269,9 +269,13 @@ public class RobotContainer {
         .withPosition(6,1);
 
       //Tells if it is practice bot for different swevrve module offsets
-      diagnosticsTab.addBoolean("Is Practice Bot", () -> Constants.PracticeBot)
+    diagnosticsTab.addBoolean("Is Practice Bot", () -> Constants.PracticeBot)
         .withSize(1,1)
         .withPosition(4,1);
+
+    diagnosticsTab.addBoolean("Is Comp Bot", () -> Constants.CompBot)
+        .withSize(1,1)
+        .withPosition(4,2);
 
     diagnosticsTab.addNumber("Wrist Angle", () -> endEffector.getWristAngle())
         .withSize(1,1)
