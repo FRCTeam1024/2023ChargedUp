@@ -80,7 +80,7 @@ public class RobotContainer {
 
   //Default Commands
   private final DriveWithJoysticks driveWithController = new DriveWithJoysticks(drivetrain, driverController, .58);
-  private final HoldEndEffectorPosition holdEndEffectorPosition = new HoldEndEffectorPosition(endEffector, operatorController);
+  //private final HoldEndEffectorPosition holdEndEffectorPosition = new HoldEndEffectorPosition(endEffector, operatorController);
   private final TurnWristWithJoysticks turnWristWithJoysticks = new TurnWristWithJoysticks(endEffector, operatorController);
   //Chooser for auto
   SendableChooser<Command> m_AutoChooser = new SendableChooser<>();
