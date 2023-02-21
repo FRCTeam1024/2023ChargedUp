@@ -43,9 +43,9 @@ public class EndEffector extends SubsystemBase {
     neo.restoreFactoryDefaults();
     neo.setSmartCurrentLimit(20);//limit is set to 10 amps, no idea if this is good or not
     neo.setSecondaryCurrentLimit(20);
-    double conversionFactor = 1/2.667;
+    double conversionFactor = 360/5.333;
     snowblowerEncoder.setPositionConversionFactor(conversionFactor);
-    snowblowerEncoder.setPosition(1);
+    snowblowerEncoder.setPosition(180);
   }
 
   @Override
@@ -78,7 +78,6 @@ public class EndEffector extends SubsystemBase {
      * If set the initial position to 2.667, and then subtract 2.667 from all positions for the return number, 
      * we can get numbers between (2.667,-2.667), so we divide by 2.667 to get from rotations of the motor to rotations of wrist
      */
-    double angle = ((snowblowerEncoder.getPosition() - 2.667) * 180 / 2.667);
     /**if(angle > 360){
     return angle%360;
     }else if(angle < 360 && angle > 180){
@@ -86,7 +85,7 @@ public class EndEffector extends SubsystemBase {
       return angle;
     }else if(angle < -180){
     }*/
-    return ((snowblowerEncoder.getPosition() - 2.667));
+    return (snowblowerEncoder.getPosition() - 180);
   }
 
   public double getRawWristAngle(){
@@ -125,6 +124,10 @@ public class EndEffector extends SubsystemBase {
     snowblower.set(speed);
   }
 
+  public void turnWristSetpoints(double speed){
+    snowblower.set(-speed);
+  }
+
   /**
    * Automatically turns the wrist to a specified angle.
    * @param goalAngle - input angle that the wrist should turn to
@@ -134,7 +137,7 @@ public class EndEffector extends SubsystemBase {
     double currentAngle = getWristAngle();
     double error = goalAngle - currentAngle;
     PIDController turnWristController = new PIDController(0.05, 0, 0);
-    return new PIDCommand(turnWristController, () -> getWristAngle(), goalAngle, output -> turnWrist(output), this);
+    return new PIDCommand(turnWristController, () -> getWristAngle(), goalAngle, output -> turnWristSetpoints(output), this);
   }
 
   public InstantCommand turnWristWithJoysticks(double joystickInput){
