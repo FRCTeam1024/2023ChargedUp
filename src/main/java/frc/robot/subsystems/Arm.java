@@ -17,6 +17,8 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
+import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
@@ -70,13 +72,14 @@ public class Arm extends SubsystemBase {
   public void move(double volts, State setpoint){
     goal = setpoint;
     voltage = (volts + ArmConstants.kS + setpoint.velocity*ArmConstants.kV);
-    
-    
+    if (getCrankAngle() > ArmConstants.minCrankAngle || getCrankAngle() < ArmConstants.maxCrankAngle) {
+      voltage = voltage * -1;
+    }
     armMotors.setVoltage(voltage);
   }
 
-  public void resetEncoder(){
-    camEncoder.reset();
+  public void simpleMove(double volts){
+    armMotors.setVoltage(volts);
   }
 
   /**
@@ -98,9 +101,17 @@ public class Arm extends SubsystemBase {
    * @return the angle of the crank in degrees (0 deg. being horizontal forward)
    */
   public double getCrankAngle(){
-    return rightArmMotor.getSelectedSensorPosition() * 360 / (2048 * ArmConstants.armGearRatio) + 240; 
+    return rightArmMotor.getSelectedSensorPosition() * 360 / (2048 * ArmConstants.armGearRatio) + ArmConstants.maxCrankAngle; 
     //     need to see left vs right motors for sensor        double check sensor units value
     //     could check if the inversion of the left motor allows us to use an average of the two values
+  }
+
+  /**
+   * 
+   * @return the speed of the crank in degrees per second
+   */
+  public double getCrankSpeed(){
+    return rightArmMotor.getSelectedSensorVelocity() * 360 * 10 / (2048 * ArmConstants.armGearRatio);
   }
 
   public double getRawCrankAngle(){
@@ -157,7 +168,7 @@ public class Arm extends SubsystemBase {
    * 
    * @param goalAngle The desired arm angle
    */
-  public ProfiledPIDCommand moveTo(double goalAngle){
+  public Command moveTo(double goalAngle){
 
     /** 
     double currentAngle = encoderAngle();
@@ -174,12 +185,29 @@ public class Arm extends SubsystemBase {
     //double currentAngle = getCrankAngle();
     TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(66,33); //We'll work in degrees here since the arm angle methods return degrees
     //TrapezoidProfile profile = new TrapezoidProfile(constraints, new TrapezoidProfile.State(crankGoal,0), new TrapezoidProfile.State(getCrankAngle(),0));
+    //TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(60,30); //We'll work in degrees here since the arm angle methods return degrees
     ProfiledPIDController crankController = new ProfiledPIDController(0.5, 0, 0, constraints);
-    return new ProfiledPIDCommand(crankController, () -> getArmAngle(), goalAngle, (output,setpoint) -> move(output,setpoint), this);
+    return new ProfiledPIDCommand(crankController, () -> getArmAngle(), goalAngle, (output,setpoint) -> move(output,setpoint), this)
+                  .withInterruptBehavior(InterruptionBehavior.kCancelSelf);
+  }
+
+  public Command calMove(){
+    PIDController crankCalController = new PIDController(0.5,0,0);
+    return new PIDCommand(crankCalController, () -> getCrankSpeed(), -60.0, (output) -> simpleMove(output),this)
+                  .withInterruptBehavior(InterruptionBehavior.kCancelSelf);
   }
 
   public void resetArmAngle(){
-    rightArmMotor.setSelectedSensorPosition(armToCrank(0) * 2048 * ArmConstants.armGearRatio/360);
+    rightArmMotor.setSelectedSensorPosition(0);
+  }
+
+  /**
+   * This method returns true when the arm crank is triggered indicating the arm is at its low end setpoint.
+   * 
+   * @return the state of the arm crank limit switch
+   */
+  public boolean atCrankLimit(){
+    return false;
   }
 
   public double getGoalVelocity(){
