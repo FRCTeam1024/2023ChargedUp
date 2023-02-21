@@ -192,7 +192,7 @@ public class Arm extends SubsystemBase {
   }
 
   public Command calMove(){
-    PIDController crankCalController = new PIDController(0.5,0,0);
+    PIDController crankCalController = new PIDController(0.05,0,0);
     return new PIDCommand(crankCalController, () -> getCrankSpeed(), -60.0, (output) -> simpleMove(output),this)
                   .withInterruptBehavior(InterruptionBehavior.kCancelSelf);
   }

@@ -79,7 +79,7 @@ public class RobotContainer {
   private final Logitech operatorController = new Logitech(1);
 
   //Default Commands
-  private final DriveWithJoysticks driveWithController = new DriveWithJoysticks(drivetrain, driverController, 1);
+  private final DriveWithJoysticks driveWithController = new DriveWithJoysticks(drivetrain, driverController, .58);
   private final HoldEndEffectorPosition holdEndEffectorPosition = new HoldEndEffectorPosition(endEffector, operatorController);
   private final TurnWristWithJoysticks turnWristWithJoysticks = new TurnWristWithJoysticks(endEffector, operatorController);
   //Chooser for auto
@@ -122,7 +122,7 @@ public class RobotContainer {
     // DRIVER CONTROLS
     driverController.aButton.onTrue(new InstantCommand(() -> drivetrain.zeroHeading()));
     driverController.leftTrigger.whileTrue(new DriveWithJoysticks(drivetrain,driverController,0.35));
-    driverController.leftBumper.whileTrue(new DriveWithJoysticks(drivetrain,driverController,1.3));
+    driverController.leftBumper.whileTrue(new DriveWithJoysticks(drivetrain,driverController,1));
  
     driverController.rightBumper.onTrue(new ProxyCommand(
       () -> drivetrain.followVisionTrajectory()
