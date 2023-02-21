@@ -33,7 +33,7 @@ public class HoldEndEffectorPosition extends PIDCommand {
     controller = controllerParam;
     addRequirements(endEffector);
     // Configure additional PID options by calling `getController` here.
-    endEffector.turnWristWithJoysticks(controller.getRightStickY());
+    //endEffector.turnWristWithJoysticks(controller.getRightStickY());
   }
 
   // Returns true when the command should end.
