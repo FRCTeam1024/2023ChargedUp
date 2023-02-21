@@ -115,6 +115,7 @@ public class SwerveDrive extends SubsystemBase {
     b.setDesiredState(moduleStates[1]);
     c.setDesiredState(moduleStates[2]);
     d.setDesiredState(moduleStates[3]);
+    //System.out.println(a.getState().toString() + "\n" + b.getState().toString() + "\n" + c.getState().toString() + "\n" + d.getState().toString() + "\n");
   }
 
   public double getAngleRad(int id){

@@ -45,7 +45,7 @@ public class EndEffector extends SubsystemBase {
     neo.setSecondaryCurrentLimit(20);
     double conversionFactor = 360/5.333;
     snowblowerEncoder.setPositionConversionFactor(conversionFactor);
-    snowblowerEncoder.setPosition(180);
+    snowblowerEncoder.setPosition(720);
   }
 
   @Override
@@ -85,7 +85,7 @@ public class EndEffector extends SubsystemBase {
       return angle;
     }else if(angle < -180){
     }*/
-    return (snowblowerEncoder.getPosition() - 180);
+    return (snowblowerEncoder.getPosition() - 720);
   }
 
   public double getRawWristAngle(){

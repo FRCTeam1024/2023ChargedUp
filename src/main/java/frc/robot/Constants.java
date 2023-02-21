@@ -40,18 +40,18 @@ public final class Constants {
         public static final double kvVoltSecondsPerMeter = 2.4068;
         public static final double kaVoltSecondsSquaredPerMeter = 0.28749;
 
-        public static final double ksTurning = 0.77; //Borrowed these values
+        public static final double ksTurning = 0.75; //Borrowed these values
         public static final double kvTurning = 0.75; //.384 to 1.27 (1.27 aligns 12V to 3pi max angular velocity)
-        public static final double kaTurning = 0; 
+        public static final double kaTurning = 0;
 
         //These are PID controllers for within swerve modules
-        public static final double kPModuleDriveController = 1;  //Borrowed these values
+        public static final double kPModuleDriveController = 3;  //Borrowed these values
         public static final double kIModuleDriveController = 0; 
         public static final double kDModuleDriveController = 0;
 
-        public static final double kPModuleTurnController = 8.1;  //Borrowed these values
+        public static final double kPModuleTurnController = 10;  //Borrowed these values
         public static final double kIModuleTurnController = 0;
-        public static final double kDModuleTurnController = 0;
+        public static final double kDModuleTurnController = 0.01;
 
         //Borrowed these values...
         public static final double kModuleMaxAngularVelocity = 3 * Math.PI; // Math.PI  (units: rad/s)

@@ -251,6 +251,10 @@ public class RobotContainer {
         .withSize(1,1)
         .withPosition(0,3);*/
 
+    diagnosticsTab.addNumber("Robot Yaw", () -> drivetrain.getYawDegrees())
+        .withSize(1,1)
+        .withPosition(0,0);
+        
     //Swerve module angles A-D
     diagnosticsTab.addNumber("SwerveModule A Angle", () -> drivetrain.getAngleRad(1))
         .withSize(1,1)
