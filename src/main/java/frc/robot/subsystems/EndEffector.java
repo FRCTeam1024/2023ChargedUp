@@ -45,7 +45,7 @@ public class EndEffector extends SubsystemBase {
     neo.setSecondaryCurrentLimit(20);
     double conversionFactor = 360/5.333;
     snowblowerEncoder.setPositionConversionFactor(conversionFactor);
-    snowblowerEncoder.setPosition(720);
+    snowblowerEncoder.setPosition(630);
   }
 
   @Override

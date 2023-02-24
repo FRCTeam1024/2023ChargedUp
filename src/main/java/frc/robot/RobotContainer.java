@@ -483,7 +483,7 @@ public class RobotContainer {
   private Command C_Cross_Charge(){
     PathPlannerTrajectory path = PathPlanner.loadPath("C-Cross-Charge", new PathConstraints(1.5,1.5));
     return new SequentialCommandGroup(
-      new PrintCommand("\n\n" + path.getEndState().toString() + "\n\n"),
+      /**new PrintCommand("\n\n" + path.getEndState().toString() + "\n\n"),
       arm.moveTo(ArmConstants.lowLevel),
       new InstantCommand(() -> endEffector.releaseCube()),
       new WaitCommand(0.5),
@@ -491,7 +491,8 @@ public class RobotContainer {
       new ParallelDeadlineGroup(
         drivetrain.followTrajectory(path),
         arm.moveTo(ArmConstants.stowLevel)
-      ),
+      ),*/
+      drivetrain.followTrajectory(path),
       new AutoBalance(drivetrain)
     );
   }
@@ -631,8 +632,11 @@ public class RobotContainer {
           drivetrain.followTrajectory(path.get(0)),
           new WaitCommand(1)
         ),
-        new ProxyCommand(() -> arm.moveTo(ArmConstants.lowLevel)),
-        new InstantCommand(() -> endEffector.intakeCube())
+        new SequentialCommandGroup(
+          new ProxyCommand(() -> endEffector.turnWristToAngle(90)).withTimeout(1),
+          new InstantCommand(() -> endEffector.intakeCube())
+        ),
+        new ProxyCommand(() -> arm.moveTo(ArmConstants.lowLevel))
       ),
       new InstantCommand(() -> endEffector.stop()),
       new ParallelDeadlineGroup(
@@ -643,7 +647,7 @@ public class RobotContainer {
           new ProxyCommand(() -> arm.moveTo(ArmConstants.midLevel))
         )
       ),
-      new AutoMoveToAprilTag(drivetrain, drivetrain.getCamera()).withTimeout(1),
+      //new AutoMoveToAprilTag(drivetrain, drivetrain.getCamera()).withTimeout(1),
       new InstantCommand(() -> endEffector.releaseCube()),
       new WaitCommand(0.5),
       new InstantCommand(() -> endEffector.stop())
