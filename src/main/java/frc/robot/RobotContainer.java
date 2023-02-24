@@ -176,7 +176,7 @@ public class RobotContainer {
     //Create ShuffleBoard Tabs
     ShuffleboardTab diagnosticsTab = Shuffleboard.getTab("1024Diagnostics");
     ShuffleboardTab driverTab = Shuffleboard.getTab("1024Driver");
-    
+    ShuffleboardTab swerveTab = Shuffleboard.getTab("1024Swerve");
     /**
      * Diagnostics for programmers
      */
@@ -271,6 +271,40 @@ public class RobotContainer {
     diagnosticsTab.addNumber("SwerveModule D Angle", () -> drivetrain.getAngleRad(4))
         .withSize(1,1)
         .withPosition(6,1);
+
+    //Swerve module velocity errors A-D
+    swerveTab.addNumber("SwerveModule A Vel Error", () -> drivetrain.getModVelError(1))
+    .withSize(1,1)
+    .withPosition(5,2);
+
+    swerveTab.addNumber("SwerveModule B Vel Error", () -> drivetrain.getModVelError(2))
+    .withSize(1,1)
+    .withPosition(6,2);
+
+    swerveTab.addNumber("SwerveModule C Vel Error", () -> drivetrain.getModVelError(3))
+    .withSize(1,1)
+    .withPosition(5,3);
+
+    swerveTab.addNumber("SwerveModule D Vel Error", () -> drivetrain.getModVelError(4))
+    .withSize(1,1)
+    .withPosition(6,3);
+
+    //Swerve module angle errors A-D
+    swerveTab.addNumber("SwerveModule A Angle Error", () -> drivetrain.getModAngError(1))
+    .withSize(1,1)
+    .withPosition(7,2);
+
+    swerveTab.addNumber("SwerveModule B Angle Error", () -> drivetrain.getModAngError(2))
+    .withSize(1,1)
+    .withPosition(8,2);
+
+    swerveTab.addNumber("SwerveModule C Angle Error", () -> drivetrain.getModAngError(3))
+    .withSize(1,1)
+    .withPosition(7,3);
+
+    swerveTab.addNumber("SwerveModule D Angle Error", () -> drivetrain.getModAngError(4))
+    .withSize(1,1)
+    .withPosition(8,3);
 
       //Tells if it is practice bot for different swevrve module offsets
     diagnosticsTab.addBoolean("Is Practice Bot", () -> Constants.PracticeBot)

@@ -51,10 +51,10 @@ public class SwerveDrive extends SubsystemBase {
   private final Translation2d m_CLocation = new Translation2d(-0.2762, -0.2762);
   private final Translation2d m_DLocation = new Translation2d(0.2762, -0.2762);
 
-  private final SwerveModule a = new SwerveModule(DriveConstants.angleMotorA, DriveConstants.driveMotorA, DriveConstants.turnEncoderA, DriveConstants.moduleA.turnOffset(), true, true, Math.PI/4);
-  private final SwerveModule b = new SwerveModule(DriveConstants.angleMotorB, DriveConstants.driveMotorB, DriveConstants.turnEncoderB, DriveConstants.moduleB.turnOffset(), true, false, 3*Math.PI/4);
-  private final SwerveModule c = new SwerveModule(DriveConstants.angleMotorC, DriveConstants.driveMotorC, DriveConstants.turnEncoderC, DriveConstants.moduleC.turnOffset(), true, false, Math.PI/4);
-  private final SwerveModule d = new SwerveModule(DriveConstants.angleMotorD, DriveConstants.driveMotorD, DriveConstants.turnEncoderD, DriveConstants.moduleD.turnOffset(), true, true, 3*Math.PI/4);
+  private final SwerveModule a = new SwerveModule(DriveConstants.angleMotorA, DriveConstants.driveMotorA, DriveConstants.turnEncoderA, DriveConstants.moduleA.turnOffset(), true, true, DriveConstants.kFFAdjustA, Math.PI/4);
+  private final SwerveModule b = new SwerveModule(DriveConstants.angleMotorB, DriveConstants.driveMotorB, DriveConstants.turnEncoderB, DriveConstants.moduleB.turnOffset(), true, false, DriveConstants.kFFAdjustB, 3*Math.PI/4);
+  private final SwerveModule c = new SwerveModule(DriveConstants.angleMotorC, DriveConstants.driveMotorC, DriveConstants.turnEncoderC, DriveConstants.moduleC.turnOffset(), true, false, DriveConstants.kFFAdjustC, Math.PI/4);
+  private final SwerveModule d = new SwerveModule(DriveConstants.angleMotorD, DriveConstants.driveMotorD, DriveConstants.turnEncoderD, DriveConstants.moduleD.turnOffset(), true, true, DriveConstants.kFFAdjustD, 3*Math.PI/4);
   
   private final Vision camera = new Vision();
 
@@ -70,6 +70,9 @@ public class SwerveDrive extends SubsystemBase {
 
   //For vision estimation - according to PhotonVision & WPILIB examples, it should be possible to just drop this in as a replacement for odometry
   private SwerveDrivePoseEstimator m_poseEstimator;
+
+  public double[] velocityErrors = new double[4];
+  public double[] angleErrors = new double[4];
 
   /** Creates a new SwerveDrive. */
   public SwerveDrive() {
@@ -115,7 +118,22 @@ public class SwerveDrive extends SubsystemBase {
     b.setDesiredState(moduleStates[1]);
     c.setDesiredState(moduleStates[2]);
     d.setDesiredState(moduleStates[3]);
-    //System.out.println(a.getState().toString() + "\n" + b.getState().toString() + "\n" + c.getState().toString() + "\n" + d.getState().toString() + "\n");
+    
+    velocityErrors[0] = moduleStates[0].speedMetersPerSecond - a.getDriveVelocity();
+    velocityErrors[1] = moduleStates[1].speedMetersPerSecond - b.getDriveVelocity();
+    velocityErrors[2] = moduleStates[2].speedMetersPerSecond - c.getDriveVelocity();
+    velocityErrors[3] = moduleStates[3].speedMetersPerSecond - d.getDriveVelocity();
+    angleErrors[0] = moduleStates[0].angle.getDegrees() - a.getAngleDegrees();
+    angleErrors[1] = moduleStates[1].angle.getDegrees() - b.getAngleDegrees();
+    angleErrors[2] = moduleStates[2].angle.getDegrees() - c.getAngleDegrees();
+    angleErrors[3] = moduleStates[3].angle.getDegrees() - d.getAngleDegrees();
+    
+   // printErrors();
+  }
+
+  public void printErrors(){
+    System.out.println("\n" + velocityErrors[0] + "\n" + velocityErrors[1] + "\n" + velocityErrors[2] + "\n" + velocityErrors[3]);
+    System.out.println("\n" + angleErrors[0] + "\n" + angleErrors[1] + "\n" + angleErrors[2] + "\n" + angleErrors[3]);
   }
 
   public double getAngleRad(int id){
@@ -143,6 +161,33 @@ public class SwerveDrive extends SubsystemBase {
       return d.getPosition().toString();
     }else{
       return "uh oh";
+    }
+  }
+
+  public double getModVelError(int id){
+    if(id == 1){
+      return a.getVelocityError();
+    }else if(id == 2){
+      return b.getVelocityError();
+    }else if(id == 3){
+      return c.getVelocityError();
+    }else if(id == 4){
+      return d.getVelocityError();
+    }else{
+      return 999;
+    }
+  }
+  public double getModAngError(int id){
+    if(id == 1){
+      return a.getAngleErrorDegrees();
+    }else if(id == 2){
+      return b.getAngleErrorDegrees();
+    }else if(id == 3){
+      return c.getAngleErrorDegrees();
+    }else if(id == 4){
+      return d.getAngleErrorDegrees();
+    }else{
+      return 999;
     }
   }
 

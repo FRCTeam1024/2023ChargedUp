@@ -53,14 +53,18 @@ public class SwerveModule {
           DriveConstants.kaTurning);
 
   private final double defaultAngle;
+  private final double adjust;
+
+  private SwerveModuleState myState = new SwerveModuleState();
 
  // private SwerveModuleState state;
 
   /** Creates a new SwerveModule. */
   public SwerveModule(int angleMotorChannel, int driveMotorChannel, int turnEncoderChannel, 
-    double turnOffset, boolean turnReversed, boolean driveReversed, double angle) {
+    double turnOffset, boolean turnReversed, boolean driveReversed, double cal, double angle) {
 
     defaultAngle = angle;
+    adjust = cal;
 
     m_angleMotor = new WPI_TalonFX(angleMotorChannel);
     m_driveMotor = new WPI_TalonFX(driveMotorChannel);
@@ -100,6 +104,8 @@ public class SwerveModule {
     if(state.speedMetersPerSecond == 0){
       state.angle = new Rotation2d(defaultAngle);
     }
+
+    myState = state;
     // Calculate the drive output from the drive PID controller.
     
     final double driveOutput =
@@ -114,7 +120,7 @@ public class SwerveModule {
     final double turnFeedforward =
         m_turnFeedforward.calculate(m_turningPIDController.getSetpoint().velocity);
 
-   m_driveMotor.setVoltage(driveOutput + driveFeedforward);
+   m_driveMotor.setVoltage(driveOutput + driveFeedforward*adjust);
    m_angleMotor.setVoltage(turnOutput + turnFeedforward);
 
   }
@@ -123,9 +129,17 @@ public class SwerveModule {
     return m_driveMotor.getSelectedSensorVelocity()*(10*DriveConstants.wheelCircumference/(DriveConstants.encoderTicks*DriveConstants.gearRatio));
   }
 
+  public double getVelocityError(){
+    return myState.speedMetersPerSecond - getDriveVelocity();
+  }
+
   public double getAngleDegrees(){
     return m_turnEncoder.getAbsolutePosition();
   } 
+
+  public double getAngleErrorDegrees(){
+    return myState.angle.getDegrees() - getAngleDegrees();
+  }
 
   public double getAngleRadians() {
     return m_turnEncoder.getAbsolutePosition()*Math.PI/180;
@@ -142,5 +156,4 @@ public class SwerveModule {
     );
   }
 
-  
 }
