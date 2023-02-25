@@ -38,7 +38,7 @@ public class Robot extends TimedRobot {
   static String fileList[] = pathfile.list();
   static PathPlannerTrajectory pathList[] = new PathPlannerTrajectory[fileList.length];
 
-  private static File angleFile = new File(deployfile, "wristAngle.txt");
+  private File angleFile = new File("/home/lvuser/wristAngle.txt"); //need to get this file to exist, maybe using sftp
 
   private RobotContainer m_robotContainer;
 
@@ -62,7 +62,8 @@ public class Robot extends TimedRobot {
 
     //Display and log the name and version of the code that is running
     //System.out.println("Running "+BuildConfig.APP_NAME+" "+BuildConfig.APP_VERSION);
-
+    angleFile.setReadable(true);
+    angleFile.setWritable(true);
     //Pathweaver code from 2022 - may not be needed for pathplanner
     for(int i = 0; i < fileList.length; i++) {
       //try {
@@ -98,15 +99,24 @@ public class Robot extends TimedRobot {
     }
 
     try {
-      angleString = new String(Files.readAllBytes(angleFile.toPath()));
-      angleWriter = new FileWriter(angleFile);
+      if(angleFile.canRead()){
+        angleString = new String(Files.readAllBytes(angleFile.toPath()));
+        angleWriter = new FileWriter(angleFile);
+      }else{
+        angleString = "600";
+      }
     } catch (IOException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
-    wristAngle = Double.valueOf(angleString);
+    if(Double.valueOf(angleString) <= 2000 && Double.valueOf(angleString) >= -2000){
+      wristAngle = Double.valueOf(angleString);
+    }else{
+      wristAngle = 600;
+    }
 
+    System.out.println(String.valueOf(wristAngle));
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
@@ -132,13 +142,7 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledInit() {
         //Call this to diable any PIDSubsytems to avoid integral windup.
-        currentWristAngle = m_robotContainer.getWritableWristAngle();
-        try {
-          angleWriter.write(currentWristAngle, 0, 4);
-        } catch (IOException e) {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
-        }
+        writeAngleToFile();
         m_robotContainer.disablePIDSubsystems();
   }
 
@@ -214,12 +218,15 @@ public class Robot extends TimedRobot {
   }
 
   private void writeAngleToFile(){
+    
     currentWristAngle = m_robotContainer.getWritableWristAngle();
-    try {
-      angleWriter.write(currentWristAngle, 0, 4);
+    /**try {
+      if(!angleWriter.equals(null)){
+        angleWriter.write(currentWristAngle, 0, 4);
+      }
     } catch (IOException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
-    }
+    }*/
   }
 }

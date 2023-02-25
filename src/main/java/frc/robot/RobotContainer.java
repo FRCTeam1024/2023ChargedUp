@@ -154,6 +154,8 @@ public class RobotContainer {
     operatorController.rightTrigger.onFalse(new InstantCommand(() -> endEffector.stop()));
     operatorController.rightBumper.whileTrue(new InstantCommand(() -> endEffector.releaseCube()));
     operatorController.rightBumper.onFalse(new InstantCommand(() -> endEffector.stop()));
+    //might need this when we test persistent wrist angles
+    //operatorController.startButton.onTrue(new InstantCommand(() -> endEffector.resetWristAngle()));
 
     //Arm position calibration
     Trigger atLimit = new Trigger(arm::atCrankLimit);
