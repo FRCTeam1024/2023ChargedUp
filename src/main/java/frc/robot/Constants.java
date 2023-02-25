@@ -18,6 +18,7 @@ public final class Constants {
     public static final boolean CompBot = Robot.isCompBot();
     public static final boolean PracticeBot = Robot.isPracticeBot();
     public static final boolean OtherBot = Robot.isOtherBot();
+    public static final double persistentWristAngle = Robot.persistentWristAngle();
 
     public static final int PCMID = 3;  // CAN ID for PCM
 

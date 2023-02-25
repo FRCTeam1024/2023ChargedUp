@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Robot;
 
 /**
  * Check if switch is set correctly on encoder
@@ -30,7 +31,7 @@ import frc.robot.Constants;
 public class EndEffector extends SubsystemBase {
   private final CANSparkMax neo = new CANSparkMax(Constants.EndEffectorConstants.neoID, MotorType.kBrushless); //check if neo is brushed
   private final CANSparkMax snowblower = new CANSparkMax(Constants.EndEffectorConstants.snowblowerID, MotorType.kBrushed);
-
+  private final double angle = Constants.persistentWristAngle;
 
   //private final SparkMaxAbsoluteEncoder absoluteEncoder = snowblower.getAbsoluteEncoder(SparkMaxAbsoluteEncoder.Type.kDutyCycle);
   private final RelativeEncoder snowblowerEncoder = snowblower.getEncoder(Type.kQuadrature, 8192);
@@ -44,7 +45,7 @@ public class EndEffector extends SubsystemBase {
     neo.setSecondaryCurrentLimit(20);
     double conversionFactor = 360/5.333;
     snowblowerEncoder.setPositionConversionFactor(conversionFactor);
-    snowblowerEncoder.setPosition(630);
+    snowblowerEncoder.setPosition(angle);
   }
 
   @Override
@@ -208,4 +209,6 @@ public class EndEffector extends SubsystemBase {
     runIntake(0);
     turnWrist(0);
   }
+
+  
 }

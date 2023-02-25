@@ -668,4 +668,8 @@ public class RobotContainer {
       drivetrain.followTrajectory(path)
     );
   }
+
+  public String getWritableWristAngle(){
+    return String.valueOf(endEffector.getRawWristAngle());
+  }
 }
