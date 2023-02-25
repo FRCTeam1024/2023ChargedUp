@@ -42,9 +42,11 @@ public class EndEffector extends SubsystemBase {
     neo.restoreFactoryDefaults();
     neo.setSmartCurrentLimit(20);//limit is set to 10 amps, no idea if this is good or not
     neo.setSecondaryCurrentLimit(20);
+    snowblower.setSmartCurrentLimit(5);
+    snowblower.setSecondaryCurrentLimit(5);
     double conversionFactor = 360/5.333;
     snowblowerEncoder.setPositionConversionFactor(conversionFactor);
-    snowblowerEncoder.setPosition(630);
+    snowblowerEncoder.setPosition(1910);
   }
 
   @Override
@@ -84,7 +86,7 @@ public class EndEffector extends SubsystemBase {
       return angle;
     }else if(angle < -180){
     }*/
-    return (snowblowerEncoder.getPosition() - 720);
+    return (snowblowerEncoder.getPosition() - 2000);
   }
 
   public double getRawWristAngle(){
@@ -210,6 +212,6 @@ public class EndEffector extends SubsystemBase {
   }
 
   public void resetWristAngle(){
-    snowblowerEncoder.setPosition(630);
+    snowblowerEncoder.setPosition(1910);
   }
 }
