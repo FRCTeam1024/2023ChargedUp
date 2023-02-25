@@ -101,7 +101,7 @@ public class Arm extends SubsystemBase {
    * @return the angle of the crank in degrees (0 deg. being horizontal forward)
    */
   public double getCrankAngle(){
-    return rightArmMotor.getSelectedSensorPosition() * 360 / (2048 * ArmConstants.armGearRatio) + ArmConstants.maxCrankAngle; 
+    return rightArmMotor.getSelectedSensorPosition() * 360 / (2048 * ArmConstants.armGearRatio) + ArmConstants.minCrankAngle; 
     //     need to see left vs right motors for sensor        double check sensor units value
     //     could check if the inversion of the left motor allows us to use an average of the two values
   }

@@ -159,7 +159,7 @@ public class RobotContainer {
 
     //Arm position calibration
     Trigger atLimit = new Trigger(arm::atCrankLimit);
-    operatorController.startButton.whileTrue(arm.calMove());
+    operatorController.backButton.whileTrue(arm.calMove());
     atLimit.onTrue(new SequentialCommandGroup(
                     new InstantCommand(() -> arm.simpleMove(0),arm),
                     new InstantCommand(arm::resetArmAngle,arm)
@@ -636,8 +636,8 @@ public class RobotContainer {
           new WaitCommand(1)
         ),
         new SequentialCommandGroup(
-          new ProxyCommand(() -> endEffector.turnWristToAngle(90)).withTimeout(1),
-          new InstantCommand(() -> endEffector.intakeCube())
+          new InstantCommand(() -> endEffector.intakeCube()),
+          new ProxyCommand(() -> endEffector.turnWristToAngle(90)).withTimeout(1)
         ),
         new ProxyCommand(() -> arm.moveTo(ArmConstants.lowLevel))
       ),
