@@ -158,10 +158,11 @@ public class RobotContainer {
     operatorController.startButton.onTrue(new InstantCommand(() -> endEffector.resetWristAngle()));
 
     //Arm position calibration
-    Trigger atLimit = new Trigger(arm::atCrankLimit);
-    operatorController.backButton.whileTrue(arm.calMove());
-    atLimit.onTrue(new SequentialCommandGroup(
+    Trigger atLimit = new Trigger(arm::atCrankLimit).debounce(0.02);
+    operatorController.backButton.and(atLimit.negate()).whileTrue(arm.calMove());
+    atLimit.whileTrue(new SequentialCommandGroup(
                     new InstantCommand(() -> arm.simpleMove(0),arm),
+                    new WaitCommand(0.1),
                     new InstantCommand(arm::resetArmAngle,arm)
     ));
                                                         
@@ -325,6 +326,10 @@ public class RobotContainer {
     diagnosticsTab.addNumber("Wrist Angle", () -> endEffector.getWristAngle())
         .withSize(1,1)
         .withPosition(2,3);
+
+    diagnosticsTab.addBoolean("Arm At Limit", () -> arm.atCrankLimit())
+        .withSize(1,1)
+        .withPosition(4,0);
 
     /**diagnosticsTab.addNumber("AbsoluteAngle", () -> endEffector.getAbsoluteAngle())
         .withSize(1,1)
