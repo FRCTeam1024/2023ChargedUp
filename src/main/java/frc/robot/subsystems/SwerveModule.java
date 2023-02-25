@@ -52,17 +52,13 @@ public class SwerveModule {
           DriveConstants.kvTurning, 
           DriveConstants.kaTurning);
 
-  private final double defaultAngle;
-
   private SwerveModuleState myState = new SwerveModuleState();
 
  // private SwerveModuleState state;
 
   /** Creates a new SwerveModule. */
   public SwerveModule(int angleMotorChannel, int driveMotorChannel, int turnEncoderChannel, 
-    double turnOffset, boolean turnReversed, boolean driveReversed, double angle) {
-
-    defaultAngle = angle;
+    double turnOffset, boolean turnReversed, boolean driveReversed) {
 
     m_angleMotor = new WPI_TalonFX(angleMotorChannel);
     m_driveMotor = new WPI_TalonFX(driveMotorChannel);
@@ -97,10 +93,6 @@ public class SwerveModule {
   public void setDesiredState(SwerveModuleState moduleState){
     // Optimize the reference state to avoid spinning further than 90 degrees
     SwerveModuleState state = SwerveModuleState.optimize(moduleState, new Rotation2d(getAngleRadians()));
-
-    if(state.speedMetersPerSecond == 0){
-      state.angle = new Rotation2d(defaultAngle);
-    }
 
     //Store the current goal state for reference
     myState = state;

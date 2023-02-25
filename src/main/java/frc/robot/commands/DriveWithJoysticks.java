@@ -35,7 +35,11 @@ public class DriveWithJoysticks extends CommandBase {
     double ySpeed = -controller.getRightStickX() * DriveConstants.kMaxWheelSpeedMetersPerSecond * speedFactor;
     double rot = controller.getLeftStickX() * DriveConstants.kMaxAngularSpeedRadiansPerSecond * speedFactor;
 
-    drivetrain.drive(xSpeed, ySpeed, rot, !controller.rightTrigger.getAsBoolean());
+    if( xSpeed != 0 || ySpeed != 0 || rot  != 0){
+      drivetrain.drive(xSpeed, ySpeed, rot, !controller.rightTrigger.getAsBoolean());
+    }
+    else drivetrain.defenseMode();
+    
   }
 
   // Called once the command ends or is interrupted.

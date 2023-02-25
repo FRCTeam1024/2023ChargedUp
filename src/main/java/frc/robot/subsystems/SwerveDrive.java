@@ -51,10 +51,10 @@ public class SwerveDrive extends SubsystemBase {
   private final Translation2d m_CLocation = new Translation2d(-0.2762, -0.2762);
   private final Translation2d m_DLocation = new Translation2d(0.2762, -0.2762);
 
-  private final SwerveModule a = new SwerveModule(DriveConstants.angleMotorA, DriveConstants.driveMotorA, DriveConstants.turnEncoderA, DriveConstants.moduleA.turnOffset(), true, true, Math.PI/4);
-  private final SwerveModule b = new SwerveModule(DriveConstants.angleMotorB, DriveConstants.driveMotorB, DriveConstants.turnEncoderB, DriveConstants.moduleB.turnOffset(), true, false, 3*Math.PI/4);
-  private final SwerveModule c = new SwerveModule(DriveConstants.angleMotorC, DriveConstants.driveMotorC, DriveConstants.turnEncoderC, DriveConstants.moduleC.turnOffset(), true, false, Math.PI/4);
-  private final SwerveModule d = new SwerveModule(DriveConstants.angleMotorD, DriveConstants.driveMotorD, DriveConstants.turnEncoderD, DriveConstants.moduleD.turnOffset(), true, true, 3*Math.PI/4);
+  private final SwerveModule a = new SwerveModule(DriveConstants.angleMotorA, DriveConstants.driveMotorA, DriveConstants.turnEncoderA, DriveConstants.moduleA.turnOffset(), true, true);
+  private final SwerveModule b = new SwerveModule(DriveConstants.angleMotorB, DriveConstants.driveMotorB, DriveConstants.turnEncoderB, DriveConstants.moduleB.turnOffset(), true, false);
+  private final SwerveModule c = new SwerveModule(DriveConstants.angleMotorC, DriveConstants.driveMotorC, DriveConstants.turnEncoderC, DriveConstants.moduleC.turnOffset(), true, false);
+  private final SwerveModule d = new SwerveModule(DriveConstants.angleMotorD, DriveConstants.driveMotorD, DriveConstants.turnEncoderD, DriveConstants.moduleD.turnOffset(), true, true);
   
   private final Vision camera = new Vision();
 
@@ -63,8 +63,6 @@ public class SwerveDrive extends SubsystemBase {
   private final SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(m_ALocation, m_BLocation, m_CLocation, m_DLocation);
 
   private final SwerveDriveOdometry m_odometry;
-
-  private double[] yawPitchRoll = new double[3];
 
   private SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
 
