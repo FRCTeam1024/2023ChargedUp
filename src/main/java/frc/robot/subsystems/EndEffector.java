@@ -140,14 +140,6 @@ public class EndEffector extends SubsystemBase {
     return new PIDCommand(turnWristController, () -> getWristAngle(), goalAngle, output -> turnWristSetpoints(output), this);
   }
 
-  /* Seems to be unused and duplicating the command class of the same name, at least should be named differently so we don't
-      get confused.  
-  public InstantCommand turnWristWithJoysticks(double joystickInput){
-    double actualSpeed = joystickInput/1.5;
-    return new InstantCommand(() -> turnWrist(actualSpeed));
-  }
-  */
-
   /**
    * More complex command that should automatically intake a cone based on input orientation
    * @param isForward - true if cone is facing forward (point is away from robot), false if reversed

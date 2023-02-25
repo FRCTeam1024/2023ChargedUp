@@ -51,10 +51,10 @@ public class SwerveDrive extends SubsystemBase {
   private final Translation2d m_CLocation = new Translation2d(-0.2762, -0.2762);
   private final Translation2d m_DLocation = new Translation2d(0.2762, -0.2762);
 
-  private final SwerveModule a = new SwerveModule(DriveConstants.angleMotorA, DriveConstants.driveMotorA, DriveConstants.turnEncoderA, DriveConstants.moduleA.turnOffset(), true, true, DriveConstants.kFFAdjustA, Math.PI/4);
-  private final SwerveModule b = new SwerveModule(DriveConstants.angleMotorB, DriveConstants.driveMotorB, DriveConstants.turnEncoderB, DriveConstants.moduleB.turnOffset(), true, false, DriveConstants.kFFAdjustB, 3*Math.PI/4);
-  private final SwerveModule c = new SwerveModule(DriveConstants.angleMotorC, DriveConstants.driveMotorC, DriveConstants.turnEncoderC, DriveConstants.moduleC.turnOffset(), true, false, DriveConstants.kFFAdjustC, Math.PI/4);
-  private final SwerveModule d = new SwerveModule(DriveConstants.angleMotorD, DriveConstants.driveMotorD, DriveConstants.turnEncoderD, DriveConstants.moduleD.turnOffset(), true, true, DriveConstants.kFFAdjustD, 3*Math.PI/4);
+  private final SwerveModule a = new SwerveModule(DriveConstants.angleMotorA, DriveConstants.driveMotorA, DriveConstants.turnEncoderA, DriveConstants.moduleA.turnOffset(), true, true, Math.PI/4);
+  private final SwerveModule b = new SwerveModule(DriveConstants.angleMotorB, DriveConstants.driveMotorB, DriveConstants.turnEncoderB, DriveConstants.moduleB.turnOffset(), true, false, 3*Math.PI/4);
+  private final SwerveModule c = new SwerveModule(DriveConstants.angleMotorC, DriveConstants.driveMotorC, DriveConstants.turnEncoderC, DriveConstants.moduleC.turnOffset(), true, false, Math.PI/4);
+  private final SwerveModule d = new SwerveModule(DriveConstants.angleMotorD, DriveConstants.driveMotorD, DriveConstants.turnEncoderD, DriveConstants.moduleD.turnOffset(), true, true, 3*Math.PI/4);
   
   private final Vision camera = new Vision();
 
@@ -118,22 +118,6 @@ public class SwerveDrive extends SubsystemBase {
     b.setDesiredState(moduleStates[1]);
     c.setDesiredState(moduleStates[2]);
     d.setDesiredState(moduleStates[3]);
-    
-    velocityErrors[0] = moduleStates[0].speedMetersPerSecond - a.getDriveVelocity();
-    velocityErrors[1] = moduleStates[1].speedMetersPerSecond - b.getDriveVelocity();
-    velocityErrors[2] = moduleStates[2].speedMetersPerSecond - c.getDriveVelocity();
-    velocityErrors[3] = moduleStates[3].speedMetersPerSecond - d.getDriveVelocity();
-    angleErrors[0] = moduleStates[0].angle.getDegrees() - a.getAngleDegrees();
-    angleErrors[1] = moduleStates[1].angle.getDegrees() - b.getAngleDegrees();
-    angleErrors[2] = moduleStates[2].angle.getDegrees() - c.getAngleDegrees();
-    angleErrors[3] = moduleStates[3].angle.getDegrees() - d.getAngleDegrees();
-    
-   // printErrors();
-  }
-
-  public void printErrors(){
-    System.out.println("\n" + velocityErrors[0] + "\n" + velocityErrors[1] + "\n" + velocityErrors[2] + "\n" + velocityErrors[3]);
-    System.out.println("\n" + angleErrors[0] + "\n" + angleErrors[1] + "\n" + angleErrors[2] + "\n" + angleErrors[3]);
   }
 
   public double getAngleRad(int id){
@@ -253,12 +237,12 @@ public class SwerveDrive extends SubsystemBase {
     return pose;
   }
 
-  public SwerveModuleState[] getStates(){
+  public SwerveModuleState[] getDesiredStates(){
     SwerveModuleState[] moduleStates = {
-      a.getState(),
-      b.getState(),
-      c.getState(),
-      d.getState()
+      a.getDesiredState(),
+      b.getDesiredState(),
+      c.getDesiredState(),
+      d.getDesiredState()
     };
     return moduleStates;
   }

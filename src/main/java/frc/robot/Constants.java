@@ -45,14 +45,9 @@ public final class Constants {
         public static final double kaTurning = 0;
 
         //These are PID controllers for within swerve modules
-        public static final double kPModuleDriveController = 3;  //3 Borrowed these values
-        public static final double kIModuleDriveController = 0; 
+        public static final double kPModuleDriveController = 3;  //3 works well Borrowed these values
+        public static final double kIModuleDriveController = 0; //30-40 works but slow response time a lot
         public static final double kDModuleDriveController = 0;
-
-        public static final double kFFAdjustA = 1;
-        public static final double kFFAdjustB = 1;
-        public static final double kFFAdjustC = 1;
-        public static final double kFFAdjustD = 1;
 
         public static final double kPModuleTurnController = 10;  //Borrowed these values
         public static final double kIModuleTurnController = 0;

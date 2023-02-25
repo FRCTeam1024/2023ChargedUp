@@ -170,22 +170,7 @@ public class Arm extends SubsystemBase {
    */
   public Command moveTo(double goalAngle){
 
-    /** 
-    double currentAngle = encoderAngle();
-    //function to turn camAngle into armAngle and then motorpower - need to look at CAD and get measurements to do mathematically
-    double currentArmAngle = -1 * Math.sin(currentAngle) + Math.PI; //very rough transformation - tried to do the actual math, graphed that, this comes pretty close
-    currentArmAngle = currentArmAngle * 180 / Math.PI;
-    double error = goalAngle - currentArmAngle;
-    move(error * 0.05); //random proportional value to test
-    //need to test what angles accurately represent each height
-    */
-
-
-    //double crankGoal = armToCrank(goalAngle);
-    //double currentAngle = getCrankAngle();
     TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(66,33); //We'll work in degrees here since the arm angle methods return degrees
-    //TrapezoidProfile profile = new TrapezoidProfile(constraints, new TrapezoidProfile.State(crankGoal,0), new TrapezoidProfile.State(getCrankAngle(),0));
-    //TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(60,30); //We'll work in degrees here since the arm angle methods return degrees
     ProfiledPIDController crankController = new ProfiledPIDController(0.5, 0, 0, constraints);
     return new ProfiledPIDCommand(crankController, () -> getArmAngle(), goalAngle, (output,setpoint) -> move(output,setpoint), this)
                   .withInterruptBehavior(InterruptionBehavior.kCancelSelf);

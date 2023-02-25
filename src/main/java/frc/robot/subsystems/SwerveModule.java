@@ -53,7 +53,6 @@ public class SwerveModule {
           DriveConstants.kaTurning);
 
   private final double defaultAngle;
-  private final double adjust;
 
   private SwerveModuleState myState = new SwerveModuleState();
 
@@ -61,10 +60,9 @@ public class SwerveModule {
 
   /** Creates a new SwerveModule. */
   public SwerveModule(int angleMotorChannel, int driveMotorChannel, int turnEncoderChannel, 
-    double turnOffset, boolean turnReversed, boolean driveReversed, double cal, double angle) {
+    double turnOffset, boolean turnReversed, boolean driveReversed, double angle) {
 
     defaultAngle = angle;
-    adjust = cal;
 
     m_angleMotor = new WPI_TalonFX(angleMotorChannel);
     m_driveMotor = new WPI_TalonFX(driveMotorChannel);
@@ -94,7 +92,6 @@ public class SwerveModule {
     // Limit the PID Controller's input range between -pi and pi and set the input
     // to be continuous.
     m_turningPIDController.enableContinuousInput(-Math.PI, Math.PI);
-   // this.state = new SwerveModuleState();
 ;  }
 
   public void setDesiredState(SwerveModuleState moduleState){
@@ -105,9 +102,10 @@ public class SwerveModule {
       state.angle = new Rotation2d(defaultAngle);
     }
 
+    //Store the current goal state for reference
     myState = state;
+
     // Calculate the drive output from the drive PID controller.
-    
     final double driveOutput =
         m_drivePIDController.calculate(getDriveVelocity(), state.speedMetersPerSecond);
 
@@ -120,7 +118,7 @@ public class SwerveModule {
     final double turnFeedforward =
         m_turnFeedforward.calculate(m_turningPIDController.getSetpoint().velocity);
 
-   m_driveMotor.setVoltage(driveOutput + driveFeedforward*adjust);
+   m_driveMotor.setVoltage(driveOutput + driveFeedforward);
    m_angleMotor.setVoltage(turnOutput + turnFeedforward);
 
   }
@@ -145,9 +143,8 @@ public class SwerveModule {
     return m_turnEncoder.getAbsolutePosition()*Math.PI/180;
   }
 
-  public SwerveModuleState getState() {
-    return new SwerveModuleState(getDriveVelocity(),
-                new Rotation2d(getAngleRadians()));
+  public SwerveModuleState getDesiredState() {
+    return myState;
   }
 
   public SwerveModulePosition getPosition(){
