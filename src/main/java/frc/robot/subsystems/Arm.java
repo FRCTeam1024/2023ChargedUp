@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants.ArmConstants;
 
 public class Arm extends SubsystemBase {
@@ -31,7 +32,7 @@ public class Arm extends SubsystemBase {
   private final WPI_TalonFX rightArmMotor;
   private final MotorControllerGroup armMotors;
 
-  private final DutyCycleEncoder camEncoder;
+  private final DigitalInput armLimit;
 
   private State goal = new State(-1,-1);
   private double voltage = -1;
@@ -40,7 +41,7 @@ public class Arm extends SubsystemBase {
     leftArmMotor = new WPI_TalonFX(ArmConstants.leftArmID);
     rightArmMotor = new WPI_TalonFX(ArmConstants.rightArmID);
 
-    camEncoder = new DutyCycleEncoder(ArmConstants.camEncoderDIO);
+    armLimit = new DigitalInput(6);
 
     leftArmMotor.configFactoryDefault();
     rightArmMotor.configFactoryDefault();
@@ -73,7 +74,7 @@ public class Arm extends SubsystemBase {
     goal = setpoint;
     voltage = (volts + ArmConstants.kS + setpoint.velocity*ArmConstants.kV);
     if (getCrankAngle() < ArmConstants.minCrankAngle || getCrankAngle() > ArmConstants.maxCrankAngle) {
-      voltage = voltage * -1;
+      voltage = voltage;
     }
     armMotors.setVoltage(voltage);
   }
@@ -178,7 +179,7 @@ public class Arm extends SubsystemBase {
 
   public Command calMove(){
     PIDController crankCalController = new PIDController(0.05,0,0);
-    return new PIDCommand(crankCalController, () -> getCrankSpeed(), 60.0, (output) -> simpleMove(output),this)
+    return new PIDCommand(crankCalController, () -> getCrankSpeed(), -60.0, (output) -> simpleMove(output),this)
                   .withInterruptBehavior(InterruptionBehavior.kCancelSelf);
   }
 
@@ -192,7 +193,7 @@ public class Arm extends SubsystemBase {
    * @return the state of the arm crank limit switch
    */
   public boolean atCrankLimit(){
-    return false;
+    return !armLimit.get();
   }
 
   public double getGoalVelocity(){
