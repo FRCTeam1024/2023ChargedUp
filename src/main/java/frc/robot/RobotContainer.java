@@ -143,10 +143,10 @@ public class RobotContainer {
     operatorController.yButton.onTrue(new ProxyCommand(() -> arm.moveTo(ArmConstants.highLevel)));
 
     //need to test and see if these should be instantcommands or proxycommands, as well as if we need an automatic stop after movement
-    operatorController.dPadLeft.whileTrue(new InstantCommand(() -> endEffector.turnWrist(0.6)));
+    /**operatorController.dPadLeft.whileTrue(new InstantCommand(() -> endEffector.turnWrist(0.6)));
     operatorController.dPadLeft.onFalse(new InstantCommand(() -> endEffector.stop()));
     operatorController.dPadRight.whileTrue(new InstantCommand(() -> endEffector.turnWrist(-0.6)));
-    operatorController.dPadRight.onFalse(new InstantCommand(() -> endEffector.stop()));
+    operatorController.dPadRight.onFalse(new InstantCommand(() -> endEffector.stop()));*/
 
     operatorController.leftTrigger.whileTrue(new ProxyCommand(() -> endEffector.turnWristToAngle(80)));
     operatorController.leftBumper.whileTrue(new ProxyCommand(() -> endEffector.turnWristToAngle(-75)));
@@ -154,6 +154,8 @@ public class RobotContainer {
     operatorController.rightTrigger.onFalse(new InstantCommand(() -> endEffector.stop()));
     operatorController.rightBumper.whileTrue(new InstantCommand(() -> endEffector.releaseCube()));
     operatorController.rightBumper.onFalse(new InstantCommand(() -> endEffector.stop()));
+
+    operatorController.startButton.onTrue(new InstantCommand(() -> endEffector.resetWristAngle()));
 
     //Arm position calibration
     Trigger atLimit = new Trigger(arm::atCrankLimit);
