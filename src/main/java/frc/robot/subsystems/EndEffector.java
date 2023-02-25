@@ -208,4 +208,8 @@ public class EndEffector extends SubsystemBase {
     runIntake(0);
     turnWrist(0);
   }
+
+  public void resetWristAngle(){
+    snowblowerEncoder.setPosition(630);
+  }
 }

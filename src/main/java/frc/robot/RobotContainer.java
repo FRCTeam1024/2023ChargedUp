@@ -155,6 +155,8 @@ public class RobotContainer {
     operatorController.rightBumper.whileTrue(new InstantCommand(() -> endEffector.releaseCube()));
     operatorController.rightBumper.onFalse(new InstantCommand(() -> endEffector.stop()));
 
+    operatorController.startButton.onTrue(new InstantCommand(() -> endEffector.resetWristAngle()));
+
     //Arm position calibration
     Trigger atLimit = new Trigger(arm::atCrankLimit);
     operatorController.startButton.whileTrue(arm.calMove());
