@@ -123,6 +123,9 @@ public final class Constants {
     public static final class EndEffectorConstants {
         public static final int neoID = 12;
         public static final int snowblowerID = 13;
+        public static final double wristConversionFactor = 360/5.333;
+        public static final double angleBuffer = 2000;
+        public static final double wristStart = angleBuffer - 90;
     }
 
     public static final class LimelightConstants {

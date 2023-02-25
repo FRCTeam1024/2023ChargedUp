@@ -275,6 +275,10 @@ public class RobotContainer {
         .withSize(1,1)
         .withPosition(6,1);
 
+    diagnosticsTab.addNumber("Neo Temperature", () -> endEffector.getTemperature())
+        .withSize(1,1)
+        .withPosition(3,2);
+
     //Swerve module velocity errors A-D
     swerveTab.addNumber("SwerveModule A Vel Error", () -> drivetrain.getModVelError(1))
     .withSize(1,1)
@@ -592,8 +596,8 @@ public class RobotContainer {
   }
   // Moves from inner grid, to the third cube, picks it up, and then moves back to the inner grid to score it.
   private Command I_4_I(){
-    List<PathPlannerTrajectory> path = PathPlanner.loadPathGroup("I-3-I", new PathConstraints(2,2),
-                                                                              new PathConstraints(2,2));
+    List<PathPlannerTrajectory> path = PathPlanner.loadPathGroup("I-4-I", new PathConstraints(2,2),
+                                                                                new PathConstraints(2,2));
     return new SequentialCommandGroup(
       new ParallelDeadlineGroup(
         new SequentialCommandGroup(
@@ -601,18 +605,19 @@ public class RobotContainer {
           new WaitCommand(1)
         ),
         new ProxyCommand(() -> arm.moveTo(ArmConstants.lowLevel)),
-        new InstantCommand(() -> endEffector.intakeCube())
+        new InstantCommand(() -> endEffector.intakeCube()),
+        new ProxyCommand(endEffector.turnWristToAngle(110))
       ),
       new InstantCommand(() -> endEffector.stop()),
       new ParallelDeadlineGroup(
         new WaitCommand(4),
         drivetrain.followTrajectory(path.get(1)),
         new SequentialCommandGroup(
-          new WaitCommand(2),
+          new WaitCommand(1),
           new ProxyCommand(() -> arm.moveTo(ArmConstants.midLevel))
         )
       ),
-      new AutoMoveToAprilTag(drivetrain, drivetrain.getCamera()).withTimeout(1),
+      //new AutoMoveToAprilTag(drivetrain, drivetrain.getCamera()).withTimeout(1),
       new InstantCommand(() -> endEffector.releaseCube()),
       new WaitCommand(0.5),
       new InstantCommand(() -> endEffector.stop())

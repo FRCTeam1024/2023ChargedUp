@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Constants.EndEffectorConstants;
 
 /**
  * Check if switch is set correctly on encoder
@@ -45,8 +46,10 @@ public class EndEffector extends SubsystemBase {
     snowblower.setSmartCurrentLimit(5);
     snowblower.setSecondaryCurrentLimit(5);
     double conversionFactor = 360/5.333;
-    snowblowerEncoder.setPositionConversionFactor(conversionFactor);
-    snowblowerEncoder.setPosition(1910);
+    snowblowerEncoder.setPositionConversionFactor(EndEffectorConstants.wristConversionFactor);
+    snowblowerEncoder.setPosition(EndEffectorConstants.wristStart);
+    //neo.burnFlash();
+    //snowblower.burnFlash();
   }
 
   @Override
@@ -64,6 +67,7 @@ public class EndEffector extends SubsystemBase {
 
     // If intakeSpeed > 0 and current is too high
       // brake intake
+    
   }
 
 
@@ -86,7 +90,7 @@ public class EndEffector extends SubsystemBase {
       return angle;
     }else if(angle < -180){
     }*/
-    return (snowblowerEncoder.getPosition() - 2000);
+    return (snowblowerEncoder.getPosition() - EndEffectorConstants.angleBuffer);
   }
 
   public double getRawWristAngle(){
@@ -212,6 +216,10 @@ public class EndEffector extends SubsystemBase {
   }
 
   public void resetWristAngle(){
-    snowblowerEncoder.setPosition(1910);
+    snowblowerEncoder.setPosition(EndEffectorConstants.wristStart);
+  }
+
+  public double getTemperature(){
+    return neo.getMotorTemperature();
   }
 }
