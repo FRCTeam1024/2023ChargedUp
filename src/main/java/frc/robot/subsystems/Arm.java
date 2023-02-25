@@ -72,7 +72,7 @@ public class Arm extends SubsystemBase {
   public void move(double volts, State setpoint){
     goal = setpoint;
     voltage = (volts + ArmConstants.kS + setpoint.velocity*ArmConstants.kV);
-    if (getCrankAngle() > ArmConstants.minCrankAngle || getCrankAngle() < ArmConstants.maxCrankAngle) {
+    if (getCrankAngle() < ArmConstants.minCrankAngle || getCrankAngle() > ArmConstants.maxCrankAngle) {
       voltage = voltage * -1;
     }
     armMotors.setVoltage(voltage);
@@ -178,7 +178,7 @@ public class Arm extends SubsystemBase {
 
   public Command calMove(){
     PIDController crankCalController = new PIDController(0.05,0,0);
-    return new PIDCommand(crankCalController, () -> getCrankSpeed(), -60.0, (output) -> simpleMove(output),this)
+    return new PIDCommand(crankCalController, () -> getCrankSpeed(), 60.0, (output) -> simpleMove(output),this)
                   .withInterruptBehavior(InterruptionBehavior.kCancelSelf);
   }
 
