@@ -4,11 +4,8 @@
 
 package frc.robot.commands;
 
-import org.photonvision.targeting.PhotonTrackedTarget;
-
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.SwerveDrive;
-import frc.robot.subsystems.Vision;
 
 public class AutoTurn extends CommandBase {
   /** Creates a new AutoAlignAprilTag. */
