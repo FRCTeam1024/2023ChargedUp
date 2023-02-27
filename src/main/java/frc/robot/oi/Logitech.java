@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.XboxController; //DP: I wonder if we really need to
                                              //or if we could just extend GenericHID
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
+import edu.wpi.first.math.MathUtil;
 
 /**
  * This class defines everything that is specific to the Logitech controller.
@@ -94,34 +95,29 @@ public class Logitech extends XboxController {
     }
 
     public double getLeftStickX() {
-        if(Math.abs(getRawAxis(0)) > deadband) {
-            return getRawAxis(0); // got this off driver station
-        } else {
-            return 0;
-        }
+        return stickFilter(getRawAxis(0));
     }
 
     public double getLeftStickY() {
-        if(Math.abs(getRawAxis(1)) > deadband) {
-            return getRawAxis(1); // got this off driver station
-        } else {
-            return 0;
-        }
+        return stickFilter(getRawAxis(1));
     }
 
     public double getRightStickX() {
-        if(Math.abs(getRawAxis(2)) > deadband) {
-            return getRawAxis(2); // got this off driver station
-        } else {
-            return 0;
-        }
+        return stickFilter(getRawAxis(2));
     }
 
     public double getRightStickY() {
-        if(Math.abs(getRawAxis(3)) > deadband) {
-            return getRawAxis(3); // got this off driver station
-        } else {
-            return 0;
-        }
+        return stickFilter(getRawAxis(3));
+    }
+
+    /**
+     * 
+     * Filters raw joystick values by applying a deadband in both positive and negative directions.
+     * 
+     * @param value The raw stick value to filter
+     * @return The filtered stick value 
+     */
+    private double stickFilter(double value) {
+        return MathUtil.applyDeadband(Math.abs(value),deadband,1)*Math.signum(value);
     }
 }
