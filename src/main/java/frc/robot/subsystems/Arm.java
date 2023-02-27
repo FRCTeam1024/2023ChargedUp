@@ -14,6 +14,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
@@ -23,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants.ArmConstants;
+
 
 public class Arm extends SubsystemBase {
 
@@ -41,7 +43,7 @@ public class Arm extends SubsystemBase {
     leftArmMotor = new WPI_TalonFX(ArmConstants.leftArmID);
     rightArmMotor = new WPI_TalonFX(ArmConstants.rightArmID);
 
-    armLimit = new DigitalInput(6);
+    armLimit = new DigitalInput(ArmConstants.camLimitDIO);
 
     leftArmMotor.configFactoryDefault();
     rightArmMotor.configFactoryDefault();
@@ -71,11 +73,20 @@ public class Arm extends SubsystemBase {
    * @param setpoint the setpoint from the profiledPID command
    */
   public void move(double volts, State setpoint){
+    
+    //Store the setpoint for future reference
     goal = setpoint;
-    voltage = (volts + ArmConstants.kS + setpoint.velocity*ArmConstants.kV);
-    if (getCrankAngle() < ArmConstants.minCrankAngle || getCrankAngle() > ArmConstants.maxCrankAngle) {
-      voltage = voltage;
+
+    //point the static gain in the direction that opposes gravity
+    double staticGain = ArmConstants.kS;
+    if(getArmAngle() < -90) {
+      staticGain = staticGain *-1;
     }
+
+    //Add feedforward gains to feedback volts
+    voltage = (volts + staticGain + setpoint.velocity*ArmConstants.kV);
+  
+    //Set the voltage on the motors
     armMotors.setVoltage(voltage);
   }
 
@@ -85,12 +96,21 @@ public class Arm extends SubsystemBase {
 
   /**
    * 
-   * @return the angle of the arm in degrees based on the crank angle
+   * @return the angle of the arm in degrees based on the crank angle and limited to the max and min transmissoin angles.
    */
   public double getArmAngle(){
 
-    double A = ArmConstants.X3 - ArmConstants.R1*Math.cos(Math.toRadians(getCrankAngle()));
-    double B = ArmConstants.Y3 - ArmConstants.R1*Math.sin(Math.toRadians(getCrankAngle()));
+    return crankToArm(MathUtil.clamp(getCrankAngle(),ArmConstants.minCrankAngle,ArmConstants.maxCrankAngle));
+  }
+
+  /**
+   * 
+   * @param  The crank angle in question
+   * @return The arm angle corresponding to a given crank angle
+   */
+  public double crankToArm(double crank){
+    double A = ArmConstants.X3 - ArmConstants.R1*Math.cos(Math.toRadians(crank));
+    double B = ArmConstants.Y3 - ArmConstants.R1*Math.sin(Math.toRadians(crank));
 
     return Math.toDegrees(Math.asin((Math.pow(ArmConstants.R2,2)-Math.pow(ArmConstants.R3,2)-(A*A+B*B))/(2*ArmConstants.R3*Math.sqrt(A*A+B*B))))
           - Math.toDegrees(Math.atan(A/B))
@@ -171,8 +191,13 @@ public class Arm extends SubsystemBase {
    */
   public Command moveTo(double goalAngle){
 
+    //Setup controller
     TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(66,33); //We'll work in degrees here since the arm angle methods return degrees
     ProfiledPIDController crankController = new ProfiledPIDController(.5, 0, 0, constraints);
+
+    //Sanitize the input angle
+    goalAngle = MathUtil.clamp(goalAngle,crankToArm(ArmConstants.minCrankAngle),crankToArm(ArmConstants.maxCrankAngle));
+
     return new ProfiledPIDCommand(crankController, () -> getArmAngle(), goalAngle, (output,setpoint) -> move(output,setpoint), this)
                   .withInterruptBehavior(InterruptionBehavior.kCancelSelf);
   }
@@ -190,7 +215,7 @@ public class Arm extends SubsystemBase {
   /**
    * This method returns true when the arm crank is triggered indicating the arm is at its low end setpoint.
    * 
-   * @return the state of the arm crank limit switch
+   * @return TRUE if the limit switch is triggered
    */
   public boolean atCrankLimit(){
     return !armLimit.get();

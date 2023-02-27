@@ -148,7 +148,7 @@ public final class Constants {
         public static final int leftArmID = 10;
         public static final int rightArmID = 11;
 
-        public static final int camEncoderDIO = 7;
+        public static final int camLimitDIO = 6;
 
         public static final double armGearRatio = 166.5; //this is what's listed in the arm engineering notebook, no idea if that's right
 

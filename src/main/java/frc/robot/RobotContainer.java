@@ -155,6 +155,10 @@ public class RobotContainer {
     operatorController.rightBumper.whileTrue(new InstantCommand(() -> endEffector.releaseCube()));
     operatorController.rightBumper.onFalse(new InstantCommand(() -> endEffector.stop()));
 
+    //Neo motor stall safety, prevent stalling motor for too long
+    Trigger intakeStall = new Trigger(endEffector::intakeStalled).debounce(1);
+    intakeStall.onTrue(new InstantCommand(endEffector::stop));
+
     operatorController.startButton.onTrue(new InstantCommand(() -> endEffector.resetWristAngle()));
 
     //Arm position calibration

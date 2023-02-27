@@ -10,6 +10,7 @@ import com.revrobotics.SparkMaxAbsoluteEncoder;
 import com.revrobotics.SparkMaxRelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxRelativeEncoder.Type;
+import com.revrobotics.CANSparkMax.FaultID;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.Encoder;
@@ -221,5 +222,13 @@ public class EndEffector extends SubsystemBase {
 
   public double getTemperature(){
     return neo.getMotorTemperature();
+  }
+
+  public boolean intakeStalled(){
+    return neo.getFault(FaultID.kStall);
+  }
+
+  public boolean intakeOvercurrent(){
+    return neo.getFault(FaultID.kOvercurrent);
   }
 }
