@@ -609,24 +609,24 @@ public class RobotContainer {
   }
   // Moves from inner grid, to the third cube, picks it up, and then moves back to the inner grid to score it.
   private Command I_4_I(){
-    List<PathPlannerTrajectory> path = PathPlanner.loadPathGroup("I-4-I", new PathConstraints(2,2),
-                                                                                new PathConstraints(2,2));
+    List<PathPlannerTrajectory> path = PathPlanner.loadPathGroup("I-4-I", new PathConstraints(2.5,2.5),
+                                                                                new PathConstraints(2.5,2.5));
     return new SequentialCommandGroup(
       new ParallelDeadlineGroup(
         new SequentialCommandGroup(
           drivetrain.followTrajectory(path.get(0)),
-          new WaitCommand(1)
+          new WaitCommand(2)
         ),
-        new ProxyCommand(() -> arm.moveTo(ArmConstants.lowLevel)),
+        new ProxyCommand(() -> arm.moveTo(ArmConstants.pickup)),
         new InstantCommand(() -> endEffector.intakeCube()),
-        new ProxyCommand(endEffector.turnWristToAngle(110))
+        new ProxyCommand(endEffector.turnWristToAngle(150))
       ),
       new InstantCommand(() -> endEffector.stop()),
       new ParallelDeadlineGroup(
         new WaitCommand(4),
         drivetrain.followTrajectory(path.get(1)),
         new SequentialCommandGroup(
-          new WaitCommand(1),
+          new WaitCommand(0.5),
           new ProxyCommand(() -> arm.moveTo(ArmConstants.midLevel))
         )
       ),
