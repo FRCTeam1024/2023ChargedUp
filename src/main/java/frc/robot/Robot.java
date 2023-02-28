@@ -114,6 +114,7 @@ public class Robot extends TimedRobot {
   public void disabledInit() {
         //Call this to diable any PIDSubsytems to avoid integral windup.
         m_robotContainer.disablePIDSubsystems();
+        m_robotContainer.stopSubsystems();
   }
 
   @Override

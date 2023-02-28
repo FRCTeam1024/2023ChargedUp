@@ -36,14 +36,15 @@ public class EndEffector extends SubsystemBase {
 
   //private final SparkMaxAbsoluteEncoder absoluteEncoder = snowblower.getAbsoluteEncoder(SparkMaxAbsoluteEncoder.Type.kDutyCycle);
   private final RelativeEncoder snowblowerEncoder = snowblower.getEncoder(Type.kQuadrature, 8192);
+  //private final RelativeEncoder neoEncoder = neo.getEncoder();
 
   /** Creates a new EndEffector. */
   public EndEffector() {
     // Reset the snowblower encoder
     snowblower.restoreFactoryDefaults();
     neo.restoreFactoryDefaults();
-    neo.setSmartCurrentLimit(20);//limit is set to 10 amps, no idea if this is good or not
-    neo.setSecondaryCurrentLimit(20);
+    neo.setSmartCurrentLimit(30);//limit is set to 10 amps, no idea if this is good or not
+    neo.setSecondaryCurrentLimit(30);
     snowblower.setSmartCurrentLimit(5);
     snowblower.setSecondaryCurrentLimit(5);
     double conversionFactor = 360/5.333;
@@ -230,5 +231,9 @@ public class EndEffector extends SubsystemBase {
 
   public boolean intakeOvercurrent(){
     return neo.getFault(FaultID.kOvercurrent);
+  }
+
+  public double getNeoVoltage(){
+    return neo.getBusVoltage();
   }
 }

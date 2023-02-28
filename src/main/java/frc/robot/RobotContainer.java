@@ -397,6 +397,10 @@ public class RobotContainer {
         .withSize(1,1)
         .withPosition(8,1);
 
+    diagnosticsTab.addNumber("Neo Voltage", () -> endEffector.getNeoVoltage())
+        .withSize(1,1)
+        .withPosition(4,3);
+
     /**diagnosticsTab.addNumber("Charging Station Angle", () -> drivetrain.getChargeStationAngle())
         .withSize(1,1)
         .withPosition(7,3);*/
@@ -647,24 +651,27 @@ public class RobotContainer {
       new ParallelDeadlineGroup(
         new SequentialCommandGroup(
           drivetrain.followTrajectory(path.get(0)),
-          new WaitCommand(1)
+          new WaitCommand(2)
         ),
         new SequentialCommandGroup(
+          new WaitCommand(1),
           new InstantCommand(() -> endEffector.intakeCube()),
-          new ProxyCommand(() -> endEffector.turnWristToAngle(90)).withTimeout(1)
+          new ProxyCommand(() -> endEffector.turnWristToAngle(130)).withTimeout(2)
         ),
-        new ProxyCommand(() -> arm.moveTo(ArmConstants.lowLevel))
+        new SequentialCommandGroup(
+          new ProxyCommand(() -> arm.moveTo(ArmConstants.pickup))
+        )
       ),
-      new InstantCommand(() -> endEffector.stop()),
       new ParallelDeadlineGroup(
-        new WaitCommand(4),
+        new WaitCommand(5),
         drivetrain.followTrajectory(path.get(1)),
         new SequentialCommandGroup(
-          new WaitCommand(2),
+          new WaitCommand(1),
+          new InstantCommand(() -> endEffector.stop()),
           new ProxyCommand(() -> arm.moveTo(ArmConstants.midLevel))
         )
       ),
-      //new AutoMoveToAprilTag(drivetrain, drivetrain.getCamera()).withTimeout(1),
+      //new ProxyCommand(() -> new AutoMoveToAprilTag(drivetrain, drivetrain.getCamera()).withTimeout(1)),
       new InstantCommand(() -> endEffector.releaseCube()),
       new WaitCommand(0.5),
       new InstantCommand(() -> endEffector.stop())
@@ -683,5 +690,9 @@ public class RobotContainer {
     return new SequentialCommandGroup(
       drivetrain.followTrajectory(path)
     );
+  }
+
+  public void stopSubsystems(){
+    endEffector.stop();
   }
 }

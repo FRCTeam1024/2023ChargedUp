@@ -50,7 +50,7 @@ public class AutoMoveToAprilTag extends CommandBase {
       System.out.println(camToTarget.toString());
       targetPose = robotPose.plus(
         new Transform2d(
-          new Translation2d(-camToTarget.getX() + 1, -camToTarget.getY()),
+          new Translation2d(-camToTarget.getX() + 0.5, -camToTarget.getY()),
           new Rotation2d(camToTarget.getRotation().getZ())
         )
       );
@@ -118,7 +118,7 @@ public class AutoMoveToAprilTag extends CommandBase {
       camToTarget = m_camera.getBestTarget().getBestCameraToTarget();
       targetPose = currentPose.plus(
         new Transform2d(
-          new Translation2d(-camToTarget.getX() + 1, -camToTarget.getY()),
+          new Translation2d(-camToTarget.getX() + 0.5, -camToTarget.getY()),
           new Rotation2d(camToTarget.getRotation().getZ() + Math.PI)
         )
       );
