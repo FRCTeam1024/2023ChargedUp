@@ -199,14 +199,14 @@ public class EndEffector extends SubsystemBase {
    * Runs the intake forwards to intake a cube
    */
   public void intakeCube() {
-    runIntake(0.75); //assumption is being made that a positive value intakes and a negative value spits out
+    runIntake(0.6); //assumption is being made that a positive value intakes and a negative value spits out
   }
 
   /**
    * Runs the intake backwards to release a cube
    */
   public void releaseCube() {
-    runIntake(-0.75); //assumption is being made that a positive value intakes and a negative value spits out
+    runIntake(-0.6); //assumption is being made that a positive value intakes and a negative value spits out
   }
 
   /**
