@@ -148,7 +148,7 @@ public class RobotContainer {
     operatorController.dPadRight.whileTrue(new InstantCommand(() -> endEffector.turnWrist(-0.6)));
     operatorController.dPadRight.onFalse(new InstantCommand(() -> endEffector.stop()));*/
 
-    operatorController.leftTrigger.whileTrue(new ProxyCommand(() -> endEffector.turnWristToAngle(80)));
+    operatorController.leftTrigger.whileTrue(new ProxyCommand(() -> endEffector.turnWristToAngle(95)));
     operatorController.leftBumper.whileTrue(new ProxyCommand(() -> endEffector.turnWristToAngle(-75)));
     operatorController.rightTrigger.whileTrue(new InstantCommand(() -> endEffector.intakeCube()));
     operatorController.rightTrigger.onFalse(new InstantCommand(() -> endEffector.stop()));
