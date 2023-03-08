@@ -11,6 +11,7 @@ import com.revrobotics.SparkMaxRelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxRelativeEncoder.Type;
 import com.revrobotics.CANSparkMax.FaultID;
+import com.revrobotics.CANSparkMax.IdleMode;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.Encoder;
@@ -45,11 +46,12 @@ public class EndEffector extends SubsystemBase {
     neo.restoreFactoryDefaults();
     neo.setSmartCurrentLimit(30);//limit is set to 10 amps, no idea if this is good or not
     neo.setSecondaryCurrentLimit(30);
+    neo.setIdleMode(IdleMode.kBrake);
     snowblower.setSmartCurrentLimit(5);
     snowblower.setSecondaryCurrentLimit(5);
     double conversionFactor = 360/5.333;
     snowblowerEncoder.setPositionConversionFactor(EndEffectorConstants.wristConversionFactor);
-    snowblowerEncoder.setPosition(EndEffectorConstants.wristStart);
+    snowblowerEncoder.setPosition(1910);
     //neo.burnFlash();
     //snowblower.burnFlash();
   }
@@ -218,7 +220,7 @@ public class EndEffector extends SubsystemBase {
   }
 
   public void resetWristAngle(){
-    snowblowerEncoder.setPosition(EndEffectorConstants.wristStart);
+    snowblowerEncoder.setPosition(1910);
   }
 
   public double getTemperature(){

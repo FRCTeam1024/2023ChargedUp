@@ -192,7 +192,7 @@ public class Arm extends SubsystemBase {
   public Command moveTo(double goalAngle){
 
     //Setup controller
-    TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(75,45); //We'll work in degrees here since the arm angle methods return degrees
+    TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(70,70); //We'll work in degrees here since the arm angle methods return degrees
     ProfiledPIDController crankController = new ProfiledPIDController(.5, 0, 0, constraints);
 
     //Sanitize the input angle
