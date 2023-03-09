@@ -124,10 +124,11 @@ public class RobotContainer {
     driverController.aButton.onTrue(new InstantCommand(() -> drivetrain.zeroHeading()));
     driverController.leftTrigger.whileTrue(new DriveWithJoysticks(drivetrain,driverController,0.35));
     driverController.leftBumper.whileTrue(new DriveWithJoysticks(drivetrain,driverController,1));
+    driverController.yButton.whileTrue(new ProxyCommand(() -> endEffector.turnWristToAngle(0)));
  
-    driverController.rightBumper.onTrue(new ProxyCommand(
+    /**driverController.rightBumper.onTrue(new ProxyCommand(
       () -> drivetrain.followVisionTrajectory()
-    ));
+    ));*/
     
 
     //OPERATOR CONTROLS
@@ -231,12 +232,12 @@ public class RobotContainer {
 
     //Adds the limelight camera feed
     driverTab.addCamera("limelight", "OV5647", "http://photonvision.local:1182/stream.mjpg")
-        .withSize(4,4)
-        .withPosition(3,0); 
+        .withSize(3,3)
+        .withPosition(0,1); 
 
     driverTab.add("Arm Camera", arm.getFeed())
-        .withSize(3,3)
-        .withPosition(0,1)
+        .withSize(4,4)
+        .withPosition(3,0)
         .withProperties(Map.of("ROTATION", "HALF"));
 
     driverTab.addNumber("Arm Angle", () -> arm.getArmAngle())
