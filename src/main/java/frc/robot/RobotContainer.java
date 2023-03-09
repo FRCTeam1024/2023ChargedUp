@@ -524,15 +524,15 @@ public class RobotContainer {
     //Places a high cone Moves from center grid onto and over the charge station, and then moves directly back onto the charge station to auto balance
     private Command C_Cone_Cross_Charge(){
       List<PathPlannerTrajectory> path = PathPlanner.loadPathGroup("C-Cone-Cross-Charge", 
-                                            new PathConstraints(1,1),
                                             new PathConstraints(1.5,1.5),
-                                            new PathConstraints(1.5,1.5));
+                                            new PathConstraints(1.5,1.5),
+                                            new PathConstraints(2,2));
       return new SequentialCommandGroup(
         new InstantCommand(() -> endEffector.resetWristAngle()),
         new ParallelCommandGroup(
           arm.moveTo(ArmConstants.highLevel).withTimeout(4),
           new SequentialCommandGroup(
-            new WaitCommand(2),
+            new WaitCommand(2.5),
             drivetrain.followTrajectory(path.get(0)),
             new InstantCommand(() -> drivetrain.defenseMode())
           )
@@ -541,9 +541,17 @@ public class RobotContainer {
         new InstantCommand(() -> endEffector.runIntake(0.3)),
         arm.moveTo(ArmConstants.highLevel).withTimeout(1.5),
         new InstantCommand(() -> endEffector.stop()),
-        drivetrain.followTrajectory(path.get(1)),
-        arm.moveTo(ArmConstants.stowLevel).withTimeout(3),
-        drivetrain.followTrajectory(path.get(2)),
+        new ParallelCommandGroup(
+          new SequentialCommandGroup(
+            drivetrain.followTrajectory(path.get(1)),
+            new WaitCommand(0.5),
+            drivetrain.followTrajectory(path.get(2))
+          ),
+          new SequentialCommandGroup(
+            new WaitCommand(1),
+            arm.moveTo(ArmConstants.stowLevel).withTimeout(3)
+          )
+        ),
         new AutoBalance(drivetrain)
       );
     }

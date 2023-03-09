@@ -64,7 +64,7 @@ public final class Constants {
         public static final class moduleA {
             public static final double otherTurnOffset = 79; //May need finer adjustment on these.
             public static final double practiceTurnOffset = -57; //May need finer adjustment on these.
-            public static final double compTurnOffset = 139.04;
+            public static final double compTurnOffset = 139.84; //+0.8
 
             public static double turnOffset() {
                 return (CompBot) ? compTurnOffset : (PracticeBot ? practiceTurnOffset : otherTurnOffset);
@@ -74,7 +74,7 @@ public final class Constants {
         public static final class moduleB {
             public static final double otherTurnOffset = -96; //May need finer adjustment on these.
             public static final double practiceTurnOffset = 53; //May need finer adjustment on these.
-            public static final double compTurnOffset = 68.46;
+            public static final double compTurnOffset = 68.66;
 
             public static double turnOffset() {
                 return (CompBot) ? compTurnOffset : (PracticeBot ? practiceTurnOffset : otherTurnOffset);
@@ -84,7 +84,7 @@ public final class Constants {
         public static final class moduleC {
             public static final double otherTurnOffset = 104; //May need finer adjustment on these.
             public static final double practiceTurnOffset = -14; //May need finer adjustment on these.
-            public static final double compTurnOffset = -148.36;
+            public static final double compTurnOffset = -148.90; //-0.6
 
             public static double turnOffset() {
                 return (CompBot) ? compTurnOffset : (PracticeBot ? practiceTurnOffset : otherTurnOffset);
@@ -94,7 +94,7 @@ public final class Constants {
         public static final class moduleD {
             public static final double otherTurnOffset = -52; //May need finer adjustment on these.
             public static final double practiceTurnOffset = 18; //May need finer adjustment on these.
-            public static final double compTurnOffset = 36.24;
+            public static final double compTurnOffset = 35.44; //-0.1
 
             public static double turnOffset() {
                 return (CompBot) ? compTurnOffset : (PracticeBot ? practiceTurnOffset : otherTurnOffset);
