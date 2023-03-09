@@ -222,6 +222,7 @@ public class RobotContainer {
     m_AutoChooser.addOption("C-InnerRoute-Charge", new ProxyCommand(() -> C_InnerRoute_Charge()));
     m_AutoChooser.addOption("I-Charge", new ProxyCommand(() -> I_Charge()));
     m_AutoChooser.addOption("O-Charge", new ProxyCommand(() -> O_Charge()));
+    m_AutoChooser.addOption("C-Cone-Cross-Charge", new ProxyCommand(() -> C_Cone_Cross_Charge()));
     
 
     //Puts the auto chooser on the dashboard
@@ -518,6 +519,26 @@ public class RobotContainer {
       new AutoBalance(drivetrain)
     );
   }
+
+    //Places a high cone Moves from center grid onto and over the charge station, and then moves directly back onto the charge station to auto balance
+    private Command C_Cone_Cross_Charge(){
+      List<PathPlannerTrajectory> path = PathPlanner.loadPathGroup("C-Cone-Cross-Charge", 
+                                            new PathConstraints(1,1),
+                                            new PathConstraints(1.5,1.5),
+                                            new PathConstraints(1.5,1.5));
+      return new SequentialCommandGroup(
+        new InstantCommand(() -> endEffector.resetWristAngle()),
+        arm.moveTo(ArmConstants.highLevel).withTimeout(4),
+        drivetrain.followTrajectory(path.get(0)),
+        new InstantCommand(() -> endEffector.runIntake(0.3)),
+        new WaitCommand(1),
+        new InstantCommand(() -> endEffector.runIntake(0)),
+        drivetrain.followTrajectory(path.get(1)),
+        arm.moveTo(ArmConstants.stowLevel).withTimeout(4),
+        drivetrain.followTrajectory(path.get(2)),
+        new AutoBalance(drivetrain)
+      );
+    }
 
   // Moves from center grid, to the first cube, picks it up, and then moves to the outer grid to score it.
   private Command C_1_O(){

@@ -192,7 +192,7 @@ public class Arm extends SubsystemBase {
   public Command moveTo(double goalAngle){
 
     //Setup controller
-    TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(70,70); //We'll work in degrees here since the arm angle methods return degrees
+    TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(90,90); //We'll work in degrees here since the arm angle methods return degrees
     ProfiledPIDController crankController = new ProfiledPIDController(.5, 0, 0, constraints);
 
     //Sanitize the input angle
@@ -216,6 +216,7 @@ public class Arm extends SubsystemBase {
    * This method returns true when the arm crank is triggered indicating the arm is at its low end setpoint.
    * 
    * @return TRUE if the limit switch is triggered
+
    */
   public boolean atCrankLimit(){
     return !armLimit.get();
