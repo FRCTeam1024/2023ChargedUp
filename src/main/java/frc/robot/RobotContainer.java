@@ -529,13 +529,20 @@ public class RobotContainer {
                                             new PathConstraints(1.5,1.5));
       return new SequentialCommandGroup(
         new InstantCommand(() -> endEffector.resetWristAngle()),
-        arm.moveTo(ArmConstants.highLevel).withTimeout(4),
-        drivetrain.followTrajectory(path.get(0)),
+        new ParallelCommandGroup(
+          arm.moveTo(ArmConstants.highLevel).withTimeout(4),
+          new SequentialCommandGroup(
+            new WaitCommand(2),
+            drivetrain.followTrajectory(path.get(0)),
+            new InstantCommand(() -> drivetrain.defenseMode())
+          )
+        ),
+        arm.moveTo(-5).withTimeout(1.5),
         new InstantCommand(() -> endEffector.runIntake(0.3)),
-        new WaitCommand(1),
-        new InstantCommand(() -> endEffector.runIntake(0)),
+        arm.moveTo(ArmConstants.highLevel).withTimeout(1.5),
+        new InstantCommand(() -> endEffector.stop()),
         drivetrain.followTrajectory(path.get(1)),
-        arm.moveTo(ArmConstants.stowLevel).withTimeout(4),
+        arm.moveTo(ArmConstants.stowLevel).withTimeout(3),
         drivetrain.followTrajectory(path.get(2)),
         new AutoBalance(drivetrain)
       );
