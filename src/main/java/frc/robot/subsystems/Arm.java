@@ -201,6 +201,18 @@ public class Arm extends SubsystemBase {
     return new ProfiledPIDCommand(crankController, () -> getArmAngle(), goalAngle, (output,setpoint) -> move(output,setpoint), this)
                   .withInterruptBehavior(InterruptionBehavior.kCancelSelf);
   }
+  public Command moveToAuto(double goalAngle){
+
+    //Setup controller
+    TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(120,120); //We'll work in degrees here since the arm angle methods return degrees
+    ProfiledPIDController crankController = new ProfiledPIDController(.5, 0, 0, constraints);
+
+    //Sanitize the input angle
+    goalAngle = MathUtil.clamp(goalAngle,crankToArm(ArmConstants.minCrankAngle),crankToArm(ArmConstants.maxCrankAngle));
+
+    return new ProfiledPIDCommand(crankController, () -> getArmAngle(), goalAngle, (output,setpoint) -> move(output,setpoint), this)
+                  .withInterruptBehavior(InterruptionBehavior.kCancelSelf);
+  }
 
   public Command calMove(){
     PIDController crankCalController = new PIDController(0.05,0,0);
