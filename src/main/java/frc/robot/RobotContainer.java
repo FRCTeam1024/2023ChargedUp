@@ -656,18 +656,23 @@ public class RobotContainer {
       arm.moveToAuto(ArmConstants.highLevel).withTimeout(1),
       new SequentialCommandGroup(
         drivetrain.followTrajectory(path.get(1)),
-        arm.moveToAuto(ArmConstants.pickup).withTimeout(3),
+        arm.moveToAuto(ArmConstants.stowLevel).withTimeout(2.7),
         new ParallelCommandGroup(
-        drivetrain.followTrajectory(path.get(2)),
-        new InstantCommand(() -> endEffector.intakeCube())
+          new InstantCommand(() -> endEffector.intakeCube()),
+          drivetrain.followTrajectory(path.get(2)),
+          new SequentialCommandGroup(
+            new WaitCommand(2),
+            arm.moveToAuto(ArmConstants.pickup).withTimeout(1)
+          )
         )
       ),
       new WaitCommand(1),
       new InstantCommand(() -> endEffector.stop()),
+      arm.moveToAuto(ArmConstants.stowLevel).withTimeout(1),
       drivetrain.followTrajectory(path.get(3)),
       arm.moveToAuto(ArmConstants.highLevel).withTimeout(3),
         drivetrain.followTrajectory(path.get(4)),
-      new InstantCommand(() -> endEffector.runIntake(-0.3))
+      new InstantCommand(() -> endEffector.runIntake(-0.5))
     );
   }
 
