@@ -38,7 +38,7 @@ public class DriveWithJoysticks extends CommandBase {
     double rot = controller.getLeftStickX() * DriveConstants.kMaxAngularSpeedRadiansPerSecond * speedFactor;
 
     if(arm.getArmAngle() >= -60){
-      rot *= 0.25;
+      rot *= 0.5;
     }else if(arm.getArmAngle() < -60){
       rot *= 1;
     }
