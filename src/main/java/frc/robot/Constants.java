@@ -59,7 +59,7 @@ public final class Constants {
 
         //Some limits governing overall robot movement
         public static final double kMaxWheelSpeedMetersPerSecond = 4; //3
-        public static final double kMaxAngularSpeedRadiansPerSecond = Math.PI * 1; 
+        public static final double kMaxAngularSpeedRadiansPerSecond = Math.PI * 2; 
 
         public static final class moduleA {
             public static final double otherTurnOffset = 79; //May need finer adjustment on these.
