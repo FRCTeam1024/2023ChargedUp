@@ -7,6 +7,7 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.oi.Logitech;
+import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.SwerveDrive;
 
 public class DriveWithJoysticks extends CommandBase {
@@ -14,11 +15,13 @@ public class DriveWithJoysticks extends CommandBase {
   Logitech controller;
   SwerveDrive drivetrain;
   double speedFactor;
-  public DriveWithJoysticks(SwerveDrive m_swerve, Logitech controllerParam, double speed) {
+  Arm arm;
+  public DriveWithJoysticks(SwerveDrive m_swerve, Logitech controllerParam, double speed, Arm theArm) {
     // Use addRequirements() here to declare subsystem dependencies.
     drivetrain = m_swerve;
     controller = controllerParam;
     speedFactor = speed;
+    arm = theArm;
     addRequirements(drivetrain);
   }
 
@@ -34,7 +37,13 @@ public class DriveWithJoysticks extends CommandBase {
     double ySpeed = -controller.getRightStickX() * DriveConstants.kMaxWheelSpeedMetersPerSecond * speedFactor;
     double rot = controller.getLeftStickX() * DriveConstants.kMaxAngularSpeedRadiansPerSecond * speedFactor;
 
-    if( xSpeed != 0 || ySpeed != 0 || rot  != 0){
+    if(arm.getArmAngle() >= -60){
+      rot *= 0.5;
+    }else if(arm.getArmAngle() < -60){
+      rot *= 1;
+    }
+
+    if( xSpeed != 0 || ySpeed != 0 || rot  != 0 || controller.rightBumper.getAsBoolean()){
       drivetrain.drive(xSpeed, ySpeed, rot, !controller.rightTrigger.getAsBoolean());
     }
     else drivetrain.defenseMode();
