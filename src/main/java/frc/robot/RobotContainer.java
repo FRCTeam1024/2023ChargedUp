@@ -639,6 +639,8 @@ public class RobotContainer {
     List<PathPlannerTrajectory> path = PathPlanner.loadPathGroup("2InnerCone",
                                       new PathConstraints(1.5,1.5),
                                       new PathConstraints(1.5,1.5),
+                                      new PathConstraints(1.5,1.5),
+                                      new PathConstraints(1.5,1.5),
                                       new PathConstraints(1.5,1.5));
     return new SequentialCommandGroup(
       new InstantCommand(() -> endEffector.resetWristAngle()),
@@ -653,20 +655,19 @@ public class RobotContainer {
       arm.moveToAuto(-5).withTimeout(1),
       new InstantCommand(() -> endEffector.runIntake(0.3)),
       arm.moveToAuto(ArmConstants.highLevel).withTimeout(1),
-      new ParallelCommandGroup(
+      new SequentialCommandGroup(
         drivetrain.followTrajectory(path.get(1)),
-        new InstantCommand(() -> endEffector.intakeCube()),
-        new SequentialCommandGroup(
-          new WaitCommand(0.5),
-          arm.moveToAuto(ArmConstants.pickup).withTimeout(3)
+        arm.moveToAuto(ArmConstants.pickup).withTimeout(3),
+        new ParallelCommandGroup(
+        drivetrain.followTrajectory(path.get(2)),
+        new InstantCommand(() -> endEffector.intakeCube())
         )
       ),
       new WaitCommand(1),
       new InstantCommand(() -> endEffector.stop()),
-      new ParallelCommandGroup(
-        drivetrain.followTrajectory(path.get(2)),
-        arm.moveToAuto(ArmConstants.highLevel).withTimeout(3)
-      ),
+      drivetrain.followTrajectory(path.get(3)),
+      arm.moveToAuto(ArmConstants.highLevel).withTimeout(3),
+        drivetrain.followTrajectory(path.get(4)),
       new InstantCommand(() -> endEffector.runIntake(-0.3))
     );
   }
