@@ -141,8 +141,10 @@ public class Vision extends SubsystemBase {
     double currentTime = Timer.getFPGATimestamp();
     Optional<EstimatedRobotPose> result = robotPoseEstimator.update();
     if(result.isPresent()){
+      //System.out.println(result.get().estimatedPose.toPose2d().toString());
       return new Pair<Pose2d, Double>(result.get().estimatedPose.toPose2d(), currentTime - result.get().timestampSeconds);
     }else{
+      System.out.println("Uh oh, no vision");
       return new Pair<Pose2d, Double>(null, 0.0);
     }
     

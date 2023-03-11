@@ -205,25 +205,27 @@ public class RobotContainer {
 
     //Add commands to auto chooser, set default to null to avoid surprise operation
     m_AutoChooser.setDefaultOption("None", null);
-    m_AutoChooser.addOption("Test Path", new ProxyCommand(() -> TestAuto()));
-    m_AutoChooser.addOption("Test2", new ProxyCommand(() -> TestAuto2()));
-    m_AutoChooser.addOption("Testing Swerve Auto", new ProxyCommand(() -> returnAutoCommand()));
-    m_AutoChooser.addOption("Testing Auto Balance", new ProxyCommand(() -> TestAutoBalance()));
+    //m_AutoChooser.addOption("Test Path", new ProxyCommand(() -> TestAuto()));
+    //m_AutoChooser.addOption("Test2", new ProxyCommand(() -> TestAuto2()));
+    //m_AutoChooser.addOption("Testing Swerve Auto", new ProxyCommand(() -> returnAutoCommand()));
+    //m_AutoChooser.addOption("Testing Auto Balance", new ProxyCommand(() -> TestAutoBalance()));
     m_AutoChooser.addOption("C-Charge", new ProxyCommand(() -> C_Charge()));
     m_AutoChooser.addOption("C-Cross-Charge", new ProxyCommand(() -> C_Cross_Charge()));
-    m_AutoChooser.addOption("C-1-O", new ProxyCommand(() -> C_1_O()));
-    m_AutoChooser.addOption("C-2-O", new ProxyCommand(() -> C_2_O()));
-    m_AutoChooser.addOption("C-OuterRoute-Charge", new ProxyCommand(() -> C_OuterRoute_Charge()));
-    m_AutoChooser.addOption("C-4-I", new ProxyCommand(() -> C_4_I()));
-    m_AutoChooser.addOption("C-3-I", new ProxyCommand(() -> C_3_I()));
-    m_AutoChooser.addOption("I-3-I", new ProxyCommand(() -> I_3_I()));
-    m_AutoChooser.addOption("I-4-I", new ProxyCommand(() -> I_4_I()));
-    m_AutoChooser.addOption("O-1-O", new ProxyCommand(() -> O_1_O()));
-    m_AutoChooser.addOption("O-2-O", new ProxyCommand(() -> O_2_O()));
-    m_AutoChooser.addOption("C-InnerRoute-Charge", new ProxyCommand(() -> C_InnerRoute_Charge()));
-    m_AutoChooser.addOption("I-Charge", new ProxyCommand(() -> I_Charge()));
-    m_AutoChooser.addOption("O-Charge", new ProxyCommand(() -> O_Charge()));
+    //m_AutoChooser.addOption("C-1-O", new ProxyCommand(() -> C_1_O()));
+    //m_AutoChooser.addOption("C-2-O", new ProxyCommand(() -> C_2_O()));
+    //m_AutoChooser.addOption("C-OuterRoute-Charge", new ProxyCommand(() -> C_OuterRoute_Charge()));
+    //m_AutoChooser.addOption("C-4-I", new ProxyCommand(() -> C_4_I()));
+    //m_AutoChooser.addOption("C-3-I", new ProxyCommand(() -> C_3_I()));
+    //m_AutoChooser.addOption("I-3-I", new ProxyCommand(() -> I_3_I()));
+    //m_AutoChooser.addOption("I-4-I", new ProxyCommand(() -> I_4_I()));
+    //m_AutoChooser.addOption("O-1-O", new ProxyCommand(() -> O_1_O()));
+    //m_AutoChooser.addOption("O-2-O", new ProxyCommand(() -> O_2_O()));
+    //m_AutoChooser.addOption("C-InnerRoute-Charge", new ProxyCommand(() -> C_InnerRoute_Charge()));
+    //m_AutoChooser.addOption("I-Charge", new ProxyCommand(() -> I_Charge()));
+    //m_AutoChooser.addOption("O-Charge", new ProxyCommand(() -> O_Charge()));
     m_AutoChooser.addOption("C-Cone-Cross-Charge", new ProxyCommand(() -> C_Cone_Cross_Charge()));
+    m_AutoChooser.addOption("C-Cube-Cross-Charge", new ProxyCommand(() -> C_Cube_Cross_Charge()));
+    m_AutoChooser.addOption("2OuterCones", new ProxyCommand(() -> OuterCones()));
     
 
     //Puts the auto chooser on the dashboard
@@ -410,6 +412,14 @@ public class RobotContainer {
     driverTab.addNumber("Battery Voltage", () -> RobotController.getBatteryVoltage())
         .withSize(1,1)
         .withPosition(7,3);
+
+    diagnosticsTab.addString("Pose:", () -> drivetrain.getPose().toString())
+        .withSize(3,1)
+        .withPosition(5,2);
+
+    diagnosticsTab.addString("Vision Estimated Pose:", () -> drivetrain.getVisionEstimatedPose().toString())
+        .withSize(3,1)
+        .withPosition(5,3);
   }
 
   /**
@@ -522,33 +532,107 @@ public class RobotContainer {
   }
 
     //Places a high cone Moves from center grid onto and over the charge station, and then moves directly back onto the charge station to auto balance
-    private Command C_Cone_Cross_Charge(){
-      List<PathPlannerTrajectory> path = PathPlanner.loadPathGroup("C-Cone-Cross-Charge", 
-                                            new PathConstraints(1.5,1.5),
-                                            new PathConstraints(1.5,1.5),
-                                            new PathConstraints(1.5,1.5));
-      return new SequentialCommandGroup(
-        new InstantCommand(() -> endEffector.resetWristAngle()),
-        new ParallelCommandGroup(
-          arm.moveToAuto(14).withTimeout(4),
-          new SequentialCommandGroup(
-            new WaitCommand(2.5),
-            drivetrain.followTrajectory(path.get(0)),
-            new InstantCommand(() -> drivetrain.defenseMode())
-          )
+  private Command C_Cone_Cross_Charge(){
+    List<PathPlannerTrajectory> path = PathPlanner.loadPathGroup("C-Cone-Cross-Charge", 
+                                          new PathConstraints(1.5,1.5),
+                                          new PathConstraints(2,2),
+                                          new PathConstraints(2.5,2.5));
+    return new SequentialCommandGroup(
+      new InstantCommand(() -> endEffector.resetWristAngle()),
+      new ParallelCommandGroup(
+        arm.moveToAuto(14).withTimeout(2.5),
+        new SequentialCommandGroup(
+          new WaitCommand(1),
+          drivetrain.followTrajectory(path.get(0)),
+          new InstantCommand(() -> drivetrain.defenseMode())
+        )
+      ),
+      arm.moveToAuto(-5).withTimeout(1),
+      new InstantCommand(() -> endEffector.runIntake(0.3)),
+      new ParallelCommandGroup(
+        new SequentialCommandGroup(
+          drivetrain.followTrajectory(path.get(1)),
+          drivetrain.followTrajectory(path.get(2))
         ),
-        arm.moveToAuto(-5).withTimeout(1.5),
-        new InstantCommand(() -> endEffector.runIntake(0.3)),
-        arm.moveToAuto(ArmConstants.highLevel).withTimeout(1.5),
-        new InstantCommand(() -> endEffector.stop()),
+        new SequentialCommandGroup(
+          arm.moveToAuto(ArmConstants.highLevel).withTimeout(0.5),
+          new InstantCommand(() -> endEffector.stop()),
+          arm.moveToAuto(ArmConstants.stowLevel).withTimeout(3)
+        )
+      ),
+      new AutoBalance(drivetrain)
+    );
+  }
+
+    //Places a high cone Moves from center grid onto and over the charge station, and then moves directly back onto the charge station to auto balance
+    //needto rearrange lift up for cube
+  private Command C_Cube_Cross_Charge(){
+    List<PathPlannerTrajectory> path = PathPlanner.loadPathGroup("C-Cone-Cross-Charge", 
+                                          new PathConstraints(1.5,1.5),
+                                          new PathConstraints(2,2),
+                                          new PathConstraints(2.5,2.5));
+    return new SequentialCommandGroup(
+      new InstantCommand(() -> endEffector.resetWristAngle()),
+      new ParallelCommandGroup(
+        arm.moveToAuto(14).withTimeout(2.5),
+        new SequentialCommandGroup(
+          new WaitCommand(1),
+          drivetrain.followTrajectory(path.get(0)),
+          new InstantCommand(() -> drivetrain.defenseMode())
+        )
+      ),
+      arm.moveToAuto(-5).withTimeout(1),
+      new InstantCommand(() -> endEffector.runIntake(-0.3)),
+      new ParallelCommandGroup(
+        new SequentialCommandGroup(
+          drivetrain.followTrajectory(path.get(1)),
+          drivetrain.followTrajectory(path.get(2))
+        ),
+        new SequentialCommandGroup(
+          arm.moveToAuto(ArmConstants.highLevel).withTimeout(0.5),
+          new InstantCommand(() -> endEffector.stop()),
+          arm.moveToAuto(ArmConstants.stowLevel).withTimeout(3)
+        )
+      ),
+      new AutoBalance(drivetrain)
+    );
+  }
+
+  private Command OuterCones(){
+    List<PathPlannerTrajectory> path = PathPlanner.loadPathGroup("2OuterCone",
+                                      new PathConstraints(1.5,1.5),
+                                      new PathConstraints(1.5,1.5),
+                                      new PathConstraints(1.5,1.5));
+    return new SequentialCommandGroup(
+      new InstantCommand(() -> endEffector.resetWristAngle()),
+      new ParallelCommandGroup(
+        arm.moveToAuto(14).withTimeout(2.5),
+        new SequentialCommandGroup(
+          new WaitCommand(1),
+          drivetrain.followTrajectory(path.get(0)),
+          new InstantCommand(() -> drivetrain.defenseMode())
+        )
+      ),
+      arm.moveToAuto(-5).withTimeout(1),
+      new InstantCommand(() -> endEffector.runIntake(0.3)),
+      arm.moveToAuto(ArmConstants.highLevel).withTimeout(1),
+      new ParallelCommandGroup(
         drivetrain.followTrajectory(path.get(1)),
-        new ParallelCommandGroup(
-            drivetrain.followTrajectory(path.get(2)),
-            arm.moveToAuto(ArmConstants.stowLevel).withTimeout(3)
-        ),
-        new AutoBalance(drivetrain)
-      );
-    }
+        new InstantCommand(() -> endEffector.intakeCube()),
+        new SequentialCommandGroup(
+          new WaitCommand(0.5),
+          arm.moveToAuto(ArmConstants.pickup).withTimeout(3)
+        )
+      ),
+      new WaitCommand(1),
+      new InstantCommand(() -> endEffector.stop()),
+      new ParallelCommandGroup(
+        drivetrain.followTrajectory(path.get(2)),
+        arm.moveToAuto(ArmConstants.highLevel).withTimeout(3)
+      ),
+      new InstantCommand(() -> endEffector.runIntake(-0.3))
+    );
+  }
 
   // Moves from center grid, to the first cube, picks it up, and then moves to the outer grid to score it.
   private Command C_1_O(){
@@ -729,5 +813,6 @@ public class RobotContainer {
 
   public void stopSubsystems(){
     endEffector.stop();
+    drivetrain.defenseMode();
   }
 }

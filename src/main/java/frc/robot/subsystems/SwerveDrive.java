@@ -260,6 +260,10 @@ public class SwerveDrive extends SubsystemBase {
     );
   }
 
+  public Pose2d getVisionEstimatedPose(){
+    return m_poseEstimator.getEstimatedPosition();
+  }
+
   public Vision getCamera(){
     return camera;
   }
@@ -319,12 +323,24 @@ public class SwerveDrive extends SubsystemBase {
       Transform3d camToTarget = targets.get(0).getBestCameraToTarget();
       
       System.out.println(targets.toString());
-      Pose2d targetPose = robotPose.plus(
-        new Transform2d(
-          new Translation2d(-camToTarget.getX() + 1, -camToTarget.getY()),
-          new Rotation2d(camToTarget.getRotation().getZ())
-        )
-      );
+      Pose2d targetPose;
+      if(DriverStation.getAlliance() == Alliance.Blue){
+        targetPose = robotPose.plus(
+          new Transform2d(
+            new Translation2d(-camToTarget.getX() + 1, -camToTarget.getY()),
+            new Rotation2d(camToTarget.getRotation().getZ())
+          )
+        );
+      }else if(DriverStation.getAlliance() == Alliance.Red){
+        targetPose = robotPose.plus(
+          new Transform2d(
+            new Translation2d(camToTarget.getX() - 1, -camToTarget.getY()), //double check what needs negated
+            new Rotation2d(camToTarget.getRotation().getZ())
+          )
+        );
+      }else{
+        targetPose = robotPose;
+      }
       return PathPlanner.generatePath(
         new PathConstraints(2, 2),
         new PathPoint(robotPosition, robotRotation),
