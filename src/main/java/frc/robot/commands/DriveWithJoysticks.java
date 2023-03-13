@@ -43,7 +43,7 @@ public class DriveWithJoysticks extends CommandBase {
       rot *= 1;
     }
 
-    if( xSpeed != 0 || ySpeed != 0 || rot  != 0 || controller.rightBumper.getAsBoolean()){
+    if( xSpeed != 0 || ySpeed != 0 || rot  != 0 || controller.rightBumper.getAsBoolean()){// || arm.getAngle() >= -60  -> if we decide to stop x-lock based on arm angle
       drivetrain.drive(xSpeed, ySpeed, rot, !controller.rightTrigger.getAsBoolean());
     }
     else drivetrain.defenseMode();

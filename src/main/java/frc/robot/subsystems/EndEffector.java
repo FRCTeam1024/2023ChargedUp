@@ -145,7 +145,7 @@ public class EndEffector extends SubsystemBase {
   public PIDCommand turnWristToAngle(double goalAngle){
     double currentAngle = getWristAngle();
     double error = goalAngle - currentAngle;
-    PIDController turnWristController = new PIDController(0.05, 0, 0);
+    PIDController turnWristController = new PIDController(0.07, 0, 0);
     return new PIDCommand(turnWristController, () -> getWristAngle(), goalAngle, output -> turnWristSetpoints(output), this);
   }
 

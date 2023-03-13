@@ -150,6 +150,7 @@ public class RobotContainer {
     operatorController.dPadRight.whileTrue(new InstantCommand(() -> endEffector.turnWrist(-0.6)));
     operatorController.dPadRight.onFalse(new InstantCommand(() -> endEffector.stop()));*/
 
+    //if no more reverse cones, change the below angle to 120 or something higher
     operatorController.leftTrigger.whileTrue(new ProxyCommand(() -> endEffector.turnWristToAngle(95)));
     operatorController.leftBumper.whileTrue(new ProxyCommand(() -> endEffector.turnWristToAngle(-75)));
     operatorController.rightTrigger.whileTrue(new InstantCommand(() -> endEffector.intakeCube()));
@@ -643,6 +644,7 @@ public class RobotContainer {
                                       new PathConstraints(1.5,1.5),
                                       new PathConstraints(1.5,1.5));
     return new SequentialCommandGroup(
+      new InstantCommand(() -> drivetrain.defenseMode()),
       new InstantCommand(() -> endEffector.resetWristAngle()),
       new ParallelCommandGroup(
         arm.moveToAuto(14).withTimeout(2.5),
@@ -655,22 +657,30 @@ public class RobotContainer {
       arm.moveToAuto(-5).withTimeout(1),
       new InstantCommand(() -> endEffector.runIntake(0.3)),
       arm.moveToAuto(ArmConstants.highLevel).withTimeout(1),
-      new SequentialCommandGroup(
+      new ParallelCommandGroup(
         drivetrain.followTrajectory(path.get(1)),
-        arm.moveToAuto(ArmConstants.stowLevel).withTimeout(2.7),
-        new ParallelCommandGroup(
-          new InstantCommand(() -> endEffector.intakeCube()),
-          drivetrain.followTrajectory(path.get(2)),
-          new SequentialCommandGroup(
-            new WaitCommand(2),
-            arm.moveToAuto(ArmConstants.pickup).withTimeout(1)
-          )
+        new SequentialCommandGroup(
+          new WaitCommand(1),
+          arm.moveToAuto(ArmConstants.stowLevel).withTimeout(2.5)
+        )
+      ),
+      new ParallelCommandGroup(
+        new InstantCommand(() -> endEffector.intakeCube()),
+        drivetrain.followTrajectory(path.get(2)),
+        new SequentialCommandGroup(
+          new WaitCommand(2),
+          arm.moveToAuto(ArmConstants.pickup).withTimeout(1)
         )
       ),
       new WaitCommand(1),
       new InstantCommand(() -> endEffector.stop()),
-      arm.moveToAuto(ArmConstants.stowLevel).withTimeout(1),
-      drivetrain.followTrajectory(path.get(3)),
+      new ParallelCommandGroup(
+        arm.moveToAuto(ArmConstants.stowLevel).withTimeout(1),
+        new SequentialCommandGroup(
+          new WaitCommand(0.5),
+          drivetrain.followTrajectory(path.get(3))
+        )
+      ),
       arm.moveToAuto(ArmConstants.highLevel).withTimeout(3),
         drivetrain.followTrajectory(path.get(4)),
       new InstantCommand(() -> endEffector.runIntake(-0.5))
