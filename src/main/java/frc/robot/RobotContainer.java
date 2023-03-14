@@ -640,9 +640,8 @@ public class RobotContainer {
     List<PathPlannerTrajectory> path = PathPlanner.loadPathGroup("2InnerCone",
                                       new PathConstraints(1.5,1.5),
                                       new PathConstraints(1.5,1.5),
-                                      new PathConstraints(1.5,1.5),
-                                      new PathConstraints(1.5,1.5),
-                                      new PathConstraints(1.5,1.5));
+                                      new PathConstraints(2,2),
+                                      new PathConstraints(2,2));
     return new SequentialCommandGroup(
       new InstantCommand(() -> drivetrain.defenseMode()),
       new InstantCommand(() -> endEffector.resetWristAngle()),
@@ -662,27 +661,30 @@ public class RobotContainer {
         new SequentialCommandGroup(
           new WaitCommand(1),
           arm.moveToAuto(ArmConstants.stowLevel).withTimeout(2.5)
-        )
+        ),
+        endEffector.turnWristToOffset(-10).withTimeout(1)
       ),
       new ParallelCommandGroup(
         new InstantCommand(() -> endEffector.intakeCube()),
         drivetrain.followTrajectory(path.get(2)),
         new SequentialCommandGroup(
-          new WaitCommand(2),
+          new WaitCommand(2.3),
           arm.moveToAuto(ArmConstants.pickup).withTimeout(1)
         )
       ),
       new WaitCommand(1),
       new InstantCommand(() -> endEffector.stop()),
       new ParallelCommandGroup(
-        arm.moveToAuto(ArmConstants.stowLevel).withTimeout(1),
+        new SequentialCommandGroup(      
+          arm.moveToAuto(ArmConstants.stowLevel).withTimeout(1),
+          new WaitCommand(0.8),
+          arm.moveToAuto(ArmConstants.highLevel).withTimeout(2.5)
+        ),
         new SequentialCommandGroup(
           new WaitCommand(0.5),
           drivetrain.followTrajectory(path.get(3))
         )
       ),
-      arm.moveToAuto(ArmConstants.highLevel).withTimeout(3),
-        drivetrain.followTrajectory(path.get(4)),
       new InstantCommand(() -> endEffector.runIntake(-0.5))
     );
   }

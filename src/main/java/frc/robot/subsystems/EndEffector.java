@@ -149,6 +149,14 @@ public class EndEffector extends SubsystemBase {
     return new PIDCommand(turnWristController, () -> getWristAngle(), goalAngle, output -> turnWristSetpoints(output), this);
   }
 
+  public PIDCommand turnWristToOffset(double offset){
+    double currentAngle = getWristAngle();
+    double goalAngle = currentAngle - offset;
+    double error = goalAngle - currentAngle;
+    PIDController turnWristController = new PIDController(0.07, 0, 0);
+    return new PIDCommand(turnWristController, () -> getWristAngle(), goalAngle, output -> turnWristSetpoints(output), this);
+  }
+
   /**
    * More complex command that should automatically intake a cone based on input orientation
    * @param isForward - true if cone is facing forward (point is away from robot), false if reversed
