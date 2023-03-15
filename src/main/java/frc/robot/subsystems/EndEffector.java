@@ -120,6 +120,16 @@ public class EndEffector extends SubsystemBase {
     double voltage = speed * 12;
     neo.setVoltage(voltage);
   }
+
+  public void runIntakeAuto(double speed){
+    double voltage = speed * 12;
+    if(Constants.PracticeBot){
+      voltage = -1 * voltage;
+      neo.setVoltage(voltage);
+    }else{
+      neo.setVoltage(voltage);
+    }
+  }
   /**
    * Turns the wrist mechanism at the input speed, but ideally will automatically stop it if the wrist has moved beyond its limits.
    * @param speed - a double between 0 and 1, representing the speed that we want the wrist to turn at
@@ -209,14 +219,22 @@ public class EndEffector extends SubsystemBase {
    * Runs the intake forwards to intake a cube
    */
   public void intakeCube() {
-    runIntake(0.6); //assumption is being made that a positive value intakes and a negative value spits out
+    if(Constants.PracticeBot){
+      runIntake(-0.6);
+    }else{
+      runIntake(0.6); //assumption is being made that a positive value intakes and a negative value spits out
+    }
   }
 
   /**
    * Runs the intake backwards to release a cube
    */
   public void releaseCube() {
-    runIntake(-0.6); //assumption is being made that a positive value intakes and a negative value spits out
+    if(Constants.PracticeBot){
+      runIntake(0.6);
+    }else{
+      runIntake(-0.6); //assumption is being made that a positive value intakes and a negative value spits out
+    }
   }
 
   /**

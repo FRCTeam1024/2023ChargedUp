@@ -551,7 +551,7 @@ public class RobotContainer {
         )
       ),
       arm.moveToAuto(-5).withTimeout(1),
-      new InstantCommand(() -> endEffector.runIntake(0.3)),
+      new InstantCommand(() -> endEffector.runIntakeAuto(0.3)),
       new ParallelCommandGroup(
         new SequentialCommandGroup(
           drivetrain.followTrajectory(path.get(1)),
@@ -585,7 +585,7 @@ public class RobotContainer {
         )
       ),
       arm.moveToAuto(-5).withTimeout(1),
-      new InstantCommand(() -> endEffector.runIntake(-0.3)),
+      new InstantCommand(() -> endEffector.runIntakeAuto(-0.3)),
       new ParallelCommandGroup(
         new SequentialCommandGroup(
           drivetrain.followTrajectory(path.get(1)),
@@ -609,7 +609,7 @@ public class RobotContainer {
     return new SequentialCommandGroup(
       new InstantCommand(() -> endEffector.resetWristAngle()),
       new ParallelCommandGroup(
-        arm.moveToAuto(14).withTimeout(2.5),
+        arm.moveToAuto(ArmConstants.highLevel).withTimeout(2.5),
         new SequentialCommandGroup(
           new WaitCommand(1),
           drivetrain.followTrajectory(path.get(0)),
@@ -617,7 +617,7 @@ public class RobotContainer {
         )
       ),
       arm.moveToAuto(-5).withTimeout(1),
-      new InstantCommand(() -> endEffector.runIntake(0.3)),
+      new InstantCommand(() -> endEffector.runIntakeAuto(0.3)),
       arm.moveToAuto(ArmConstants.highLevel).withTimeout(1),
       new ParallelCommandGroup(
         drivetrain.followTrajectory(path.get(1)),
@@ -631,9 +631,12 @@ public class RobotContainer {
       new InstantCommand(() -> endEffector.stop()),
       new ParallelCommandGroup(
         drivetrain.followTrajectory(path.get(2)),
-        arm.moveToAuto(ArmConstants.highLevel).withTimeout(3)
+        new SequentialCommandGroup(
+          new WaitCommand(1),
+          arm.moveToAuto(ArmConstants.highLevel).withTimeout(3)
+        )
       ),
-      new InstantCommand(() -> endEffector.runIntake(-0.3))
+      new InstantCommand(() -> endEffector.runIntakeAuto(-0.3))
     );
   }
   private Command InnerCones(){
@@ -646,7 +649,7 @@ public class RobotContainer {
       new InstantCommand(() -> drivetrain.defenseMode()),
       new InstantCommand(() -> endEffector.resetWristAngle()),
       new ParallelCommandGroup(
-        arm.moveToAuto(14).withTimeout(2.5),
+        arm.moveToAuto(ArmConstants.highLevel).withTimeout(2.5),
         new SequentialCommandGroup(
           new WaitCommand(1),
           drivetrain.followTrajectory(path.get(0)),
@@ -654,7 +657,7 @@ public class RobotContainer {
         )
       ),
       arm.moveToAuto(-5).withTimeout(1),
-      new InstantCommand(() -> endEffector.runIntake(0.3)),
+      new InstantCommand(() -> endEffector.runIntakeAuto(0.3)),
       arm.moveToAuto(ArmConstants.highLevel).withTimeout(1),
       new ParallelCommandGroup(
         drivetrain.followTrajectory(path.get(1)),
@@ -685,7 +688,7 @@ public class RobotContainer {
           drivetrain.followTrajectory(path.get(3))
         )
       ),
-      new InstantCommand(() -> endEffector.runIntake(-0.5))
+      new InstantCommand(() -> endEffector.runIntakeAuto(-0.5))
     );
   }
 
