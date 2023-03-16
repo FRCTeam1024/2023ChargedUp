@@ -51,7 +51,7 @@ public class EndEffector extends SubsystemBase {
     snowblower.setSecondaryCurrentLimit(5);
     double conversionFactor = 360/5.333;
     snowblowerEncoder.setPositionConversionFactor(EndEffectorConstants.wristConversionFactor);
-    snowblowerEncoder.setPosition(1910);
+    snowblowerEncoder.setPosition(1835);
     //neo.burnFlash();
     //snowblower.burnFlash();
   }
@@ -246,7 +246,7 @@ public class EndEffector extends SubsystemBase {
   }
 
   public void resetWristAngle(){
-    snowblowerEncoder.setPosition(1910);
+    snowblowerEncoder.setPosition(1835);
   }
 
   public double getTemperature(){

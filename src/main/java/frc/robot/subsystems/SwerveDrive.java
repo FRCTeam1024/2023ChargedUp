@@ -74,7 +74,7 @@ public class SwerveDrive extends SubsystemBase {
 
   /** Creates a new SwerveDrive. */
   public SwerveDrive() {
-    pigeon.setYaw(0);
+    pigeon.setYaw(180);
 
     modulePositions[0] = a.getPosition();
     modulePositions[1] = b.getPosition();
@@ -388,6 +388,7 @@ public class SwerveDrive extends SubsystemBase {
   public Command basicFirstTrajectory(PathPlannerTrajectory path){
     return new SequentialCommandGroup(
       new PrintCommand("\n\n" + path.getInitialState().toString() + "\n\n" + path.getEndState().toString() + "\n\n"),
+      new PrintCommand("\n\n" + getYawDegrees() + "\n\n" + path.getInitialPose().getRotation().getDegrees() + "\n\n"),
       new InstantCommand(() -> this.resetPosition(path.getInitialHolonomicPose())),
       new ParallelCommandGroup(
         new PPSwerveControllerCommand(

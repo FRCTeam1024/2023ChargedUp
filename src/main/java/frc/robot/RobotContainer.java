@@ -49,6 +49,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.AutoAlignAprilTag;
 import frc.robot.commands.AutoBalance;
 import frc.robot.commands.AutoMoveToAprilTag;
+import frc.robot.commands.AutoTurn;
 import frc.robot.commands.DriveWithJoysticks;
 import frc.robot.commands.HoldEndEffectorPosition;
 import frc.robot.commands.PathPlannerCommand;
@@ -125,6 +126,8 @@ public class RobotContainer {
     driverController.leftTrigger.whileTrue(new DriveWithJoysticks(drivetrain,driverController,0.35, arm));
     driverController.leftBumper.whileTrue(new DriveWithJoysticks(drivetrain,driverController,1, arm));
     driverController.yButton.whileTrue(new ProxyCommand(() -> endEffector.turnWristToAngle(0)));
+    //driverController.dPadUp.whileTrue(new AutoTurn(drivetrain, 0));
+    //driverController.dPadDown.whileTrue(new AutoTurn(drivetrain, 180));
  
 
     /**driverController.rightBumper.onTrue(new ProxyCommand(
@@ -142,7 +145,7 @@ public class RobotContainer {
     operatorController.aButton.onTrue(new ProxyCommand(() -> arm.moveTo(ArmConstants.stowLevel)));
     operatorController.xButton.onTrue(new ProxyCommand(() -> arm.moveTo(ArmConstants.pickup)));
     operatorController.bButton.onTrue(new ProxyCommand(() -> arm.moveTo(ArmConstants.midLevel)));
-    operatorController.yButton.onTrue(new ProxyCommand(() -> arm.moveTo(ArmConstants.highLevel)));
+    operatorController.yButton.onTrue(new ProxyCommand(() -> arm.moveTo(0)));
 
     //need to test and see if these should be instantcommands or proxycommands, as well as if we need an automatic stop after movement
     /**operatorController.dPadLeft.whileTrue(new InstantCommand(() -> endEffector.turnWrist(0.6)));
@@ -211,8 +214,8 @@ public class RobotContainer {
     //m_AutoChooser.addOption("Test2", new ProxyCommand(() -> TestAuto2()));
     //m_AutoChooser.addOption("Testing Swerve Auto", new ProxyCommand(() -> returnAutoCommand()));
     //m_AutoChooser.addOption("Testing Auto Balance", new ProxyCommand(() -> TestAutoBalance()));
-    m_AutoChooser.addOption("C-Charge", new ProxyCommand(() -> C_Charge()));
-    m_AutoChooser.addOption("C-Cross-Charge", new ProxyCommand(() -> C_Cross_Charge()));
+    //m_AutoChooser.addOption("C-Charge", new ProxyCommand(() -> C_Charge()));
+    //m_AutoChooser.addOption("C-Cross-Charge", new ProxyCommand(() -> C_Cross_Charge()));
     //m_AutoChooser.addOption("C-1-O", new ProxyCommand(() -> C_1_O()));
     //m_AutoChooser.addOption("C-2-O", new ProxyCommand(() -> C_2_O()));
     //m_AutoChooser.addOption("C-OuterRoute-Charge", new ProxyCommand(() -> C_OuterRoute_Charge()));
@@ -229,6 +232,7 @@ public class RobotContainer {
     m_AutoChooser.addOption("C-Cube-Cross-Charge", new ProxyCommand(() -> C_Cube_Cross_Charge()));
     m_AutoChooser.addOption("2OuterCones", new ProxyCommand(() -> OuterCones()));
     m_AutoChooser.addOption("2InnerCones", new ProxyCommand(() -> InnerCones()));
+    m_AutoChooser.addOption("OuterConesCharge - Testing only", new ProxyCommand(() -> OuterConesCharge()));
     
 
     //Puts the auto chooser on the dashboard
@@ -604,8 +608,9 @@ public class RobotContainer {
   private Command OuterCones(){
     List<PathPlannerTrajectory> path = PathPlanner.loadPathGroup("2OuterCone",
                                       new PathConstraints(1.5,1.5),
-                                      new PathConstraints(1.5,1.5),
-                                      new PathConstraints(1.5,1.5));
+                                      new PathConstraints(2,2),
+                                      new PathConstraints(2,2),
+                                      new PathConstraints(0,0)); //4th pathconstraints is unused
     return new SequentialCommandGroup(
       new InstantCommand(() -> endEffector.resetWristAngle()),
       new ParallelCommandGroup(
@@ -617,28 +622,85 @@ public class RobotContainer {
         )
       ),
       arm.moveToAuto(-5).withTimeout(1),
-      new InstantCommand(() -> endEffector.runIntakeAuto(0.3)),
+      new InstantCommand(() -> endEffector.intakeCube()),
       arm.moveToAuto(ArmConstants.highLevel).withTimeout(1),
       new ParallelCommandGroup(
         drivetrain.followTrajectory(path.get(1)),
         new InstantCommand(() -> endEffector.intakeCube()),
         new SequentialCommandGroup(
-          new WaitCommand(0.5),
+          new WaitCommand(0.25),
           arm.moveToAuto(ArmConstants.pickup).withTimeout(3)
         )
       ),
-      new WaitCommand(1),
-      new InstantCommand(() -> endEffector.stop()),
+      new WaitCommand(0.1),
       new ParallelCommandGroup(
         drivetrain.followTrajectory(path.get(2)),
         new SequentialCommandGroup(
           new WaitCommand(1),
           arm.moveToAuto(ArmConstants.highLevel).withTimeout(3)
+        ),
+        new SequentialCommandGroup(
+          new WaitCommand(1.5),
+          new InstantCommand(() -> endEffector.stop())
         )
       ),
-      new InstantCommand(() -> endEffector.runIntakeAuto(-0.3))
+      new InstantCommand(() -> endEffector.releaseCube())
     );
   }
+
+  private Command OuterConesCharge(){
+    List<PathPlannerTrajectory> path = PathPlanner.loadPathGroup("2OuterCone",
+                                      new PathConstraints(1.5,1.5),
+                                      new PathConstraints(2,2),
+                                      new PathConstraints(2,2),
+                                      new PathConstraints(2.5,2.5));
+    return new SequentialCommandGroup(
+      new InstantCommand(() -> endEffector.resetWristAngle()),
+      new ParallelCommandGroup(
+        arm.moveToAuto(ArmConstants.highLevel).withTimeout(2.5),
+        new SequentialCommandGroup(
+          new WaitCommand(1),
+          drivetrain.followTrajectory(path.get(0)),
+          new InstantCommand(() -> drivetrain.defenseMode())
+        )
+      ),
+      arm.moveToAuto(-5).withTimeout(1),
+      new InstantCommand(() -> endEffector.intakeCube()),
+      arm.moveToAuto(ArmConstants.highLevel).withTimeout(1),
+      new ParallelCommandGroup(
+        drivetrain.followTrajectory(path.get(1)),
+        new InstantCommand(() -> endEffector.intakeCube()),
+        new SequentialCommandGroup(
+          new WaitCommand(0.25),
+          arm.moveToAuto(ArmConstants.pickup).withTimeout(3)
+        )
+      ),
+      new WaitCommand(0.1),
+      new ParallelCommandGroup(
+        drivetrain.followTrajectory(path.get(2)),
+        new SequentialCommandGroup(
+          new WaitCommand(1),
+          arm.moveToAuto(ArmConstants.highLevel).withTimeout(3)
+        ),
+        new SequentialCommandGroup(
+          new WaitCommand(1.5),
+          new InstantCommand(() -> endEffector.stop())
+        )
+      ),
+      new InstantCommand(() -> endEffector.releaseCube()),
+      new WaitCommand(0.25),
+      new InstantCommand(() -> endEffector.stop()),
+      new ParallelCommandGroup(
+        drivetrain.followTrajectory(path.get(3)),
+        new SequentialCommandGroup(
+          new WaitCommand(1),
+          arm.moveToAuto(ArmConstants.stowLevel)
+        )
+      ),
+      new AutoBalance(drivetrain)
+    );
+  }
+
   private Command InnerCones(){
     List<PathPlannerTrajectory> path = PathPlanner.loadPathGroup("2InnerCone",
                                       new PathConstraints(1.5,1.5),

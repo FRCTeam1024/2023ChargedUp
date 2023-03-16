@@ -48,10 +48,10 @@ public final class Constants {
         public static final double kPModuleDriveController = 3;  //3 works well Borrowed these values
         public static final double kIModuleDriveController = 0; //30-40 works but slow response time a lot
         public static final double kDModuleDriveController = 0;
-
-        public static final double kPModuleTurnController = 10;  //Borrowed these values
+            //Borrowed these values
+        public static final double kPModuleTurnController = 12.5;  //10
         public static final double kIModuleTurnController = 0;
-        public static final double kDModuleTurnController = 0.01;
+        public static final double kDModuleTurnController = 0.06;
 
         //Borrowed these values...
         public static final double kModuleMaxAngularVelocity = 3 * Math.PI; // Math.PI  (units: rad/s)
@@ -125,7 +125,7 @@ public final class Constants {
         public static final int snowblowerID = 13;
         public static final double wristConversionFactor = 360/5.333;
         public static final double angleBuffer = 2000;
-        public static final double wristStart = 1910; //needs to be 90 less than angleBuffer
+        public static final double wristStart = 1835; //needs to be 170 less than angleBuffer - new resetpoint
     }
 
     public static final class LimelightConstants {
