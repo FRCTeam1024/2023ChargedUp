@@ -48,14 +48,15 @@ public class AutoBalance extends CommandBase {
     if(xError > 2){
       xSpeed = kP * xError * (-1);
       ySpeed = kP * yError * (-1);
-      swerve.drive(xSpeed, ySpeed, 0, false);
+      swerve.drive(xSpeed, 0, 0, false);
       //for now this just uses speed in the x direction - we can make some tweaksif need be to 
       //adjust in both the x and y directions.
       balancedCounter = 0;
     }if(xError < -2){
       xSpeed = kP * xError * (-1);
       ySpeed = kP * yError * (-1);
-      swerve.drive(xSpeed, ySpeed, 0, false);
+      swerve.drive(xSpeed, 0, 0, false);
+      balancedCounter = 0;
     }else{
       balancedCounter++;
     }

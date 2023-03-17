@@ -697,7 +697,8 @@ public class RobotContainer {
           arm.moveToAuto(ArmConstants.stowLevel)
         )
       ),
-      new AutoBalance(drivetrain)
+      new AutoBalance(drivetrain),
+      new PrintCommand("AutoBalance Finished")
     );
   }
 
