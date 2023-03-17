@@ -207,6 +207,13 @@ public class SwerveDrive extends SubsystemBase {
     d.setDesiredState(moduleStates[3]);
   }
 
+  public void stop(){
+    a.stop();
+    b.stop();
+    c.stop();
+    d.stop();
+  }
+
   public SwerveDriveOdometry getOdometry(){
     return m_odometry;
   }
@@ -365,7 +372,7 @@ public class SwerveDrive extends SubsystemBase {
     }
     return new SequentialCommandGroup(
       basicFirstTrajectory(path),
-      new InstantCommand(() -> this.defenseMode())
+      new InstantCommand(() -> this.stop())
     );
   }
 
@@ -374,7 +381,7 @@ public class SwerveDrive extends SubsystemBase {
     return new SequentialCommandGroup(
       basicFirstTrajectory(path),
       new AutoTurn(this, 0),
-      new InstantCommand(() -> this.defenseMode())
+      new InstantCommand(() -> this.stop())
     );
   }
 

@@ -933,6 +933,6 @@ public class RobotContainer {
 
   public void stopSubsystems(){
     endEffector.stop();
-    drivetrain.defenseMode();
+    drivetrain.stop();
   }
 }

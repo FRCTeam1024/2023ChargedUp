@@ -115,6 +115,11 @@ public class SwerveModule {
 
   }
 
+  public void stop(){
+    m_driveMotor.setVoltage(0);
+    m_angleMotor.setVoltage(0);
+  }
+
   public double getDriveVelocity(){
     return m_driveMotor.getSelectedSensorVelocity()*(10*DriveConstants.wheelCircumference/(DriveConstants.encoderTicks*DriveConstants.gearRatio));
   }
