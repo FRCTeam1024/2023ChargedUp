@@ -28,6 +28,7 @@ public class AutoBalance extends CommandBase {
     // Use addRequirements() here to declare subsystem dependencies.
     swerve = theSwerve;
     addRequirements(swerve);
+    xError = 3;
   }
 
   // Called when the command is initially scheduled.

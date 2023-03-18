@@ -47,8 +47,8 @@ public class DriveWithJoysticks extends CommandBase {
   @Override
   public void execute() {
 
-    double xSpeed = -controller.getRightStickY() * DriveConstants.kMaxWheelSpeedMetersPerSecond * speedFactor;
-    double ySpeed = -controller.getRightStickX() * DriveConstants.kMaxWheelSpeedMetersPerSecond * speedFactor;
+    double xSpeed = controller.getRightStickY() * DriveConstants.kMaxWheelSpeedMetersPerSecond * speedFactor; //these were negated, changing negation because robot starts at 180
+    double ySpeed = controller.getRightStickX() * DriveConstants.kMaxWheelSpeedMetersPerSecond * speedFactor; //also changed negation
     double rot = controller.getLeftStickX() * DriveConstants.kMaxAngularSpeedRadiansPerSecond * speedFactor;
     yaw = drivetrain.getYawDegrees();
     if(arm.getArmAngle() >= -60){
@@ -57,20 +57,33 @@ public class DriveWithJoysticks extends CommandBase {
       rot *= 1;
     }
 
+    if(controller.dPadUp.getAsBoolean()){
+      goal = 180;
+      rot = robotTurn.calculate(drivetrain.getYawDegrees(),goal);
+      System.out.println(rot);
+    }
+    if(controller.dPadDown.getAsBoolean()){
+      goal = 0;
+      rot = robotTurn.calculate(drivetrain.getYawDegrees(),goal);
+      System.out.println(rot);
+    }
+    if(controller.dPadLeft.getAsBoolean()){
+      goal = -90;
+      rot = robotTurn.calculate(drivetrain.getYawDegrees(),goal);
+      System.out.println(rot);
+    }
+    if(controller.dPadRight.getAsBoolean()){
+      goal = 90;
+      rot = robotTurn.calculate(drivetrain.getYawDegrees(),goal);
+      System.out.println(rot);
+    }
+    if(!controller.dPadUp.getAsBoolean() && !controller.dPadDown.getAsBoolean() && !controller.dPadLeft.getAsBoolean() && !controller.dPadRight.getAsBoolean()){
+      robotTurn.reset(drivetrain.getYawDegrees());
+    }
     if( xSpeed != 0 || ySpeed != 0 || rot  != 0 || controller.rightBumper.getAsBoolean()){// || arm.getAngle() >= -60  -> if we decide to stop x-lock based on arm angle
-      /**if(controller.dPadUp.getAsBoolean() || controller.dPadDown.getAsBoolean()){
-        if(controller.dPadUp.getAsBoolean()){
-          goal = 0;
-        }else{
-          goal = 180;
-        }
-        autoSpeed = robotTurn.calculate(drivetrain.getYawDegrees(),goal);
-        drivetrain.drive(xSpeed,ySpeed,autoSpeed,!controller.rightTrigger.getAsBoolean());
-      }else{
-        //goal = yaw;**/
         drivetrain.drive(xSpeed, ySpeed, rot, !controller.rightTrigger.getAsBoolean());
-      //}
-    } else {drivetrain.defenseMode();}
+      }
+    else {drivetrain.defenseMode();}
     
   }
 

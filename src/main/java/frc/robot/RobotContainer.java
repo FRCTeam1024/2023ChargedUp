@@ -145,7 +145,7 @@ public class RobotContainer {
     operatorController.aButton.onTrue(new ProxyCommand(() -> arm.moveTo(ArmConstants.stowLevel)));
     operatorController.xButton.onTrue(new ProxyCommand(() -> arm.moveTo(ArmConstants.pickup)));
     operatorController.bButton.onTrue(new ProxyCommand(() -> arm.moveTo(ArmConstants.midLevel)));
-    operatorController.yButton.onTrue(new ProxyCommand(() -> arm.moveTo(0)));
+    operatorController.yButton.onTrue(new ProxyCommand(() -> arm.moveTo(5)));
 
     //need to test and see if these should be instantcommands or proxycommands, as well as if we need an automatic stop after movement
     /**operatorController.dPadLeft.whileTrue(new InstantCommand(() -> endEffector.turnWrist(0.6)));
@@ -458,8 +458,7 @@ public class RobotContainer {
           drivetrain::setModuleStates, // Module states consumer
           drivetrain // Requires this drive subsystem
         )
-      ),
-      new InstantCommand(() -> drivetrain.defenseMode())
+      )
     );
   }
 
@@ -468,8 +467,7 @@ public class RobotContainer {
   private Command TestAuto2(){
     PathPlannerTrajectory path = PathPlanner.loadPath("Circle Path", new PathConstraints(1, 1));
     return new SequentialCommandGroup(
-      new PathPlannerCommand(path,drivetrain,true).configure(),
-      new InstantCommand(() -> drivetrain.defenseMode())
+      new PathPlannerCommand(path,drivetrain,true).configure()
     );
   }
   //Initial test of just driving on to the charging station and running auto balance
@@ -489,8 +487,7 @@ public class RobotContainer {
           drivetrain // Requires this drive subsystem
         )
       ),
-      new AutoBalance(drivetrain),
-      new InstantCommand(() -> drivetrain.defenseMode())
+      new AutoBalance(drivetrain)
     );
   }
 
@@ -507,15 +504,14 @@ public class RobotContainer {
         //arm.moveTo(ArmConstants.stowLevel) just removed for sketchy testing
         new ProxyCommand(() -> arm.moveTo(-120)).withTimeout(1)
       ),
-      new PrintCommand("Does this finish these commands?"),
-      new InstantCommand(() -> drivetrain.defenseMode()),
+      new PrintCommand("Does this finish these commands?")
       new AutoBalance(drivetrain)
+    
     );*/
     return new SequentialCommandGroup(
       new InstantCommand(() -> endEffector.resetWristAngle()),
       drivetrain.followTrajectory(path).withTimeout(6),
-      new AutoBalance(drivetrain),
-      new InstantCommand(() -> drivetrain.defenseMode())
+      new AutoBalance(drivetrain)
     );
   }
 
@@ -550,12 +546,11 @@ public class RobotContainer {
         arm.moveToAuto(14).withTimeout(2.5),
         new SequentialCommandGroup(
           new WaitCommand(1),
-          drivetrain.followTrajectory(path.get(0)),
-          new InstantCommand(() -> drivetrain.defenseMode())
+          drivetrain.followTrajectory(path.get(0))
         )
       ),
       arm.moveToAuto(-5).withTimeout(1),
-      new InstantCommand(() -> endEffector.runIntakeAuto(0.3)),
+      new InstantCommand(() -> endEffector.runIntakeAuto(-0.3)),
       new ParallelCommandGroup(
         new SequentialCommandGroup(
           drivetrain.followTrajectory(path.get(1)),
@@ -584,12 +579,11 @@ public class RobotContainer {
         arm.moveToAuto(14).withTimeout(2.5),
         new SequentialCommandGroup(
           new WaitCommand(1),
-          drivetrain.followTrajectory(path.get(0)),
-          new InstantCommand(() -> drivetrain.defenseMode())
+          drivetrain.followTrajectory(path.get(0))
         )
       ),
       arm.moveToAuto(-5).withTimeout(1),
-      new InstantCommand(() -> endEffector.runIntakeAuto(-0.3)),
+      new InstantCommand(() -> endEffector.runIntakeAuto(0.3)),
       new ParallelCommandGroup(
         new SequentialCommandGroup(
           drivetrain.followTrajectory(path.get(1)),
@@ -617,8 +611,7 @@ public class RobotContainer {
         arm.moveToAuto(ArmConstants.highLevel).withTimeout(2.5),
         new SequentialCommandGroup(
           new WaitCommand(1),
-          drivetrain.followTrajectory(path.get(0)),
-          new InstantCommand(() -> drivetrain.defenseMode())
+          drivetrain.followTrajectory(path.get(0))
         )
       ),
       arm.moveToAuto(-5).withTimeout(1),
@@ -651,17 +644,16 @@ public class RobotContainer {
   private Command OuterConesCharge(){
     List<PathPlannerTrajectory> path = PathPlanner.loadPathGroup("2OuterCone",
                                       new PathConstraints(1.5,1.5),
+                                      new PathConstraints(2,2), //next up this speed, verify functionality
                                       new PathConstraints(2,2),
-                                      new PathConstraints(2,2),
-                                      new PathConstraints(2.5,2.5));
+                                      new PathConstraints(2.5,2.5)); //can up this speed
     return new SequentialCommandGroup(
       new InstantCommand(() -> endEffector.resetWristAngle()),
       new ParallelCommandGroup(
         arm.moveToAuto(ArmConstants.highLevel).withTimeout(2.5),
         new SequentialCommandGroup(
           new WaitCommand(1),
-          drivetrain.followTrajectory(path.get(0)),
-          new InstantCommand(() -> drivetrain.defenseMode())
+          drivetrain.followTrajectory(path.get(0))
         )
       ),
       arm.moveToAuto(-5).withTimeout(1),
@@ -671,16 +663,16 @@ public class RobotContainer {
         drivetrain.followTrajectory(path.get(1)),
         new InstantCommand(() -> endEffector.intakeCube()),
         new SequentialCommandGroup(
-          new WaitCommand(0.25),
-          arm.moveToAuto(ArmConstants.pickup).withTimeout(3)
+          new WaitCommand(0.25), //might need to decrease this time to get the arm down fast enough
+          arm.moveToAuto(ArmConstants.pickup).withTimeout(3) //check whether the arm or path is completed faster
         )
       ),
-      new WaitCommand(0.1),
+      new WaitCommand(0.1), //could remove this time fully
       new ParallelCommandGroup(
         drivetrain.followTrajectory(path.get(2)),
         new SequentialCommandGroup(
-          new WaitCommand(1),
-          arm.moveToAuto(ArmConstants.highLevel).withTimeout(3)
+          new WaitCommand(1), //if we up the speed, this may need to decrease a little bit
+          arm.moveToAuto(ArmConstants.highLevel).withTimeout(3)//check whether the arm or path is completed faster
         ),
         new SequentialCommandGroup(
           new WaitCommand(1.5),
@@ -688,15 +680,16 @@ public class RobotContainer {
         )
       ),
       new InstantCommand(() -> endEffector.releaseCube()),
-      new WaitCommand(0.25),
-      new InstantCommand(() -> endEffector.stop()),
+      new WaitCommand(0.25), //can decrease this time
+      new InstantCommand(() -> endEffector.stop()),//cutoff from last path
       new ParallelCommandGroup(
         drivetrain.followTrajectory(path.get(3)),
         new SequentialCommandGroup(
-          new WaitCommand(1),
-          arm.moveToAuto(ArmConstants.stowLevel)
+          new WaitCommand(1), //can decrease this time
+          arm.moveToAuto(ArmConstants.stowLevel).withTimeout(2.5)
         )
       ),
+      new PrintCommand("Starting AutoBalance"),
       new AutoBalance(drivetrain),
       new PrintCommand("AutoBalance Finished")
     );
@@ -709,14 +702,12 @@ public class RobotContainer {
                                       new PathConstraints(2,2),
                                       new PathConstraints(2,2));
     return new SequentialCommandGroup(
-      new InstantCommand(() -> drivetrain.defenseMode()),
       new InstantCommand(() -> endEffector.resetWristAngle()),
       new ParallelCommandGroup(
         arm.moveToAuto(ArmConstants.highLevel).withTimeout(2.5),
         new SequentialCommandGroup(
           new WaitCommand(1),
-          drivetrain.followTrajectory(path.get(0)),
-          new InstantCommand(() -> drivetrain.defenseMode())
+          drivetrain.followTrajectory(path.get(0))
         )
       ),
       arm.moveToAuto(-5).withTimeout(1),
@@ -935,5 +926,9 @@ public class RobotContainer {
   public void stopSubsystems(){
     endEffector.stop();
     drivetrain.stop();
+  }
+
+  public void resetDriver(){
+    drivetrain.setHeading180();
   }
 }

@@ -11,6 +11,7 @@ import java.util.List;
 import org.photonvision.PhotonTargetSortMode;
 import org.photonvision.targeting.PhotonTrackedTarget;
 import com.ctre.phoenix.sensors.WPI_PigeonIMU;
+import com.ctre.phoenix.sensors.PigeonIMU.PigeonState;
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
@@ -74,7 +75,9 @@ public class SwerveDrive extends SubsystemBase {
 
   /** Creates a new SwerveDrive. */
   public SwerveDrive() {
-    pigeon.setYaw(180);
+    System.out.println("Initial Pigeon Yaw: " + pigeon.getYaw());
+    pigeon.setYaw(180); //could try pigeon.addYaw(180)
+    System.out.println("Changed Pigeon Yaw: " + pigeon.getYaw());
 
     modulePositions[0] = a.getPosition();
     modulePositions[1] = b.getPosition();
@@ -82,9 +85,7 @@ public class SwerveDrive extends SubsystemBase {
     modulePositions[3] = d.getPosition();
 
     m_odometry = new SwerveDriveOdometry(m_kinematics, pigeon.getRotation2d(), modulePositions);
-
     m_poseEstimator = new SwerveDrivePoseEstimator(m_kinematics, pigeon.getRotation2d(), modulePositions, new Pose2d());
-
   }
 
   @Override
@@ -174,12 +175,19 @@ public class SwerveDrive extends SubsystemBase {
   }
 
   public double getYawDegrees() {
+    //System.out.println("\nPigeon yaw: " + pigeon.getYaw() + "\nOdometry yaw: " + m_odometry.getPoseMeters().getRotation().getDegrees() + "\n");
     return m_odometry.getPoseMeters().getRotation().getDegrees();
   }
 
   public void zeroHeading(){
     Pose2d pose = new Pose2d(m_odometry.getPoseMeters().getTranslation(), pigeon.getRotation2d());
     pigeon.reset();
+    m_odometry.resetPosition(pigeon.getRotation2d(), modulePositions, pose);
+  }
+
+  public void setHeading180(){
+    Pose2d pose = new Pose2d(m_odometry.getPoseMeters().getTranslation(), pigeon.getRotation2d());
+    pigeon.setYaw(180);
     m_odometry.resetPosition(pigeon.getRotation2d(), modulePositions, pose);
   }
 

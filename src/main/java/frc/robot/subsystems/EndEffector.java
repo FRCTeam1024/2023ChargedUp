@@ -47,6 +47,7 @@ public class EndEffector extends SubsystemBase {
     neo.setSmartCurrentLimit(30);//limit is set to 10 amps, no idea if this is good or not
     neo.setSecondaryCurrentLimit(30);
     neo.setIdleMode(IdleMode.kBrake);
+    //neo.setInverted(); check this at somepoint
     snowblower.setSmartCurrentLimit(5);
     snowblower.setSecondaryCurrentLimit(5);
     double conversionFactor = 360/5.333;
@@ -123,12 +124,7 @@ public class EndEffector extends SubsystemBase {
 
   public void runIntakeAuto(double speed){
     double voltage = speed * 12;
-    if(Constants.PracticeBot){
-      voltage = -1 * voltage;
-      neo.setVoltage(voltage);
-    }else{
-      neo.setVoltage(voltage);
-    }
+    neo.setVoltage(voltage);
   }
   /**
    * Turns the wrist mechanism at the input speed, but ideally will automatically stop it if the wrist has moved beyond its limits.
@@ -219,22 +215,14 @@ public class EndEffector extends SubsystemBase {
    * Runs the intake forwards to intake a cube
    */
   public void intakeCube() {
-    if(Constants.PracticeBot){
-      runIntake(-0.6);
-    }else{
-      runIntake(0.6); //assumption is being made that a positive value intakes and a negative value spits out
-    }
+    runIntake(-0.7);
   }
 
   /**
    * Runs the intake backwards to release a cube
    */
   public void releaseCube() {
-    if(Constants.PracticeBot){
-      runIntake(0.6);
-    }else{
-      runIntake(-0.6); //assumption is being made that a positive value intakes and a negative value spits out
-    }
+    runIntake(0.6);
   }
 
   /**
