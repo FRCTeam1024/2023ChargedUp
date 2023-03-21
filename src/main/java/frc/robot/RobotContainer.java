@@ -743,7 +743,7 @@ public class RobotContainer {
         )
       ),
       arm.moveToAuto(-5).withTimeout(1),
-      new InstantCommand(() -> endEffector.runIntakeAuto(0.3)),
+      new InstantCommand(() -> endEffector.intakeCube()),
       arm.moveToAuto(ArmConstants.highLevel).withTimeout(1),
       new ParallelCommandGroup(
         drivetrain.followTrajectory(path.get(1)),
