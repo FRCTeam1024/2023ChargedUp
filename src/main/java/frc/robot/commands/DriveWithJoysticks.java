@@ -47,8 +47,8 @@ public class DriveWithJoysticks extends CommandBase {
   @Override
   public void execute() {
 
-    double xSpeed = controller.getRightStickY() * DriveConstants.kMaxWheelSpeedMetersPerSecond * speedFactor; //these were negated, changing negation because robot starts at 180
-    double ySpeed = controller.getRightStickX() * DriveConstants.kMaxWheelSpeedMetersPerSecond * speedFactor; //also changed negation
+    double xSpeed = -controller.getRightStickY() * DriveConstants.kMaxWheelSpeedMetersPerSecond * speedFactor; //these were negated, changing negation because robot starts at 180
+    double ySpeed = -controller.getRightStickX() * DriveConstants.kMaxWheelSpeedMetersPerSecond * speedFactor; //also changed negation
     double rot = controller.getLeftStickX() * DriveConstants.kMaxAngularSpeedRadiansPerSecond * speedFactor;
     yaw = drivetrain.getYawDegrees();
     if(arm.getArmAngle() >= -60){
@@ -58,22 +58,22 @@ public class DriveWithJoysticks extends CommandBase {
     }
 
     if(controller.dPadUp.getAsBoolean()){
-      goal = 180;
-      rot = robotTurn.calculate(drivetrain.getYawDegrees(),goal);
-      System.out.println(rot);
-    }
-    if(controller.dPadDown.getAsBoolean()){
       goal = 0;
       rot = robotTurn.calculate(drivetrain.getYawDegrees(),goal);
       System.out.println(rot);
     }
+    if(controller.dPadDown.getAsBoolean()){
+      goal = 180;
+      rot = robotTurn.calculate(drivetrain.getYawDegrees(),goal);
+      System.out.println(rot);
+    }
     if(controller.dPadLeft.getAsBoolean()){
-      goal = -90;
+      goal = 90;
       rot = robotTurn.calculate(drivetrain.getYawDegrees(),goal);
       System.out.println(rot);
     }
     if(controller.dPadRight.getAsBoolean()){
-      goal = 90;
+      goal = -90;
       rot = robotTurn.calculate(drivetrain.getYawDegrees(),goal);
       System.out.println(rot);
     }
@@ -81,8 +81,8 @@ public class DriveWithJoysticks extends CommandBase {
       robotTurn.reset(drivetrain.getYawDegrees());
     }
     if( xSpeed != 0 || ySpeed != 0 || rot  != 0 || controller.rightBumper.getAsBoolean()){// || arm.getAngle() >= -60  -> if we decide to stop x-lock based on arm angle
-        drivetrain.drive(xSpeed, ySpeed, rot, !controller.rightTrigger.getAsBoolean());
-      }
+      drivetrain.drive(xSpeed, ySpeed, rot, !controller.rightTrigger.getAsBoolean());
+    }
     else {drivetrain.defenseMode();}
     
   }

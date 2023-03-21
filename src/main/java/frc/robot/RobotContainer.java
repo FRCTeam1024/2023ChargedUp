@@ -90,7 +90,7 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    
+    resetDriver();
     // Configure the dashboard
     configureDashboard();
 
@@ -230,6 +230,7 @@ public class RobotContainer {
     //m_AutoChooser.addOption("O-Charge", new ProxyCommand(() -> O_Charge()));
     m_AutoChooser.addOption("C-Cone-Cross-Charge", new ProxyCommand(() -> C_Cone_Cross_Charge()));
     m_AutoChooser.addOption("C-Cube-Cross-Charge", new ProxyCommand(() -> C_Cube_Cross_Charge()));
+    m_AutoChooser.addOption("OuterConeGrab", new ProxyCommand(() -> OuterConeGrab()));
     m_AutoChooser.addOption("2OuterCones", new ProxyCommand(() -> OuterCones()));
     m_AutoChooser.addOption("2InnerCones", new ProxyCommand(() -> InnerCones()));
     m_AutoChooser.addOption("OuterConesCharge - Testing only", new ProxyCommand(() -> OuterConesCharge()));
@@ -596,6 +597,37 @@ public class RobotContainer {
         )
       ),
       new AutoBalance(drivetrain)
+    );
+  }
+
+  private Command OuterConeGrab(){
+    List<PathPlannerTrajectory> path = PathPlanner.loadPathGroup("2OuterCone",
+                                      new PathConstraints(1.5,1.5),
+                                      new PathConstraints(2,2),
+                                      new PathConstraints(0,0), //3rd pathconstraints is unused
+                                      new PathConstraints(0,0)); //4th pathconstraints is unused
+    return new SequentialCommandGroup(
+      new InstantCommand(() -> endEffector.resetWristAngle()),
+      new ParallelCommandGroup(
+        arm.moveToAuto(ArmConstants.highLevel).withTimeout(2.5),
+        new SequentialCommandGroup(
+          new WaitCommand(1),
+          drivetrain.followTrajectory(path.get(0))
+        )
+      ),
+      arm.moveToAuto(-5).withTimeout(1),
+      new InstantCommand(() -> endEffector.intakeCube()),
+      arm.moveToAuto(ArmConstants.highLevel).withTimeout(1),
+      new ParallelCommandGroup(
+        drivetrain.followTrajectory(path.get(1)),
+        new InstantCommand(() -> endEffector.intakeCube()),
+        new SequentialCommandGroup(
+          new WaitCommand(0.25),
+          arm.moveToAuto(ArmConstants.pickup).withTimeout(3)
+        )
+      ),
+      new WaitCommand(1),
+      new InstantCommand(() -> endEffector.stop())
     );
   }
 

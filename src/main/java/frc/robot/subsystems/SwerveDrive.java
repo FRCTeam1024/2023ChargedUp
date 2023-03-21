@@ -84,8 +84,8 @@ public class SwerveDrive extends SubsystemBase {
     modulePositions[2] = c.getPosition();
     modulePositions[3] = d.getPosition();
 
-    m_odometry = new SwerveDriveOdometry(m_kinematics, pigeon.getRotation2d(), modulePositions);
-    m_poseEstimator = new SwerveDrivePoseEstimator(m_kinematics, pigeon.getRotation2d(), modulePositions, new Pose2d());
+    m_odometry = new SwerveDriveOdometry(m_kinematics, new Rotation2d(Math.PI), modulePositions);
+    m_poseEstimator = new SwerveDrivePoseEstimator(m_kinematics, new Rotation2d(Math.PI), modulePositions, new Pose2d());
   }
 
   @Override
@@ -110,7 +110,7 @@ public class SwerveDrive extends SubsystemBase {
     SwerveModuleState[] moduleStates =
         m_kinematics.toSwerveModuleStates(
             fieldRelative
-                ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, pigeon.getRotation2d())
+                ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, m_odometry.getPoseMeters().getRotation())
                 : new ChassisSpeeds(xSpeed, ySpeed, rot));
     SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, DriveConstants.kMaxWheelSpeedMetersPerSecond);
     a.setDesiredState(moduleStates[0]);
@@ -186,7 +186,7 @@ public class SwerveDrive extends SubsystemBase {
   }
 
   public void setHeading180(){
-    Pose2d pose = new Pose2d(m_odometry.getPoseMeters().getTranslation(), pigeon.getRotation2d());
+    Pose2d pose = new Pose2d(m_odometry.getPoseMeters().getTranslation(), new Rotation2d(Math.PI));
     pigeon.setYaw(180);
     m_odometry.resetPosition(pigeon.getRotation2d(), modulePositions, pose);
   }
