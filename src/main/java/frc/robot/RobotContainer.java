@@ -749,12 +749,12 @@ public class RobotContainer {
         )
       ),
       arm.moveToAuto(-5).withTimeout(1),
-      new InstantCommand(() -> endEffector.runIntakeAuto(0.3)),
+      new InstantCommand(() -> endEffector.intakeCube()),
       arm.moveToAuto(ArmConstants.highLevel).withTimeout(1),
       new ParallelCommandGroup(
         drivetrain.followTrajectory(path.get(1)),
         new SequentialCommandGroup(
-          new WaitCommand(1),
+          new WaitCommand(0.5),
           arm.moveToAuto(ArmConstants.stowLevel).withTimeout(2.5)
         ),
         endEffector.turnWristToOffset(-10).withTimeout(1)
@@ -772,7 +772,7 @@ public class RobotContainer {
       new ParallelCommandGroup(
         new SequentialCommandGroup(      
           arm.moveToAuto(ArmConstants.stowLevel).withTimeout(1),
-          new WaitCommand(0.8),
+          new WaitCommand(0.5),
           arm.moveToAuto(ArmConstants.highLevel).withTimeout(2.5)
         ),
         new SequentialCommandGroup(
