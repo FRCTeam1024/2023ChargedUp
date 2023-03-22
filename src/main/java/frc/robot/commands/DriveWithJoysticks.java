@@ -36,6 +36,7 @@ public class DriveWithJoysticks extends CommandBase {
     goal = yaw;
     autoSpeed = 0;
     robotTurn.enableContinuousInput(-180, 180);
+    //robotTurn.setTolerance(3);
     addRequirements(drivetrain);
   }
 

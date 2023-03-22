@@ -274,6 +274,14 @@ public class RobotContainer {
     diagnosticsTab.addNumber("Robot Yaw", () -> drivetrain.getYawDegrees())
         .withSize(1,1)
         .withPosition(0,0);
+
+    diagnosticsTab.addNumber("Pigeon Heading", () -> drivetrain.getPigeonHeading())
+        .withSize(1,1)
+        .withPosition(0,1);
+
+    diagnosticsTab.addNumber("Pigeon Yaw", () -> drivetrain.getPigeonYaw())
+        .withSize(1,1)
+        .withPosition(0,2);
         
     //Swerve module angles A-D
     diagnosticsTab.addNumber("SwerveModule A Angle", () -> drivetrain.getAngleRad(1))
@@ -678,7 +686,7 @@ public class RobotContainer {
                                       new PathConstraints(1.5,1.5),
                                       new PathConstraints(2,2), //next up this speed, verify functionality
                                       new PathConstraints(2,2),
-                                      new PathConstraints(2.5,2.5)); //can up this speed
+                                      new PathConstraints(3,3)); //can up this speed
     return new SequentialCommandGroup(
       new InstantCommand(() -> endEffector.resetWristAngle()),
       new ParallelCommandGroup(
@@ -717,13 +725,11 @@ public class RobotContainer {
       new ParallelCommandGroup(
         drivetrain.followTrajectory(path.get(3)),
         new SequentialCommandGroup(
-          new WaitCommand(1), //can decrease this time
+          new WaitCommand(0.5), //can decrease this time
           arm.moveToAuto(ArmConstants.stowLevel).withTimeout(2.5)
         )
       ),
-      new PrintCommand("Starting AutoBalance"),
-      new AutoBalance(drivetrain),
-      new PrintCommand("AutoBalance Finished")
+      new AutoBalance(drivetrain)
     );
   }
 

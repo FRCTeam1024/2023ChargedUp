@@ -230,6 +230,14 @@ public class SwerveDrive extends SubsystemBase {
     return pigeon.getRotation2d();
   }
 
+  public double getPigeonHeading(){
+    return pigeon.getRotation2d().getDegrees();
+  }
+
+  public double getPigeonYaw(){
+    return pigeon.getYaw();
+  }
+
   public SwerveModulePosition[] getSwerveModulePositions(){
     return modulePositions;
   }
