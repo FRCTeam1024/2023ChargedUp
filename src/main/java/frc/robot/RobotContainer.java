@@ -611,9 +611,9 @@ public class RobotContainer {
   private Command OuterConeGrab(){
     List<PathPlannerTrajectory> path = PathPlanner.loadPathGroup("2OuterCone",
                                       new PathConstraints(1.5,1.5),
-                                      new PathConstraints(2,2),
-                                      new PathConstraints(0,0), //3rd pathconstraints is unused
-                                      new PathConstraints(0,0)); //4th pathconstraints is unused
+                                      new PathConstraints(2,2), //next up this speed, verify functionality
+                                      new PathConstraints(0,0), //3rd path isn't used
+                                      new PathConstraints(0,0)); //4th path isn't used
     return new SequentialCommandGroup(
       new InstantCommand(() -> endEffector.resetWristAngle()),
       new ParallelCommandGroup(
@@ -628,12 +628,16 @@ public class RobotContainer {
       arm.moveToAuto(ArmConstants.highLevel).withTimeout(1),
       new ParallelCommandGroup(
         drivetrain.followTrajectory(path.get(1)),
-        new InstantCommand(() -> endEffector.intakeCube()),
         new SequentialCommandGroup(
-          new WaitCommand(0.25),
-          arm.moveToAuto(ArmConstants.pickup).withTimeout(3)
+          new InstantCommand(() -> endEffector.intakeCube()),
+          new ProxyCommand(() -> endEffector.turnWristToAngle(-200)).withTimeout(1)
+        ),
+        new SequentialCommandGroup(
+          new WaitCommand(0.25), //might need to decrease this time to get the arm down fast enough
+          arm.moveToAuto(ArmConstants.pickup).withTimeout(3) //check whether the arm or path is completed faster
         )
       ),
+      arm.moveToAuto(-85).withTimeout(0.3),
       new WaitCommand(1),
       new InstantCommand(() -> endEffector.stop())
     );
@@ -642,9 +646,9 @@ public class RobotContainer {
   private Command OuterCones(){
     List<PathPlannerTrajectory> path = PathPlanner.loadPathGroup("2OuterCone",
                                       new PathConstraints(1.5,1.5),
+                                      new PathConstraints(2,2), //next up this speed, verify functionality
                                       new PathConstraints(2,2),
-                                      new PathConstraints(2,2),
-                                      new PathConstraints(0,0)); //4th pathconstraints is unused
+                                      new PathConstraints(0,0)); //4th path isn't used
     return new SequentialCommandGroup(
       new InstantCommand(() -> endEffector.resetWristAngle()),
       new ParallelCommandGroup(
@@ -659,25 +663,30 @@ public class RobotContainer {
       arm.moveToAuto(ArmConstants.highLevel).withTimeout(1),
       new ParallelCommandGroup(
         drivetrain.followTrajectory(path.get(1)),
-        new InstantCommand(() -> endEffector.intakeCube()),
         new SequentialCommandGroup(
-          new WaitCommand(0.25),
-          arm.moveToAuto(ArmConstants.pickup).withTimeout(3)
+          new InstantCommand(() -> endEffector.intakeCube()),
+          new ProxyCommand(() -> endEffector.turnWristToAngle(-200)).withTimeout(1)
+        ),
+        new SequentialCommandGroup(
+          new WaitCommand(0.25), //might need to decrease this time to get the arm down fast enough
+          arm.moveToAuto(ArmConstants.pickup).withTimeout(3) //check whether the arm or path is completed faster
         )
       ),
-      new WaitCommand(0.1),
+      arm.moveToAuto(-85).withTimeout(0.3),
       new ParallelCommandGroup(
         drivetrain.followTrajectory(path.get(2)),
         new SequentialCommandGroup(
-          new WaitCommand(1),
-          arm.moveToAuto(ArmConstants.highLevel).withTimeout(3)
+          new WaitCommand(1), //if we up the speed, this may need to decrease a little bit
+          arm.moveToAuto(ArmConstants.highLevel).withTimeout(3)//check whether the arm or path is completed faster
         ),
         new SequentialCommandGroup(
-          new WaitCommand(1.5),
+          new WaitCommand(2.5),
           new InstantCommand(() -> endEffector.stop())
         )
       ),
-      new InstantCommand(() -> endEffector.releaseCube())
+      new InstantCommand(() -> endEffector.runIntake(0.8)),
+      new WaitCommand(0.25), //can decrease this time
+      new InstantCommand(() -> endEffector.stop())
     );
   }
 
@@ -701,13 +710,16 @@ public class RobotContainer {
       arm.moveToAuto(ArmConstants.highLevel).withTimeout(1),
       new ParallelCommandGroup(
         drivetrain.followTrajectory(path.get(1)),
-        new InstantCommand(() -> endEffector.intakeCube()),
+        new SequentialCommandGroup(
+          new InstantCommand(() -> endEffector.intakeCube()),
+          new ProxyCommand(() -> endEffector.turnWristToAngle(-200)).withTimeout(1)
+        ),
         new SequentialCommandGroup(
           new WaitCommand(0.25), //might need to decrease this time to get the arm down fast enough
           arm.moveToAuto(ArmConstants.pickup).withTimeout(3) //check whether the arm or path is completed faster
         )
       ),
-      new WaitCommand(0.1), //could remove this time fully
+      arm.moveToAuto(-85).withTimeout(0.3),
       new ParallelCommandGroup(
         drivetrain.followTrajectory(path.get(2)),
         new SequentialCommandGroup(
@@ -715,11 +727,11 @@ public class RobotContainer {
           arm.moveToAuto(ArmConstants.highLevel).withTimeout(3)//check whether the arm or path is completed faster
         ),
         new SequentialCommandGroup(
-          new WaitCommand(1.5),
+          new WaitCommand(2.5),
           new InstantCommand(() -> endEffector.stop())
         )
       ),
-      new InstantCommand(() -> endEffector.releaseCube()),
+      new InstantCommand(() -> endEffector.runIntake(0.8)),
       new WaitCommand(0.25), //can decrease this time
       new InstantCommand(() -> endEffector.stop()),//cutoff from last path
       new ParallelCommandGroup(
