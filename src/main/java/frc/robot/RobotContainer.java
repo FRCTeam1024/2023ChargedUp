@@ -228,7 +228,8 @@ public class RobotContainer {
     //m_AutoChooser.addOption("C-InnerRoute-Charge", new ProxyCommand(() -> C_InnerRoute_Charge()));
     //m_AutoChooser.addOption("I-Charge", new ProxyCommand(() -> I_Charge()));
     //m_AutoChooser.addOption("O-Charge", new ProxyCommand(() -> O_Charge()));
-    m_AutoChooser.addOption("C-Cone-Cross-Charge", new ProxyCommand(() -> C_Cone_Cross_Charge()));
+    //m_AutoChooser.addOption("C-Cone-Cross-Charge", new ProxyCommand(() -> C_Cone_Cross_Charge()));
+    m_AutoChooser.addOption("C-Cone-Charge", new ProxyCommand(() -> C_Cone_Charge()));
     m_AutoChooser.addOption("C-Cube-Cross-Charge", new ProxyCommand(() -> C_Cube_Cross_Charge()));
     m_AutoChooser.addOption("OuterConeGrab", new ProxyCommand(() -> OuterConeGrab()));
     m_AutoChooser.addOption("2OuterCones", new ProxyCommand(() -> OuterCones()));
@@ -563,6 +564,7 @@ public class RobotContainer {
       new ParallelCommandGroup(
         new SequentialCommandGroup(
           drivetrain.followTrajectory(path.get(1)),
+          new PrintCommand("Over the charge station"),
           drivetrain.followTrajectory(path.get(2))
         ),
         new SequentialCommandGroup(
@@ -571,7 +573,41 @@ public class RobotContainer {
           arm.moveToAuto(ArmConstants.stowLevel).withTimeout(3)
         )
       ),
-      new AutoBalance(drivetrain)
+      new PrintCommand("AutoBalancing"),
+      new AutoBalance(drivetrain),
+      new PrintCommand("Done with Autobalancing")
+    );
+  }
+
+  private Command C_Cone_Charge(){
+    List<PathPlannerTrajectory> path = PathPlanner.loadPathGroup("C-Cone-Charge", 
+                                          new PathConstraints(1.5,1.5),
+                                          new PathConstraints(2,2),
+                                          new PathConstraints(2.5,2.5));
+    return new SequentialCommandGroup(
+      new InstantCommand(() -> endEffector.resetWristAngle()),
+      new ParallelCommandGroup(
+        arm.moveToAuto(14).withTimeout(2.5),
+        new SequentialCommandGroup(
+          new WaitCommand(1),
+          drivetrain.followTrajectory(path.get(0))
+        )
+      ),
+      arm.moveToAuto(-5).withTimeout(1),
+      new InstantCommand(() -> endEffector.runIntakeAuto(-0.3)),
+      new ParallelCommandGroup(
+        new SequentialCommandGroup(
+          drivetrain.followTrajectory(path.get(1))
+        ),
+        new SequentialCommandGroup(
+          arm.moveToAuto(ArmConstants.highLevel).withTimeout(0.5),
+          new InstantCommand(() -> endEffector.stop()),
+          arm.moveToAuto(ArmConstants.stowLevel).withTimeout(2)
+        )
+      ),
+      new PrintCommand("AutoBalancing"),
+      new AutoBalance(drivetrain),
+      new PrintCommand("Done with Autobalancing")
     );
   }
 

@@ -16,7 +16,7 @@ public class AutoBalance extends CommandBase {
   double xError;
   double yError;
   double averageError;
-  double kP = 0.016; //value that turns degrees of error into speed for swerve drive - needs to be tested
+  double kP = 0.015;//0.017 //value that turns degrees of error into speed for swerve drive - needs to be tested
   double xSpeed;
   double ySpeed;
   boolean isDone = false;
@@ -72,7 +72,7 @@ public class AutoBalance extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    if(balancedCounter >= 50){
+    if(balancedCounter >= 20){
       return true;
     }else{
       return false;
