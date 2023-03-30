@@ -122,7 +122,7 @@ public class RobotContainer {
     //need to add button to switch from field to robot relative
 
     // DRIVER CONTROLS
-    driverController.aButton.onTrue(new InstantCommand(() -> drivetrain.zeroHeading()));
+    driverController.aButton.onTrue(new InstantCommand(() -> drivetrain.setHeading180()));
     driverController.leftTrigger.whileTrue(new DriveWithJoysticks(drivetrain,driverController,0.35, arm));
     driverController.leftBumper.whileTrue(new DriveWithJoysticks(drivetrain,driverController,1, arm));
     driverController.yButton.whileTrue(new ProxyCommand(() -> endEffector.turnWristToAngle(0)));
@@ -145,7 +145,7 @@ public class RobotContainer {
     operatorController.aButton.onTrue(new ProxyCommand(() -> arm.moveTo(ArmConstants.stowLevel)));
     operatorController.xButton.onTrue(new ProxyCommand(() -> arm.moveTo(ArmConstants.pickup)));
     operatorController.bButton.onTrue(new ProxyCommand(() -> arm.moveTo(ArmConstants.midLevel)));
-    operatorController.yButton.onTrue(new ProxyCommand(() -> arm.moveTo(5)));
+    operatorController.yButton.onTrue(new ProxyCommand(() -> arm.moveTo(4)));
 
     //need to test and see if these should be instantcommands or proxycommands, as well as if we need an automatic stop after movement
     /**operatorController.dPadLeft.whileTrue(new InstantCommand(() -> endEffector.turnWrist(0.6)));
@@ -228,7 +228,7 @@ public class RobotContainer {
     //m_AutoChooser.addOption("C-InnerRoute-Charge", new ProxyCommand(() -> C_InnerRoute_Charge()));
     //m_AutoChooser.addOption("I-Charge", new ProxyCommand(() -> I_Charge()));
     //m_AutoChooser.addOption("O-Charge", new ProxyCommand(() -> O_Charge()));
-    //m_AutoChooser.addOption("C-Cone-Cross-Charge", new ProxyCommand(() -> C_Cone_Cross_Charge()));
+    m_AutoChooser.addOption("C-Cone-Cross-Charge", new ProxyCommand(() -> C_Cone_Cross_Charge()));
     m_AutoChooser.addOption("C-Cone-Charge", new ProxyCommand(() -> C_Cone_Charge()));
     m_AutoChooser.addOption("C-Cube-Cross-Charge", new ProxyCommand(() -> C_Cube_Cross_Charge()));
     m_AutoChooser.addOption("OuterConeGrab", new ProxyCommand(() -> OuterConeGrab()));

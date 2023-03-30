@@ -61,22 +61,22 @@ public class DriveWithJoysticks extends CommandBase {
     if(controller.dPadUp.getAsBoolean()){
       goal = 0;
       rot = robotTurn.calculate(drivetrain.getYawDegrees(),goal);
-      System.out.println(rot);
+     // System.out.println(rot);
     }
     if(controller.dPadDown.getAsBoolean()){
       goal = 180;
       rot = robotTurn.calculate(drivetrain.getYawDegrees(),goal);
-      System.out.println(rot);
+      //System.out.println(rot);
     }
     if(controller.dPadLeft.getAsBoolean()){
       goal = 90;
       rot = robotTurn.calculate(drivetrain.getYawDegrees(),goal);
-      System.out.println(rot);
+     // System.out.println(rot);
     }
     if(controller.dPadRight.getAsBoolean()){
       goal = -90;
       rot = robotTurn.calculate(drivetrain.getYawDegrees(),goal);
-      System.out.println(rot);
+      //System.out.println(rot);
     }
     if(!controller.dPadUp.getAsBoolean() && !controller.dPadDown.getAsBoolean() && !controller.dPadLeft.getAsBoolean() && !controller.dPadRight.getAsBoolean()){
       robotTurn.reset(drivetrain.getYawDegrees());

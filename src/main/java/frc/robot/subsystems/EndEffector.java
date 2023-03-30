@@ -9,6 +9,7 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxAbsoluteEncoder;
 import com.revrobotics.SparkMaxRelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;
 import com.revrobotics.SparkMaxRelativeEncoder.Type;
 import com.revrobotics.CANSparkMax.FaultID;
 import com.revrobotics.CANSparkMax.IdleMode;
@@ -50,6 +51,7 @@ public class EndEffector extends SubsystemBase {
     //neo.setInverted(); check this at somepoint
     snowblower.setSmartCurrentLimit(5);
     snowblower.setSecondaryCurrentLimit(5);
+    snowblower.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 100);
     double conversionFactor = 360/5.333;
     snowblowerEncoder.setPositionConversionFactor(EndEffectorConstants.wristConversionFactor);
     snowblowerEncoder.setPosition(1835);

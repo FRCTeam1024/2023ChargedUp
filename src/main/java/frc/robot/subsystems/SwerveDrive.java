@@ -75,6 +75,7 @@ public class SwerveDrive extends SubsystemBase {
 
   /** Creates a new SwerveDrive. */
   public SwerveDrive() {
+    pigeon.setStatusFramePeriod(11,5);
     System.out.println("Initial Pigeon Yaw: " + pigeon.getYaw());
     pigeon.setYaw(180); //could try pigeon.addYaw(180)
     System.out.println("Changed Pigeon Yaw: " + pigeon.getYaw());
