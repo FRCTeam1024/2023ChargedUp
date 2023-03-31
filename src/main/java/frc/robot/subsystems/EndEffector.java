@@ -51,7 +51,7 @@ public class EndEffector extends SubsystemBase {
     //neo.setInverted(); check this at somepoint
     snowblower.setSmartCurrentLimit(5);
     snowblower.setSecondaryCurrentLimit(5);
-    snowblower.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 100);
+    neo.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 50);
     double conversionFactor = 360/5.333;
     snowblowerEncoder.setPositionConversionFactor(EndEffectorConstants.wristConversionFactor);
     snowblowerEncoder.setPosition(1835);
