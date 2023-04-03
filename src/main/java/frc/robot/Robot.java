@@ -55,6 +55,7 @@ public class Robot extends TimedRobot {
     //System.out.println("Running "+BuildConfig.APP_NAME+" "+BuildConfig.APP_VERSION);
 
     //Pathweaver code from 2022 - may not be needed for pathplanner
+    /* 
     for(int i = 0; i < fileList.length; i++) {
       //try {
         Path thePath = Filesystem.getDeployDirectory().toPath().resolve("pathplanner/"+fileList[i]);
@@ -64,6 +65,7 @@ public class Robot extends TimedRobot {
         //DriverStation.reportError("Unable to open trajectory: " + fileList[i], ex.getStackTrace());
       //}
     }
+    */
 
     // Check whether the current robot is the competition robot or the practice robot:
     // FALSE from the DIO means the jumper is present.
