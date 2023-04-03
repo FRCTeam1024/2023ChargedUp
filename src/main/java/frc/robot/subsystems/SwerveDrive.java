@@ -469,8 +469,7 @@ public class SwerveDrive extends SubsystemBase {
       new PrintCommand("\n\n" + path.getInitialState().toString() + "\n\n" + path.getEndState().toString() + "\n\n"),
       new PrintCommand("\n\n" + getYawDegrees() + "\n\n" + path.getInitialPose().getRotation().getDegrees() + "\n\n"),
       new InstantCommand(() -> this.resetPosition(path.getInitialHolonomicPose())),
-      new ParallelCommandGroup(
-        new PPSwerveControllerCommand(
+      new PPSwerveControllerCommand(
           path,
           this::getPose, // Pose supplier
           this.getSwerveDriveKinematics(), // SwerveDriveKinematics
@@ -480,10 +479,8 @@ public class SwerveDrive extends SubsystemBase {
           this::setModuleStates, // Module states consumer
           false,
           this // Requires this drive subsystem
-        )
       )
     );
-
   }
 
   public double getChargeStationAngle(){
