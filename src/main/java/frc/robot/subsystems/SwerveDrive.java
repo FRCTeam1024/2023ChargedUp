@@ -75,9 +75,10 @@ public class SwerveDrive extends SubsystemBase {
 
   /** Creates a new SwerveDrive. */
   public SwerveDrive() {
-    pigeon.setStatusFramePeriod(11,5);
+    pigeon.setStatusFramePeriod(9,5);
     System.out.println("Initial Pigeon Yaw: " + pigeon.getYaw());
     pigeon.setYaw(180); //could try pigeon.addYaw(180)
+    //pigeon.setFusedHeading(180,10);
     System.out.println("Changed Pigeon Yaw: " + pigeon.getYaw());
 
     modulePositions[0] = a.getPosition();
@@ -91,6 +92,7 @@ public class SwerveDrive extends SubsystemBase {
 
   @Override
   public void periodic() {
+
     // This method will be called once per scheduler run
     modulePositions[0] = a.getPosition();
     modulePositions[1] = b.getPosition();
@@ -174,6 +176,59 @@ public class SwerveDrive extends SubsystemBase {
       return 999;
     }
   }
+  public double getModDrivekV(int id){
+    if(id == 1){
+      return a.getDrivekV();
+    }else if(id == 2){
+      return b.getDrivekV();
+    }else if(id == 3){
+      return c.getDrivekV();
+    }else if(id == 4){
+      return d.getDrivekV();
+    }else{
+      return 999;
+    }
+  }
+  public double getModDriveVoltage(int id){
+    if(id == 1){
+      return a.getDriveVoltage();
+    }else if(id == 2){
+      return b.getDriveVoltage();
+    }else if(id == 3){
+      return c.getDriveVoltage();
+    }else if(id == 4){
+      return d.getDriveVoltage();
+    }else{
+      return 999;
+    }
+  }
+  public double getModTurnVoltage(int id){
+    if(id == 1){
+      return a.getTurnVoltage();
+    }else if(id == 2){
+      return b.getTurnVoltage();
+    }else if(id == 3){
+      return c.getTurnVoltage();
+    }else if(id == 4){
+      return d.getTurnVoltage();
+    }else{
+      return 999;
+    }
+  }
+
+  public double getModTurnkV(int id){
+    if(id == 1){
+      return a.getTurnkV();
+    }else if(id == 2){
+      return b.getTurnkV();
+    }else if(id == 3){
+      return c.getTurnkV();
+    }else if(id == 4){
+      return d.getTurnkV();
+    }else{
+      return 999;
+    }
+  }
 
   public double getYawDegrees() {
     //System.out.println("\nPigeon yaw: " + pigeon.getYaw() + "\nOdometry yaw: " + m_odometry.getPoseMeters().getRotation().getDegrees() + "\n");
@@ -181,8 +236,8 @@ public class SwerveDrive extends SubsystemBase {
   }
 
   public void zeroHeading(){
-    Pose2d pose = new Pose2d(m_odometry.getPoseMeters().getTranslation(), pigeon.getRotation2d());
-    pigeon.reset();
+    Pose2d pose = new Pose2d(m_odometry.getPoseMeters().getTranslation(), new Rotation2d(0));
+    //pigeon.reset();
     m_odometry.resetPosition(pigeon.getRotation2d(), modulePositions, pose);
   }
 

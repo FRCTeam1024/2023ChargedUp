@@ -140,6 +140,22 @@ public class SwerveModule {
     return m_turnEncoder.getAbsolutePosition()*Math.PI/180;
   }
 
+  public double getDriveVoltage() {
+    return m_driveMotor.getMotorOutputVoltage();
+  }
+
+  public double getTurnVoltage() {
+    return m_angleMotor.getMotorOutputVoltage();
+  }
+
+  public double getDrivekV() {
+    return getDriveVoltage() / getDriveVelocity();
+  }
+
+  public double getTurnkV() {
+    return getTurnVoltage() / (m_turnEncoder.getVelocity() * Math.PI / 180);
+  }
+
   public SwerveModuleState getDesiredState() {
     return myState;
   }

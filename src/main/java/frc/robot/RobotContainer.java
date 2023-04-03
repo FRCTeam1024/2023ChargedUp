@@ -309,19 +309,19 @@ public class RobotContainer {
     //Swerve module velocity errors A-D
     swerveTab.addNumber("SwerveModule A Vel Error", () -> drivetrain.getModVelError(1))
     .withSize(1,1)
-    .withPosition(5,2);
+    .withPosition(7,0);
 
     swerveTab.addNumber("SwerveModule B Vel Error", () -> drivetrain.getModVelError(2))
     .withSize(1,1)
-    .withPosition(6,2);
+    .withPosition(8,0);
 
     swerveTab.addNumber("SwerveModule C Vel Error", () -> drivetrain.getModVelError(3))
     .withSize(1,1)
-    .withPosition(5,3);
+    .withPosition(7,1);
 
     swerveTab.addNumber("SwerveModule D Vel Error", () -> drivetrain.getModVelError(4))
     .withSize(1,1)
-    .withPosition(6,3);
+    .withPosition(8,1);
 
     //Swerve module angle errors A-D
     swerveTab.addNumber("SwerveModule A Angle Error", () -> drivetrain.getModAngError(1))
@@ -339,6 +339,74 @@ public class RobotContainer {
     swerveTab.addNumber("SwerveModule D Angle Error", () -> drivetrain.getModAngError(4))
     .withSize(1,1)
     .withPosition(8,3);
+
+    //Swerve module drive voltage
+    swerveTab.addNumber("SwerveModule A Drive Volts", () -> drivetrain.getModDriveVoltage(1))
+    .withSize(1,1)
+    .withPosition(0,0);
+
+    swerveTab.addNumber("SwerveModule B Drive Volts", () -> drivetrain.getModDriveVoltage(2))
+    .withSize(1,1)
+    .withPosition(1,0);
+
+    swerveTab.addNumber("SwerveModule C Drive Volts", () -> drivetrain.getModDriveVoltage(3))
+    .withSize(1,1)
+    .withPosition(0,1);
+
+    swerveTab.addNumber("SwerveModule D Drive Volts", () -> drivetrain.getModDriveVoltage(4))
+    .withSize(1,1)
+    .withPosition(1,1);
+
+    //Swerve module drive kV
+    swerveTab.addNumber("SwerveModule A Drive kV", () -> drivetrain.getModDrivekV(1))
+    .withSize(1,1)
+    .withPosition(0,2);
+
+    swerveTab.addNumber("SwerveModule B Drive kV", () -> drivetrain.getModDrivekV(2))
+    .withSize(1,1)
+    .withPosition(1,2);
+
+    swerveTab.addNumber("SwerveModule C Drive kV", () -> drivetrain.getModDrivekV(3))
+    .withSize(1,1)
+    .withPosition(0,3);
+
+    swerveTab.addNumber("SwerveModule D Drive kV", () -> drivetrain.getModDrivekV(4))
+    .withSize(1,1)
+    .withPosition(1,3);
+
+    //Swerve module turn voltage
+    swerveTab.addNumber("SwerveModule A Turn Volts", () -> drivetrain.getModTurnVoltage(1))
+    .withSize(1,1)
+    .withPosition(2,0);
+
+    swerveTab.addNumber("SwerveModule B Turn Volts", () -> drivetrain.getModTurnVoltage(2))
+    .withSize(1,1)
+    .withPosition(3,0);
+
+    swerveTab.addNumber("SwerveModule C Turn Volts", () -> drivetrain.getModTurnVoltage(3))
+    .withSize(1,1)
+    .withPosition(2,1);
+
+    swerveTab.addNumber("SwerveModule D Turn Volts", () -> drivetrain.getModTurnVoltage(4))
+    .withSize(1,1)
+    .withPosition(3,1);
+
+    //Swerve module turn kV
+    swerveTab.addNumber("SwerveModule A Turn kV", () -> drivetrain.getModTurnkV(1))
+    .withSize(1,1)
+    .withPosition(2,2);
+
+    swerveTab.addNumber("SwerveModule B Turn kV", () -> drivetrain.getModTurnkV(2))
+    .withSize(1,1)
+    .withPosition(3,2);
+
+    swerveTab.addNumber("SwerveModule C Turn kV", () -> drivetrain.getModTurnkV(3))
+    .withSize(1,1)
+    .withPosition(2,3);
+
+    swerveTab.addNumber("SwerveModule D Turn kV", () -> drivetrain.getModTurnkV(4))
+    .withSize(1,1)
+    .withPosition(3,3);
 
       //Tells if it is practice bot for different swevrve module offsets
     diagnosticsTab.addBoolean("Is Practice Bot", () -> Constants.PracticeBot)

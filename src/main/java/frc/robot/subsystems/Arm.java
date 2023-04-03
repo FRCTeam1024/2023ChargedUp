@@ -38,6 +38,8 @@ public class Arm extends SubsystemBase {
 
   private State goal = new State(-1,-1);
   private double voltage = -1;
+  private boolean singleMotorOverride = false;
+
   /** Creates a new Arm. */
   public Arm() {
     leftArmMotor = new WPI_TalonFX(ArmConstants.leftArmID);
@@ -87,11 +89,22 @@ public class Arm extends SubsystemBase {
     voltage = (volts + staticGain + setpoint.velocity*ArmConstants.kV);
   
     //Set the voltage on the motors
-    armMotors.setVoltage(voltage);
+    if (leftArmMotor.isAlive() && rightArmMotor.isAlive() && !singleMotorOverride) {
+      armMotors.setVoltage(voltage);
+    }
+    else {
+      armMotors.setVoltage(0);
+    }
+
   }
 
   public void simpleMove(double volts){
-    armMotors.setVoltage(volts);
+    if (leftArmMotor.isAlive() && rightArmMotor.isAlive() && !singleMotorOverride) {
+      armMotors.setVoltage(volts);
+    }
+    else {
+      armMotors.setVoltage(0);
+    }
   }
 
   /**
