@@ -236,6 +236,7 @@ public class RobotContainer {
     m_AutoChooser.addOption("2InnerCones", new ProxyCommand(() -> InnerCones()));
     m_AutoChooser.addOption("OuterConesCharge - Testing only", new ProxyCommand(() -> OuterConesCharge()));
     m_AutoChooser.addOption("2.5OuterPieces", new ProxyCommand(() -> OuterConesPlusOne()));
+    m_AutoChooser.addOption("Low Link", new ProxyCommand(() -> LowLink()));
     
 
     //Puts the auto chooser on the dashboard
@@ -834,6 +835,52 @@ public class RobotContainer {
           arm.moveToAuto(ArmConstants.pickup).withTimeout(2.5)
         )
       )
+    );
+  }
+
+  private Command LowLink(){
+    List<PathPlannerTrajectory> path = PathPlanner.loadPathGroup("Low Outer Link",
+                                      new PathConstraints(1.5,1.5),
+                                      new PathConstraints(3,2.5),
+                                      new PathConstraints(3,2.5),
+                                      new PathConstraints(3,2.5),
+                                      new PathConstraints(3,2.5));
+    return new SequentialCommandGroup(
+      new ParallelCommandGroup(
+        drivetrain.followTrajectory(path.get(0)),
+        new ProxyCommand(() -> arm.moveToAuto(ArmConstants.pickup)).withTimeout(1)
+      ),
+      new InstantCommand(() -> endEffector.intakeCube()),
+      new WaitCommand(0.25),
+      new ParallelCommandGroup(
+        new ProxyCommand(() -> endEffector.turnWristToAngle(-200)).withTimeout(1),
+        drivetrain.followTrajectory(path.get(1))
+      ),
+      new ProxyCommand(() -> arm.moveToAuto(-87)).withTimeout(1),
+      new ParallelCommandGroup(
+        drivetrain.followTrajectory(path.get(2)),
+        new SequentialCommandGroup(
+          new ProxyCommand(() -> arm.moveToAuto(ArmConstants.pickup)).withTimeout(1),
+          new InstantCommand(() -> endEffector.stop()),
+          new WaitCommand(1.5),
+          new InstantCommand(() -> endEffector.releaseCube())
+        )
+      ),
+      new WaitCommand(0.25),
+      new InstantCommand(() -> endEffector.intakeCube()),
+      drivetrain.followTrajectory(path.get(3)),
+      new ProxyCommand(() -> arm.moveToAuto(-87)).withTimeout(1),
+      new ParallelCommandGroup(
+        drivetrain.followTrajectory(path.get(4)),
+        new SequentialCommandGroup(
+          new ProxyCommand(() -> arm.moveToAuto(ArmConstants.pickup)).withTimeout(1),
+          new InstantCommand(() -> endEffector.stop()),
+          new WaitCommand(2.2),
+          new InstantCommand(() -> endEffector.releaseCube())
+        )
+      ),
+      new WaitCommand(0.1),
+      new ProxyCommand(() -> arm.moveToAuto(-73))
     );
   }
 
