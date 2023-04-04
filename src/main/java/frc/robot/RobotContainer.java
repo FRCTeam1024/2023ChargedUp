@@ -306,7 +306,7 @@ public class RobotContainer {
     diagnosticsTab.addNumber("Neo Temperature", () -> endEffector.getTemperature())
         .withSize(1,1)
         .withPosition(3,2);
-
+/* 
     //Swerve module velocity errors A-D
     swerveTab.addNumber("SwerveModule A Vel Error", () -> drivetrain.getModVelError(1))
     .withSize(1,1)
@@ -408,7 +408,7 @@ public class RobotContainer {
     swerveTab.addNumber("SwerveModule D Turn kV", () -> drivetrain.getModTurnkV(4))
     .withSize(1,1)
     .withPosition(3,3);
-
+*/
       //Tells if it is practice bot for different swevrve module offsets
     diagnosticsTab.addBoolean("Is Practice Bot", () -> Constants.PracticeBot)
         .withSize(1,1)
@@ -629,8 +629,13 @@ public class RobotContainer {
           drivetrain.followTrajectory(path.get(0))
         )
       ),
-      arm.moveToAuto(-5).withTimeout(1),
-      new InstantCommand(() -> endEffector.runIntakeAuto(-0.3)),
+      new ParallelCommandGroup(
+        arm.moveToAuto(-5).withTimeout(1),
+        new SequentialCommandGroup(
+          new WaitCommand(0.7),
+          new InstantCommand(() -> endEffector.runIntakeAuto(-0.3))
+        )
+      ),
       new ParallelCommandGroup(
         new SequentialCommandGroup(
           drivetrain.followTrajectory(path.get(1)),
@@ -909,35 +914,35 @@ public class RobotContainer {
   private Command LowLink(){
     List<PathPlannerTrajectory> path = PathPlanner.loadPathGroup("Low Outer Link",
                                       new PathConstraints(1.5,1.5),
-                                      new PathConstraints(3,2.5),
-                                      new PathConstraints(3,2.5),
-                                      new PathConstraints(3,2.5),
-                                      new PathConstraints(3,2.5));
+                                      new PathConstraints(3.2,2.7),
+                                      new PathConstraints(3.2,2.7),
+                                      new PathConstraints(3.2,2.7),
+                                      new PathConstraints(3.2,2.7));
     return new SequentialCommandGroup(
       new ParallelCommandGroup(
         drivetrain.followTrajectory(path.get(0)),
         new ProxyCommand(() -> arm.moveToAuto(ArmConstants.pickup)).withTimeout(1)
       ),
       new InstantCommand(() -> endEffector.intakeCube()),
-      new WaitCommand(0.25),
+      //new WaitCommand(0.25), see if we drop the cone with no delay
       new ParallelCommandGroup(
         new ProxyCommand(() -> endEffector.turnWristToAngle(-200)).withTimeout(1),
         drivetrain.followTrajectory(path.get(1))
       ),
-      new ProxyCommand(() -> arm.moveToAuto(-87)).withTimeout(1),
+      new ProxyCommand(() -> arm.moveToAuto(-87)).withTimeout(0.5), //could try a lower angle + shorter time for faster movement - need to check delays to make sure we can pick up the cube
       new ParallelCommandGroup(
         drivetrain.followTrajectory(path.get(2)),
         new SequentialCommandGroup(
-          new ProxyCommand(() -> arm.moveToAuto(ArmConstants.pickup)).withTimeout(1),
+          new ProxyCommand(() -> arm.moveToAuto(ArmConstants.pickup)).withTimeout(1), //arm angle may need to rise, need to check with inflated cubes
           new InstantCommand(() -> endEffector.stop()),
           new WaitCommand(1.5),
           new InstantCommand(() -> endEffector.releaseCube())
         )
       ),
       new WaitCommand(0.25),
-      new InstantCommand(() -> endEffector.intakeCube()),
       drivetrain.followTrajectory(path.get(3)),
-      new ProxyCommand(() -> arm.moveToAuto(-87)).withTimeout(1),
+      new InstantCommand(() -> endEffector.intakeCube()),
+      new ProxyCommand(() -> arm.moveToAuto(-87)).withTimeout(0.5),
       new ParallelCommandGroup(
         drivetrain.followTrajectory(path.get(4)),
         new SequentialCommandGroup(
@@ -947,8 +952,7 @@ public class RobotContainer {
           new InstantCommand(() -> endEffector.releaseCube())
         )
       ),
-      new WaitCommand(0.1),
-      new ProxyCommand(() -> arm.moveToAuto(-73))
+      new ProxyCommand(() -> arm.moveToAuto(-60)).withTimeout(1)
     );
   }
 
