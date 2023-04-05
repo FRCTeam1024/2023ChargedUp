@@ -11,6 +11,7 @@ import java.util.List;
 import org.photonvision.PhotonTargetSortMode;
 import org.photonvision.targeting.PhotonTrackedTarget;
 import com.ctre.phoenix.sensors.WPI_PigeonIMU;
+import com.ctre.phoenix.sensors.PigeonIMU.CalibrationMode;
 import com.ctre.phoenix.sensors.PigeonIMU.PigeonState;
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
@@ -75,11 +76,12 @@ public class SwerveDrive extends SubsystemBase {
 
   /** Creates a new SwerveDrive. */
   public SwerveDrive() {
+    //pigeon.enterCalibrationMode(CalibrationMode.Temperature);
     pigeon.setStatusFramePeriod(9,5);
-    System.out.println("Initial Pigeon Yaw: " + pigeon.getYaw());
+    //System.out.println("Initial Pigeon Yaw: " + pigeon.getYaw());
     pigeon.setYaw(180); //could try pigeon.addYaw(180)
     //pigeon.setFusedHeading(180,10);
-    System.out.println("Changed Pigeon Yaw: " + pigeon.getYaw());
+   // System.out.println("Changed Pigeon Yaw: " + pigeon.getYaw());
 
     modulePositions[0] = a.getPosition();
     modulePositions[1] = b.getPosition();

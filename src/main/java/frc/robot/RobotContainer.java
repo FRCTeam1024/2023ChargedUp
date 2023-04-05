@@ -145,7 +145,7 @@ public class RobotContainer {
     operatorController.aButton.onTrue(new ProxyCommand(() -> arm.moveTo(ArmConstants.stowLevel)));
     operatorController.xButton.onTrue(new ProxyCommand(() -> arm.moveTo(ArmConstants.pickup)));
     operatorController.bButton.onTrue(new ProxyCommand(() -> arm.moveTo(ArmConstants.midLevel)));
-    operatorController.yButton.onTrue(new ProxyCommand(() -> arm.moveTo(4)));
+    operatorController.yButton.onTrue(new ProxyCommand(() -> arm.moveTo(6)));
 
     //need to test and see if these should be instantcommands or proxycommands, as well as if we need an automatic stop after movement
     /**operatorController.dPadLeft.whileTrue(new InstantCommand(() -> endEffector.turnWrist(0.6)));
@@ -913,38 +913,45 @@ public class RobotContainer {
 
   private Command LowLink(){
     List<PathPlannerTrajectory> path = PathPlanner.loadPathGroup("Low Outer Link",
-                                      new PathConstraints(1.5,1.5),
-                                      new PathConstraints(3.2,2.7),
-                                      new PathConstraints(3.2,2.7),
-                                      new PathConstraints(3.2,2.7),
-                                      new PathConstraints(3.2,2.7));
+                                      new PathConstraints(3.2,2.8),
+                                      new PathConstraints(3.2,2.8),
+                                      new PathConstraints(3.2,2.8),
+                                      new PathConstraints(3.2,2.8));
     return new SequentialCommandGroup(
       new ParallelCommandGroup(
-        drivetrain.followTrajectory(path.get(0)),
-        new ProxyCommand(() -> arm.moveToAuto(ArmConstants.pickup)).withTimeout(1)
+        new InstantCommand(() -> endEffector.intakeCube()),
+        new ProxyCommand(() -> arm.moveToAuto(-85)).withTimeout(0.25)
       ),
-      new InstantCommand(() -> endEffector.intakeCube()),
       //new WaitCommand(0.25), see if we drop the cone with no delay
       new ParallelCommandGroup(
         new ProxyCommand(() -> endEffector.turnWristToAngle(-200)).withTimeout(1),
-        drivetrain.followTrajectory(path.get(1))
-      ),
-      new ProxyCommand(() -> arm.moveToAuto(-87)).withTimeout(0.5), //could try a lower angle + shorter time for faster movement - need to check delays to make sure we can pick up the cube
-      new ParallelCommandGroup(
-        drivetrain.followTrajectory(path.get(2)),
+        drivetrain.followTrajectory(path.get(0)),
         new SequentialCommandGroup(
-          new ProxyCommand(() -> arm.moveToAuto(ArmConstants.pickup)).withTimeout(1), //arm angle may need to rise, need to check with inflated cubes
+          new ProxyCommand(() -> arm.moveToAuto(ArmConstants.pickup)).withTimeout(0.75),
+          new WaitCommand(0.5),
+          new ProxyCommand(() -> arm.moveToAuto(-93)).withTimeout(0.5)
+        )
+      ),
+      new ParallelCommandGroup(
+        drivetrain.followTrajectory(path.get(1)),
+        new SequentialCommandGroup(
+          new ProxyCommand(() -> arm.moveToAuto(-70)).withTimeout(0.75), //arm angle may need to rise, need to check with inflated cubes
           new InstantCommand(() -> endEffector.stop()),
-          new WaitCommand(1.5),
+          new WaitCommand(1.6),
           new InstantCommand(() -> endEffector.releaseCube())
         )
       ),
-      new WaitCommand(0.25),
-      drivetrain.followTrajectory(path.get(3)),
-      new InstantCommand(() -> endEffector.intakeCube()),
-      new ProxyCommand(() -> arm.moveToAuto(-87)).withTimeout(0.5),
+      new WaitCommand(0.15),
       new ParallelCommandGroup(
-        drivetrain.followTrajectory(path.get(4)),
+        drivetrain.followTrajectory(path.get(2)),
+        new SequentialCommandGroup(
+          new InstantCommand(() -> endEffector.intakeCube()),
+          new WaitCommand(1.4),
+          new ProxyCommand(() -> arm.moveToAuto(-93)).withTimeout(0.75)
+        )
+      ),
+      new ParallelCommandGroup(
+        drivetrain.followTrajectory(path.get(3)),
         new SequentialCommandGroup(
           new ProxyCommand(() -> arm.moveToAuto(ArmConstants.pickup)).withTimeout(1),
           new InstantCommand(() -> endEffector.stop()),

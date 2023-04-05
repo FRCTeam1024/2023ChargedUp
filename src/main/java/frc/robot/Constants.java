@@ -40,7 +40,7 @@ public final class Constants {
         public static final double kvVoltSecondsPerMeter = 2.4068;
         public static final double kaVoltSecondsSquaredPerMeter = 0.28749;
 
-        public static final double ksTurning = 0.75; //Borrowed these values
+        public static final double ksTurning = 0.75; //.75Borrowed these values
         public static final double kvTurning = 0.75; //.384 to 1.27 (1.27 aligns 12V to 3pi max angular velocity)
         public static final double kaTurning = 0;
 
