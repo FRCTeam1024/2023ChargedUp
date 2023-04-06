@@ -123,9 +123,10 @@ public class RobotContainer {
 
     // DRIVER CONTROLS
     driverController.aButton.onTrue(new InstantCommand(() -> drivetrain.setHeading180()));
+    driverController.yButton.onTrue(new InstantCommand(() -> drivetrain.zeroHeading()));
     driverController.leftTrigger.whileTrue(new DriveWithJoysticks(drivetrain,driverController,0.35, arm));
     driverController.leftBumper.whileTrue(new DriveWithJoysticks(drivetrain,driverController,1, arm));
-    driverController.yButton.whileTrue(new ProxyCommand(() -> endEffector.turnWristToAngle(0)));
+
     //driverController.dPadUp.whileTrue(new AutoTurn(drivetrain, 0));
     //driverController.dPadDown.whileTrue(new AutoTurn(drivetrain, 180));
  
