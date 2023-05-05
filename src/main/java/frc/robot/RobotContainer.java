@@ -80,7 +80,7 @@ public class RobotContainer {
   private final Logitech operatorController = new Logitech(1);
 
   //Default Commands
-  private final DriveWithJoysticks driveWithController = new DriveWithJoysticks(drivetrain, driverController, .58, arm);
+  private final DriveWithJoysticks driveWithController = new DriveWithJoysticks(drivetrain, driverController, 0.25, arm);//change back to 0.58
   private final TurnWristWithJoysticks turnWristWithJoysticks = new TurnWristWithJoysticks(endEffector, operatorController);
  
   //Chooser for auto
