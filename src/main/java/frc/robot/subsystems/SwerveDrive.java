@@ -240,6 +240,7 @@ public class SwerveDrive extends SubsystemBase {
   public void zeroHeading(){
     Pose2d pose = new Pose2d(m_odometry.getPoseMeters().getTranslation(), new Rotation2d(0));
     //pigeon.reset();
+    pigeon.setYaw(0);
     m_odometry.resetPosition(pigeon.getRotation2d(), modulePositions, pose);
   }
 
