@@ -9,17 +9,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Path;
 
-import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
-import com.pathplanner.lib.server.PathPlannerServer;
-
-import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.math.trajectory.TrajectoryUtil;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 
 /**
@@ -36,7 +28,7 @@ public class Robot extends TimedRobot {
   static String fileList[] = pathfile.list();
   static PathPlannerTrajectory pathList[] = new PathPlannerTrajectory[fileList.length];
 
-  private RobotContainer m_robotContainer;
+  private RobotDashboardContainer m_robotContainer;
 
   private final DigitalInput otherBotJumper = new DigitalInput(8);
   private static boolean compBotState;
@@ -53,19 +45,6 @@ public class Robot extends TimedRobot {
 
     //Display and log the name and version of the code that is running
     //System.out.println("Running "+BuildConfig.APP_NAME+" "+BuildConfig.APP_VERSION);
-
-    //Pathweaver code from 2022 - may not be needed for pathplanner
-    /* 
-    for(int i = 0; i < fileList.length; i++) {
-      //try {
-        Path thePath = Filesystem.getDeployDirectory().toPath().resolve("pathplanner/"+fileList[i]);
-        pathList[i] = PathPlanner.loadPath(fileList[i].substring(0,fileList[i].length()-5), 0.5, 3);
-        //System.out.println(pathList[i].toString());
-      //} catch (IOException ex) {
-        //DriverStation.reportError("Unable to open trajectory: " + fileList[i], ex.getStackTrace());
-      //}
-    }
-    */
 
     // Check whether the current robot is the competition robot or the practice robot:
     // FALSE from the DIO means the jumper is present.
@@ -92,7 +71,7 @@ public class Robot extends TimedRobot {
 
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
-    m_robotContainer = new RobotContainer();
+    m_robotContainer = new RobotDashboardContainer();
     m_robotContainer.resetDriver();
   }
 
