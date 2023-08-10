@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,7 @@ import org.photonvision.EstimatedRobotPose;
 
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.HttpCamera;
 import edu.wpi.first.math.Pair;
@@ -41,71 +43,25 @@ import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPoint;
 
 public class Vision extends SubsystemBase {
-  private final PhotonCamera photon = new PhotonCamera("OV5647");
+  private final PhotonCamera photon = new PhotonCamera("Arducam_OV9281_2");
   private ArrayList<Pair<PhotonCamera, Transform3d>> camList = new ArrayList<Pair<PhotonCamera, Transform3d>>();
-  private final Transform3d robotToCam = new Transform3d(new Translation3d(0.0, Units.inchesToMeters(10), Units.inchesToMeters(-3)), new Rotation3d(0, 0, 0));
+  private final Transform3d robotToCam = new Transform3d(new Translation3d(Units.inchesToMeters(4) , Units.inchesToMeters(11.65625), Units.inchesToMeters(27.625)), new Rotation3d(0, Units.degreesToRadians(20), 0));
 
   private final HttpCamera camera = new HttpCamera(
       "limelight", "http://photonvision.local:1182/stream.mjpg?1675300761194", HttpCamera.HttpCameraKind.kMJPGStreamer
   );
 
-  public static final List<AprilTag> aprilTags =
-    List.of(
-      new AprilTag(1,
-        new Pose3d(
-          Units.inchesToMeters(610.77),
-          Units.inchesToMeters(42.19),
-          Units.inchesToMeters(18.22),
-          new Rotation3d(0.0, 0.0, Math.PI))),
-      new AprilTag(2,
-        new Pose3d(
-          Units.inchesToMeters(610.77),
-          Units.inchesToMeters(108.19),
-          Units.inchesToMeters(18.22),
-          new Rotation3d(0.0, 0.0, Math.PI))),
-      new AprilTag(3,
-        new Pose3d(
-          Units.inchesToMeters(610.77),
-          Units.inchesToMeters(174.19), // FIRST's diagram has a typo (it says 147.19)
-          Units.inchesToMeters(18.22),
-          new Rotation3d(0.0, 0.0, Math.PI))),
-      new AprilTag(4,
-        new Pose3d(
-          Units.inchesToMeters(636.96),
-          Units.inchesToMeters(265.74),
-          Units.inchesToMeters(27.38),
-          new Rotation3d(0.0, 0.0, Math.PI))),
-      new AprilTag(5,
-        new Pose3d(
-          Units.inchesToMeters(14.25),
-          Units.inchesToMeters(265.74),
-          Units.inchesToMeters(27.38),
-          new Rotation3d())),
-      new AprilTag(6,
-        new Pose3d(
-          Units.inchesToMeters(40.45),
-          Units.inchesToMeters(174.19), // FIRST's diagram has a typo (it says 147.19)
-          Units.inchesToMeters(18.22),
-          new Rotation3d())),
-      new AprilTag(7,
-        new Pose3d(
-          Units.inchesToMeters(40.45),
-          Units.inchesToMeters(108.19),
-          Units.inchesToMeters(18.22),
-          new Rotation3d())),
-      new AprilTag(8,
-        new Pose3d(
-          Units.inchesToMeters(40.45),
-          Units.inchesToMeters(42.19),
-          Units.inchesToMeters(18.22),
-          new Rotation3d())));
-
   // 2023 field layout is not out yet...
-  private final AprilTagFieldLayout fieldLayout2023 = new AprilTagFieldLayout(aprilTags, 16.54, 8.02);
+  private AprilTagFieldLayout fieldLayout2023;
   private PhotonPoseEstimator robotPoseEstimator;
 
   /** Creates a new Vision. */
   public Vision() {
+    try {
+      fieldLayout2023 = AprilTagFields.k2023ChargedUp.loadAprilTagLayoutField();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
     camList.add(new Pair<PhotonCamera, Transform3d>(photon, robotToCam));
     robotPoseEstimator = new PhotonPoseEstimator(fieldLayout2023, PoseStrategy.AVERAGE_BEST_TARGETS, photon, robotToCam);
     CameraServer.addCamera(camera);
@@ -144,7 +100,6 @@ public class Vision extends SubsystemBase {
       //System.out.println(result.get().estimatedPose.toPose2d().toString());
       return new Pair<Pose2d, Double>(result.get().estimatedPose.toPose2d(), currentTime - result.get().timestampSeconds);
     }else{
-      System.out.println("Uh oh, no vision");
       return new Pair<Pose2d, Double>(null, 0.0);
     }
     

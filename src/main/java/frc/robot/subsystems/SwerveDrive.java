@@ -45,6 +45,7 @@ import frc.robot.commands.AutoTurn;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class SwerveDrive extends SubsystemBase {
   //0.3016 as magnitude for other robot
@@ -109,6 +110,16 @@ public class SwerveDrive extends SubsystemBase {
     m_poseEstimator.update(pigeon.getRotation2d(), modulePositions);
 
     //System.out.println(calculatePathToTag().getEndState().toString());
+
+    var photonPose = camera.estimateRobotPose(getPose()).getFirst();
+    if(photonPose != null) {
+      SmartDashboard.putNumber("RobotPose/Y", photonPose.getY());
+      SmartDashboard.putNumber("RobotPose/X", photonPose.getX());
+      SmartDashboard.putNumber("RobotPose/Angle", photonPose.getRotation().getDegrees());
+      var poseArray = new double[] {photonPose.getX(), photonPose.getY(), photonPose.getRotation().getRadians()};
+      SmartDashboard.putNumberArray("RobotPose/Pose", poseArray);
+
+    }
   }
 
   public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
