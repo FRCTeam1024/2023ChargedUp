@@ -43,6 +43,7 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.commands.AutoAlignAprilTag;
 import frc.robot.commands.AutoTurn;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -65,7 +66,7 @@ public class SwerveDrive extends SubsystemBase {
   
   private final SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(m_ALocation, m_BLocation, m_CLocation, m_DLocation);
 
-  private final SwerveDriveOdometry m_odometry;
+  private final SwerveDrivePoseEstimator m_odometry;
 
   private SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
 
@@ -89,7 +90,7 @@ public class SwerveDrive extends SubsystemBase {
     modulePositions[2] = c.getPosition();
     modulePositions[3] = d.getPosition();
 
-    m_odometry = new SwerveDriveOdometry(m_kinematics, new Rotation2d(Math.PI), modulePositions);
+    m_odometry = new SwerveDrivePoseEstimator(m_kinematics, new Rotation2d(Math.PI), modulePositions, new Pose2d());
     m_poseEstimator = new SwerveDrivePoseEstimator(m_kinematics, new Rotation2d(Math.PI), modulePositions, new Pose2d());
   }
 
@@ -110,23 +111,49 @@ public class SwerveDrive extends SubsystemBase {
     m_poseEstimator.update(pigeon.getRotation2d(), modulePositions);
 
     //System.out.println(calculatePathToTag().getEndState().toString());
+    var result = camera.estimateRobotPose(getPose());
 
-    var photonPose = camera.estimateRobotPose(getPose()).getFirst();
+    var photonPose = result.getFirst();
     if(photonPose != null) {
+      SmartDashboard.putNumber("timestamp", result.getSecond());
+      m_odometry.addVisionMeasurement(photonPose, result.getSecond());
+
       SmartDashboard.putNumber("RobotPose/Y", photonPose.getY());
       SmartDashboard.putNumber("RobotPose/X", photonPose.getX());
       SmartDashboard.putNumber("RobotPose/Angle", photonPose.getRotation().getDegrees());
       var poseArray = new double[] {photonPose.getX(), photonPose.getY(), photonPose.getRotation().getRadians()};
       SmartDashboard.putNumberArray("RobotPose/Pose", poseArray);
 
+      var targetToRobot = camera.getRobotToTag();
+      SmartDashboard.putNumber("tagTransform/X", targetToRobot.getX());
+      SmartDashboard.putNumber("tagTransform/Y", targetToRobot.getY());
+      SmartDashboard.putNumber("tagTransform/Z", targetToRobot.getZ());
+
+      var rotation = targetToRobot.getRotation();
+
+      
+
+      
+
+      SmartDashboard.putNumber("tagTransform/RotX", Units.radiansToDegrees(rotation.getX()));
+      SmartDashboard.putNumber("tagTransform/RotY", Units.radiansToDegrees(rotation.getY()));
+      SmartDashboard.putNumber("tagTransform/RotZ", Units.radiansToDegrees(rotation.getX()));
+
+
+
     }
+    SmartDashboard.putNumber("OdometryPose/Y", m_odometry.getEstimatedPosition().getY());
+    SmartDashboard.putNumber("OdometryPose/X", m_odometry.getEstimatedPosition().getX());
+    SmartDashboard.putNumber("OdometryPose/Angle", m_odometry.getEstimatedPosition().getRotation().getDegrees());
+    var odoPoseArray = new double[] {m_odometry.getEstimatedPosition().getX(), m_odometry.getEstimatedPosition().getY(), m_odometry.getEstimatedPosition().getRotation().getRadians()};
+    SmartDashboard.putNumberArray("OdometryPose/Pose", odoPoseArray);
   }
 
   public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
     SwerveModuleState[] moduleStates =
         m_kinematics.toSwerveModuleStates(
             fieldRelative
-                ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, m_odometry.getPoseMeters().getRotation())
+                ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, m_odometry.getEstimatedPosition().getRotation())
                 : new ChassisSpeeds(xSpeed, ySpeed, rot));
     SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, DriveConstants.kMaxWheelSpeedMetersPerSecond);
     a.setDesiredState(moduleStates[0]);
@@ -244,19 +271,19 @@ public class SwerveDrive extends SubsystemBase {
   }
 
   public double getYawDegrees() {
-    //System.out.println("\nPigeon yaw: " + pigeon.getYaw() + "\nOdometry yaw: " + m_odometry.getPoseMeters().getRotation().getDegrees() + "\n");
-    return m_odometry.getPoseMeters().getRotation().getDegrees();
+    //System.out.println("\nPigeon yaw: " + pigeon.getYaw() + "\nOdometry yaw: " + m_odometry.getEstimatedPosition().getRotation().getDegrees() + "\n");
+    return m_odometry.getEstimatedPosition().getRotation().getDegrees();
   }
 
   public void zeroHeading(){
-    Pose2d pose = new Pose2d(m_odometry.getPoseMeters().getTranslation(), new Rotation2d(0));
+    Pose2d pose = new Pose2d(m_odometry.getEstimatedPosition().getTranslation(), new Rotation2d(0));
     //pigeon.reset();
     pigeon.setYaw(0);
     m_odometry.resetPosition(pigeon.getRotation2d(), modulePositions, pose);
   }
 
   public void setHeading180(){
-    Pose2d pose = new Pose2d(m_odometry.getPoseMeters().getTranslation(), new Rotation2d(Math.PI));
+    Pose2d pose = new Pose2d(m_odometry.getEstimatedPosition().getTranslation(), new Rotation2d(Math.PI));
     pigeon.setYaw(180);
     m_odometry.resetPosition(pigeon.getRotation2d(), modulePositions, pose);
   }
@@ -292,7 +319,7 @@ public class SwerveDrive extends SubsystemBase {
     d.stop();
   }
 
-  public SwerveDriveOdometry getOdometry(){
+  public SwerveDrivePoseEstimator getOdometry(){
     return m_odometry;
   }
 
@@ -324,7 +351,7 @@ public class SwerveDrive extends SubsystemBase {
   }
 
   public Pose2d getPose(){
-    Pose2d pose = m_odometry.getPoseMeters();
+    Pose2d pose = m_odometry.getEstimatedPosition();
     return pose;
   }
 

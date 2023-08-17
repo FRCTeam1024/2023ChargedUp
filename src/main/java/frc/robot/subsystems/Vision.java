@@ -98,11 +98,16 @@ public class Vision extends SubsystemBase {
     Optional<EstimatedRobotPose> result = robotPoseEstimator.update();
     if(result.isPresent()){
       //System.out.println(result.get().estimatedPose.toPose2d().toString());
-      return new Pair<Pose2d, Double>(result.get().estimatedPose.toPose2d(), currentTime - result.get().timestampSeconds);
+      return new Pair<Pose2d, Double>(result.get().estimatedPose.toPose2d(), result.get().timestampSeconds);
     }else{
       return new Pair<Pose2d, Double>(null, 0.0);
     }
     
+  }
+
+  public Transform3d getRobotToTag() {
+    var cameraToTarget = getResults().getBestTarget().getBestCameraToTarget();
+    return robotToCam.plus(cameraToTarget).inverse();
   }
 
   public PathPlannerTrajectory getPathToAprilTag(Pose2d robotPose) {
