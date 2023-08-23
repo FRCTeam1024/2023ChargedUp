@@ -43,17 +43,18 @@ import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPoint;
 
 public class Vision extends SubsystemBase {
-  private final PhotonCamera photon = new PhotonCamera("Arducam_OV9281_2");
-  private ArrayList<Pair<PhotonCamera, Transform3d>> camList = new ArrayList<Pair<PhotonCamera, Transform3d>>();
-  private final Transform3d robotToCam = new Transform3d(new Translation3d(Units.inchesToMeters(4) , Units.inchesToMeters(11.65625), Units.inchesToMeters(27.625)), new Rotation3d(0, Units.degreesToRadians(20), 0));
+  private final PhotonCamera leftCamera = new PhotonCamera("Arducam_OV9281_2");
+  private final PhotonCamera rightCamera = new PhotonCamera("Arducam_OV9281_USB_Camera");
+  private final Transform3d robotToLeftCam = new Transform3d(new Translation3d(Units.inchesToMeters(4) , Units.inchesToMeters(11.65625), Units.inchesToMeters(27.625)), new Rotation3d(0, Units.degreesToRadians(20), 0));
+  private final Transform3d robotToRightCam = new Transform3d(new Translation3d(Units.inchesToMeters(4), Units.inchesToMeters(-11.65625), Units.inchesToMeters(27.625)), new Rotation3d(0, Units.degreesToRadians(20), 0));
 
   private final HttpCamera camera = new HttpCamera(
       "limelight", "http://photonvision.local:1182/stream.mjpg?1675300761194", HttpCamera.HttpCameraKind.kMJPGStreamer
   );
 
-  // 2023 field layout is not out yet...
   private AprilTagFieldLayout fieldLayout2023;
-  private PhotonPoseEstimator robotPoseEstimator;
+  private final PhotonPoseEstimator leftCameraPoseEstimator;
+  private final PhotonPoseEstimator rightCameraPoseEstimator;
 
   /** Creates a new Vision. */
   public Vision() {
@@ -62,8 +63,8 @@ public class Vision extends SubsystemBase {
     } catch (IOException e) {
       e.printStackTrace();
     }
-    camList.add(new Pair<PhotonCamera, Transform3d>(photon, robotToCam));
-    robotPoseEstimator = new PhotonPoseEstimator(fieldLayout2023, PoseStrategy.AVERAGE_BEST_TARGETS, photon, robotToCam);
+    leftCameraPoseEstimator = new PhotonPoseEstimator(fieldLayout2023, PoseStrategy.AVERAGE_BEST_TARGETS, leftCamera, robotToLeftCam);
+    rightCameraPoseEstimator = new PhotonPoseEstimator(fieldLayout2023, PoseStrategy.AVERAGE_BEST_TARGETS, rightCamera, robotToRightCam);
     CameraServer.addCamera(camera);
   }
 
@@ -74,7 +75,7 @@ public class Vision extends SubsystemBase {
 
   // Returns a PhotonPipelineResult which contains all currently visible targets
   public PhotonPipelineResult getResults() {
-    return photon.getLatestResult();
+    return leftCamera.getLatestResult();
   }
 
   // Checks if photon has targets. Call this to avoid null pointer exceptions.
@@ -92,10 +93,10 @@ public class Vision extends SubsystemBase {
   }
 
   public Pair<Pose2d, Double> estimateRobotPose(Pose2d prevEstimatedRobotPose) {
-    robotPoseEstimator.setReferencePose(prevEstimatedRobotPose);
+    leftCameraPoseEstimator.setReferencePose(prevEstimatedRobotPose);
 
     double currentTime = Timer.getFPGATimestamp();
-    Optional<EstimatedRobotPose> result = robotPoseEstimator.update();
+    Optional<EstimatedRobotPose> result = leftCameraPoseEstimator.update();
     if(result.isPresent()){
       //System.out.println(result.get().estimatedPose.toPose2d().toString());
       return new Pair<Pose2d, Double>(result.get().estimatedPose.toPose2d(), result.get().timestampSeconds);
@@ -107,7 +108,7 @@ public class Vision extends SubsystemBase {
 
   public Transform3d getRobotToTag() {
     var cameraToTarget = getResults().getBestTarget().getBestCameraToTarget();
-    return robotToCam.plus(cameraToTarget).inverse();
+    return robotToLeftCam.plus(cameraToTarget).inverse();
   }
 
   public PathPlannerTrajectory getPathToAprilTag(Pose2d robotPose) {
