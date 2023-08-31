@@ -4,6 +4,16 @@
 
 package frc.robot;
 
+import java.io.IOException;
+import java.util.List;
+
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -13,6 +23,19 @@ package frc.robot;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+
+    public static final AprilTagFieldLayout kFieldLayout;
+    
+    static {
+        AprilTagFieldLayout layout;
+        try {
+            layout = AprilTagFields.k2023ChargedUp.loadAprilTagLayoutField();
+        } catch(IOException e) {
+            e.printStackTrace();
+            layout = new AprilTagFieldLayout(List.of(), 0, 0);
+        }
+        kFieldLayout = layout;
+    }
 
     public static final double PI = 3.14159;
     public static final boolean CompBot = Robot.isCompBot();
@@ -26,6 +49,14 @@ public final class Constants {
     public static final class Inputs {
         public static final int driverControllerID = 0; // ID for Xbox/Logitech controller
         public static final int operatorControllerID = 1;
+    }
+
+    public static final class VisionConstants {
+        
+        public static final String rightCameraName = "Arducam_OV9281_USB_Camera";
+        public static final String leftCameraName = "Arducam_OV9281_2";
+        public static final Transform3d robotToLeftCam = new Transform3d(new Translation3d(Units.inchesToMeters(4) , Units.inchesToMeters(11.65625), Units.inchesToMeters(27.625)), new Rotation3d(0, Units.degreesToRadians(20), 0));
+        public static final Transform3d robotToRightCam = new Transform3d(new Translation3d(Units.inchesToMeters(4), Units.inchesToMeters(-11.65625), Units.inchesToMeters(27.625)), new Rotation3d(0, Units.degreesToRadians(20), 0));
     }
 
     //Swerve Drive Drivetrain Related Constants
@@ -128,21 +159,7 @@ public final class Constants {
         public static final double wristStart = 1835; //needs to be 170 less than angleBuffer - new resetpoint
     }
 
-    public static final class LimelightConstants {
-        public static final double driverPipe = 2.0;
-        public static final double targetPipe = 1.0;
-        public static final double offPipe = 0.0;
-        
-        public static final double kP = 0.015;
-        public static final double kI = 0;
-        public static final double kD = 0;
 
-        //Reduced these for safety until we are comfortable withe autoaim command
-        public static final double minOutput = -0.75;
-        public static final double maxOutput = 0.75;
-        // 1 degree angle of error which is considered tolerable for the PID
-        public static final double threshold = 0.1;
-    }
 
     public static final class ArmConstants {
         public static final int leftArmID = 10;

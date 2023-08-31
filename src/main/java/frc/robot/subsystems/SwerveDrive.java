@@ -8,7 +8,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonTargetSortMode;
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonTrackedTarget;
 import com.ctre.phoenix.sensors.WPI_PigeonIMU;
 import com.ctre.phoenix.sensors.PigeonIMU.CalibrationMode;
@@ -39,7 +42,9 @@ import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.AutoAlignAprilTag;
 import frc.robot.commands.AutoTurn;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -61,6 +66,11 @@ public class SwerveDrive extends SubsystemBase {
   private final SwerveModule d = new SwerveModule(DriveConstants.angleMotorD, DriveConstants.driveMotorD, DriveConstants.turnEncoderD, DriveConstants.moduleD.turnOffset(), true, true);
   
   private final Vision camera = new Vision();
+
+  List<PhotonPoseEstimator> cameras = List.of(
+    new PhotonPoseEstimator(Constants.kFieldLayout, PoseStrategy.CLOSEST_TO_REFERENCE_POSE, new PhotonCamera(VisionConstants.leftCameraName), VisionConstants.robotToLeftCam),
+    new PhotonPoseEstimator(Constants.kFieldLayout, PoseStrategy.CLOSEST_TO_REFERENCE_POSE, new PhotonCamera(VisionConstants.rightCameraName), VisionConstants.robotToRightCam)
+  );
 
   private final WPI_PigeonIMU pigeon = new WPI_PigeonIMU(DriveConstants.gyroID);
   
@@ -91,7 +101,6 @@ public class SwerveDrive extends SubsystemBase {
     modulePositions[3] = d.getPosition();
 
     m_odometry = new SwerveDrivePoseEstimator(m_kinematics, new Rotation2d(Math.PI), modulePositions, new Pose2d());
-    m_poseEstimator = new SwerveDrivePoseEstimator(m_kinematics, new Rotation2d(Math.PI), modulePositions, new Pose2d());
   }
 
   @Override
@@ -108,40 +117,20 @@ public class SwerveDrive extends SubsystemBase {
             modulePositions
     );
 
-    m_poseEstimator.update(pigeon.getRotation2d(), modulePositions);
+
+    for (PhotonPoseEstimator camera : cameras) {
+      camera.setReferencePose(getPose());
+      var poseEstimate = camera.update();
+      
+      if (poseEstimate.isPresent()) {
+        m_odometry.addVisionMeasurement(poseEstimate.get().estimatedPose.toPose2d(), poseEstimate.get().timestampSeconds);
+      }
+     
+    }
 
     //System.out.println(calculatePathToTag().getEndState().toString());
     var result = camera.estimateRobotPose(getPose());
-
-    var photonPose = result.getFirst();
-    if(photonPose != null) {
-      SmartDashboard.putNumber("timestamp", result.getSecond());
-      m_odometry.addVisionMeasurement(photonPose, result.getSecond());
-
-      SmartDashboard.putNumber("RobotPose/Y", photonPose.getY());
-      SmartDashboard.putNumber("RobotPose/X", photonPose.getX());
-      SmartDashboard.putNumber("RobotPose/Angle", photonPose.getRotation().getDegrees());
-      var poseArray = new double[] {photonPose.getX(), photonPose.getY(), photonPose.getRotation().getRadians()};
-      SmartDashboard.putNumberArray("RobotPose/Pose", poseArray);
-
-      var targetToRobot = camera.getRobotToTag();
-      SmartDashboard.putNumber("tagTransform/X", targetToRobot.getX());
-      SmartDashboard.putNumber("tagTransform/Y", targetToRobot.getY());
-      SmartDashboard.putNumber("tagTransform/Z", targetToRobot.getZ());
-
-      var rotation = targetToRobot.getRotation();
-
-      
-
-      
-
-      SmartDashboard.putNumber("tagTransform/RotX", Units.radiansToDegrees(rotation.getX()));
-      SmartDashboard.putNumber("tagTransform/RotY", Units.radiansToDegrees(rotation.getY()));
-      SmartDashboard.putNumber("tagTransform/RotZ", Units.radiansToDegrees(rotation.getX()));
-
-
-
-    }
+    
     SmartDashboard.putNumber("OdometryPose/Y", m_odometry.getEstimatedPosition().getY());
     SmartDashboard.putNumber("OdometryPose/X", m_odometry.getEstimatedPosition().getX());
     SmartDashboard.putNumber("OdometryPose/Angle", m_odometry.getEstimatedPosition().getRotation().getDegrees());
@@ -351,8 +340,7 @@ public class SwerveDrive extends SubsystemBase {
   }
 
   public Pose2d getPose(){
-    Pose2d pose = m_odometry.getEstimatedPosition();
-    return pose;
+    return m_odometry.getEstimatedPosition();
   }
 
   public SwerveModuleState[] getDesiredStates(){
