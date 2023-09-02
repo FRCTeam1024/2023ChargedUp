@@ -9,20 +9,24 @@ import frc.robot.subsystems.SwerveDrive;
 
 public class AutoBalance extends CommandBase {
 
-  double roll; //corresponds to x movement for some reason on the practice bot
-  double pitch; //corresponds to y movement on the practice bot
+  double roll; // corresponds to x movement for some reason on the practice bot
+  double pitch; // corresponds to y movement on the practice bot
   double yaw;
   double goal = 0;
   double xError;
   double yError;
   double averageError;
-  double kP = 0.015;//0.017 //value that turns degrees of error into speed for swerve drive - needs to be tested
+
+  /** value that turns degrees of error into speed for swerve drive - needs to be tested */
+  double kP = 0.015; // 0.017
+
   double xSpeed;
   double ySpeed;
   boolean isDone = false;
   int balancedCounter = 0;
 
   private SwerveDrive swerve;
+
   /** Creates a new AutoBalance. */
   public AutoBalance(SwerveDrive theSwerve) {
     // Use addRequirements() here to declare subsystem dependencies.
@@ -46,19 +50,20 @@ public class AutoBalance extends CommandBase {
     yError = goal - pitch;
     yaw = swerve.getYawDegrees();
     averageError = (Math.cos(yaw) * xError + Math.sin(yaw) * yError);
-    if(xError > 2){
+    if (xError > 2) {
       xSpeed = kP * xError * (-1);
       ySpeed = kP * yError * (-1);
       swerve.drive(xSpeed, 0, 0, false);
-      //for now this just uses speed in the x direction - we can make some tweaksif need be to 
-      //adjust in both the x and y directions.
+      // for now this just uses speed in the x direction - we can make some tweaks if need be to
+      // adjust in both the x and y directions.
       balancedCounter = 0;
-    }if(xError < -2){
+    }
+    if (xError < -2) {
       xSpeed = kP * xError * (-1);
       ySpeed = kP * yError * (-1);
       swerve.drive(xSpeed, 0, 0, false);
       balancedCounter = 0;
-    }else{
+    } else {
       balancedCounter++;
     }
   }
@@ -72,9 +77,9 @@ public class AutoBalance extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    if(balancedCounter >= 20){
+    if (balancedCounter >= 20) {
       return true;
-    }else{
+    } else {
       return false;
     }
   }

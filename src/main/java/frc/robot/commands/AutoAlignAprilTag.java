@@ -4,17 +4,18 @@
 
 package frc.robot.commands;
 
-import org.photonvision.targeting.PhotonTrackedTarget;
-
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.SwerveDrive;
 import frc.robot.subsystems.Vision;
+import org.photonvision.targeting.PhotonTrackedTarget;
 
 public class AutoAlignAprilTag extends CommandBase {
-  /** Creates a new AutoAlignAprilTag. */
   private SwerveDrive m_swerve;
+
   private Vision m_camera;
   private int counter;
+
+  /** Creates a new AutoAlignAprilTag. */
   public AutoAlignAprilTag(SwerveDrive swerve, Vision camera) {
     // Use addRequirements() here to declare subsystem dependencies.
     m_swerve = swerve;
@@ -34,19 +35,19 @@ public class AutoAlignAprilTag extends CommandBase {
   public void execute() {
     PhotonTrackedTarget target;
     double angle;
-    if(m_camera.hasTargets()){
+    if (m_camera.hasTargets()) {
       target = m_camera.getBestTarget();
       angle = target.getYaw();
-    }else{
+    } else {
       angle = 0;
     }
-    if(angle < -0.5){
+    if (angle < -0.5) {
       counter = 0;
-      m_swerve.drive(0,0,0.1,true);
-    }else if(angle > 0.5){
+      m_swerve.drive(0, 0, 0.1, true);
+    } else if (angle > 0.5) {
       counter = 0;
-      m_swerve.drive(0,0,-0.1,true);
-    }else{
+      m_swerve.drive(0, 0, -0.1, true);
+    } else {
       counter++;
       m_swerve.defenseMode();
     }
@@ -59,7 +60,7 @@ public class AutoAlignAprilTag extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    if(counter >= 10){
+    if (counter >= 10) {
       return true;
     } else {
       return false;
