@@ -45,7 +45,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.VisionConstants;
-import frc.robot.commands.AutoAlignAprilTag;
 import frc.robot.commands.AutoTurn;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
@@ -64,8 +63,6 @@ public class SwerveDrive extends SubsystemBase {
   private final SwerveModule b = new SwerveModule(DriveConstants.angleMotorB, DriveConstants.driveMotorB, DriveConstants.turnEncoderB, DriveConstants.moduleB.turnOffset(), true, false);
   private final SwerveModule c = new SwerveModule(DriveConstants.angleMotorC, DriveConstants.driveMotorC, DriveConstants.turnEncoderC, DriveConstants.moduleC.turnOffset(), true, false);
   private final SwerveModule d = new SwerveModule(DriveConstants.angleMotorD, DriveConstants.driveMotorD, DriveConstants.turnEncoderD, DriveConstants.moduleD.turnOffset(), true, true);
-  
-  private final Vision camera = new Vision();
 
   List<PhotonPoseEstimator> cameras = List.of(
     new PhotonPoseEstimator(Constants.kFieldLayout, PoseStrategy.CLOSEST_TO_REFERENCE_POSE, new PhotonCamera(VisionConstants.leftCameraName), VisionConstants.robotToLeftCam),
@@ -81,7 +78,6 @@ public class SwerveDrive extends SubsystemBase {
   private SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
 
   //For vision estimation - according to PhotonVision & WPILIB examples, it should be possible to just drop this in as a replacement for odometry
-  private SwerveDrivePoseEstimator m_poseEstimator;
 
   public double[] velocityErrors = new double[4];
   public double[] angleErrors = new double[4];
@@ -128,9 +124,7 @@ public class SwerveDrive extends SubsystemBase {
      
     }
 
-    //System.out.println(calculatePathToTag().getEndState().toString());
-    var result = camera.estimateRobotPose(getPose());
-    
+    //System.out.println(calculatePathToTag().getEndState().toString());    
     SmartDashboard.putNumber("OdometryPose/Y", m_odometry.getEstimatedPosition().getY());
     SmartDashboard.putNumber("OdometryPose/X", m_odometry.getEstimatedPosition().getX());
     SmartDashboard.putNumber("OdometryPose/Angle", m_odometry.getEstimatedPosition().getRotation().getDegrees());
@@ -139,10 +133,15 @@ public class SwerveDrive extends SubsystemBase {
   }
 
   public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
+    var rotation = m_odometry.getEstimatedPosition().getRotation();
+    
+    if(DriverStation.getAlliance() == Alliance.Red) {
+      rotation = rotation.minus(Rotation2d.fromDegrees(180));
+    }
     SwerveModuleState[] moduleStates =
         m_kinematics.toSwerveModuleStates(
             fieldRelative
-                ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, m_odometry.getEstimatedPosition().getRotation())
+                ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, rotation)
                 : new ChassisSpeeds(xSpeed, ySpeed, rot));
     SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, DriveConstants.kMaxWheelSpeedMetersPerSecond);
     a.setDesiredState(moduleStates[0]);
@@ -360,35 +359,7 @@ public class SwerveDrive extends SubsystemBase {
   public double getRoll(){
     return pigeon.getRoll();
   }
-
-  public void visionEstimatedPose(){
-    Pair<Pose2d,Double> pair = camera.estimateRobotPose(getPose());
-    m_poseEstimator.addVisionMeasurement(
-      pair.getFirst(), pair.getSecond()
-    );
-  }
-
-  public Pose2d getVisionEstimatedPose(){
-    return m_poseEstimator.getEstimatedPosition();
-  }
-
-  public Vision getCamera(){
-    return camera;
-  }
-
-  public double getTargetYaw(){
-    if(camera.hasTargets()){
-      PhotonTrackedTarget target = camera.getBestTarget();
-      if(target != null){
-        return target.getYaw();
-      }else{
-        return 180;
-      }
-    }else{
-      return 180;
-    }
-  }
-
+  
   public void sortTargetsByArea(List<PhotonTrackedTarget> targets){
     Collections.sort(targets, new Comparator<PhotonTrackedTarget>() {
       @Override
@@ -406,63 +377,6 @@ public class SwerveDrive extends SubsystemBase {
     });
   }
 
-  public PathPlannerTrajectory calculatePathToTag() {
-    Pose2d robotPose = getPose();
-    Translation2d robotPosition = new Translation2d(robotPose.getX(), robotPose.getY());
-    Rotation2d robotRotation = robotPose.getRotation();
-    if (camera.hasTargets()) {  
-      List<PhotonTrackedTarget> targets = camera.getTargets();
-      targets.sort(new Comparator<PhotonTrackedTarget>() {
-        @Override
-        public int compare(PhotonTrackedTarget a, PhotonTrackedTarget b){
-          Translation3d translate1 = a.getBestCameraToTarget().getTranslation();
-          double dist1 = Math.sqrt(Math.pow(translate1.getX(),2)+Math.pow(translate1.getY(),2));
-          Translation3d translate2 = b.getBestCameraToTarget().getTranslation();
-          double dist2 = Math.sqrt(Math.pow(translate2.getX(),2)+Math.pow(translate2.getY(),2));
-          if(dist2 > dist1){
-            return -1;
-          }else if(dist1 > dist2){
-            return 1;
-          }else{
-            return 0;
-          }
-        }
-      });
-      Transform3d camToTarget = targets.get(0).getBestCameraToTarget();
-      
-      System.out.println(targets.toString());
-      Pose2d targetPose;
-      if(DriverStation.getAlliance() == Alliance.Blue){
-        targetPose = robotPose.plus(
-          new Transform2d(
-            new Translation2d(-camToTarget.getX() + 1, -camToTarget.getY()),
-            new Rotation2d(camToTarget.getRotation().getZ())
-          )
-        );
-      }else if(DriverStation.getAlliance() == Alliance.Red){
-        targetPose = robotPose.plus(
-          new Transform2d(
-            new Translation2d(camToTarget.getX() - 1, -camToTarget.getY()), //double check what needs negated
-            new Rotation2d(camToTarget.getRotation().getZ())
-          )
-        );
-      }else{
-        targetPose = robotPose;
-      }
-      return PathPlanner.generatePath(
-        new PathConstraints(2, 2),
-        new PathPoint(robotPosition, robotRotation),
-        new PathPoint(targetPose.getTranslation(), targetPose.getRotation())
-      );
-    } else {
-      return PathPlanner.generatePath(
-        new PathConstraints(2, 2),
-        new PathPoint(robotPosition, robotRotation),
-        new PathPoint(robotPosition, robotRotation)
-      );
-    }
-  }
-
   public Command followTrajectory(PathPlannerTrajectory inputPath){
     //attempts to manually change path planning
     PathPlannerTrajectory path;
@@ -473,15 +387,6 @@ public class SwerveDrive extends SubsystemBase {
     }
     return new SequentialCommandGroup(
       basicFirstTrajectory(path),
-      new InstantCommand(() -> this.stop())
-    );
-  }
-
-  public Command followVisionTrajectory(){
-    PathPlannerTrajectory path = calculatePathToTag();
-    return new SequentialCommandGroup(
-      basicFirstTrajectory(path),
-      new AutoTurn(this, 0),
       new InstantCommand(() -> this.stop())
     );
   }

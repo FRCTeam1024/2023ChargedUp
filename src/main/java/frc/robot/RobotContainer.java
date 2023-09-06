@@ -46,9 +46,7 @@ import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-import frc.robot.commands.AutoAlignAprilTag;
 import frc.robot.commands.AutoBalance;
-import frc.robot.commands.AutoMoveToAprilTag;
 import frc.robot.commands.AutoTurn;
 import frc.robot.commands.DriveWithJoysticks;
 import frc.robot.commands.HoldEndEffectorPosition;
@@ -60,7 +58,6 @@ import frc.robot.Constants.*;
 import frc.robot.subsystems.EndEffector;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.SwerveDrive;
-import frc.robot.subsystems.Vision;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -505,9 +502,6 @@ public class RobotContainer {
         .withSize(3,1)
         .withPosition(5,2);
 
-    diagnosticsTab.addString("Vision Estimated Pose:", () -> drivetrain.getVisionEstimatedPose().toString())
-        .withSize(3,1)
-        .withPosition(5,3);
   }
 
   /**
@@ -1099,7 +1093,7 @@ public class RobotContainer {
           new ProxyCommand(() -> arm.moveTo(ArmConstants.midLevel))
         )
       ),
-      new AutoMoveToAprilTag(drivetrain, drivetrain.getCamera()).withTimeout(1),
+      //new AutoMoveToAprilTag(drivetrain, drivetrain.getCamera()).withTimeout(1),
       new InstantCommand(() -> endEffector.releaseCube()),
       new WaitCommand(0.5),
       new InstantCommand(() -> endEffector.stop())
