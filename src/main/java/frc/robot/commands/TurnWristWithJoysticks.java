@@ -9,9 +9,11 @@ import frc.robot.oi.Logitech;
 import frc.robot.subsystems.EndEffector;
 
 public class TurnWristWithJoysticks extends CommandBase {
-  /** Creates a new TurnWristWithJoysticks. */
   EndEffector endEffector;
+
   Logitech controller;
+
+  /** Creates a new TurnWristWithJoysticks. */
   public TurnWristWithJoysticks(EndEffector m_EndEffector, Logitech m_Controller) {
     // Use addRequirements() here to declare subsystem dependencies.
     endEffector = m_EndEffector;
@@ -26,7 +28,7 @@ public class TurnWristWithJoysticks extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    double speed = controller.getRightStickY() *1;//0.7
+    double speed = controller.getRightStickY() * 1; // 0.7
     endEffector.turnWrist(speed);
   }
 

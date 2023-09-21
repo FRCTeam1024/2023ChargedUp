@@ -163,3 +163,11 @@ bin/
 simgui-ds.json
 simgui.json
 networktables.json
+
+simgui.json
+simgui-ds.json
+networktables.json
+
+# IntelliJ
+.idea
+.run

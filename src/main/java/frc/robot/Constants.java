@@ -4,15 +4,14 @@
 
 package frc.robot;
 
-import java.io.IOException;
-import java.util.List;
-
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
+import java.io.IOException;
+import java.util.List;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -24,170 +23,185 @@ import edu.wpi.first.math.util.Units;
  */
 public final class Constants {
 
-    public static final AprilTagFieldLayout kFieldLayout;
-    
-    static {
-        AprilTagFieldLayout layout;
-        try {
-            layout = AprilTagFields.k2023ChargedUp.loadAprilTagLayoutField();
-        } catch(IOException e) {
-            e.printStackTrace();
-            layout = new AprilTagFieldLayout(List.of(), 0, 0);
-        }
-        kFieldLayout = layout;
+  public static final AprilTagFieldLayout kFieldLayout;
+
+  static {
+    AprilTagFieldLayout layout;
+    try {
+      layout = AprilTagFields.k2023ChargedUp.loadAprilTagLayoutField();
+    } catch (IOException e) {
+      e.printStackTrace();
+      layout = new AprilTagFieldLayout(List.of(), 0, 0);
+    }
+    kFieldLayout = layout;
+  }
+
+  public static final double PI = 3.14159;
+  public static final boolean CompBot = Robot.isCompBot();
+  public static final boolean PracticeBot = Robot.isPracticeBot();
+  public static final boolean OtherBot = Robot.isOtherBot();
+
+  public static final int PCMID = 3; // CAN ID for PCM
+
+  // IDs for physical input devices
+  // Make sure order matches that of DriverStation
+  public static final class Inputs {
+    public static final int driverControllerID = 0; // ID for Xbox/Logitech controller
+    public static final int operatorControllerID = 1;
+  }
+
+  public static final class VisionConstants {
+
+    public static final String rightCameraName = "Arducam_OV9281_USB_Camera";
+    public static final String leftCameraName = "Arducam_OV9281_2";
+    public static final Transform3d robotToLeftCam =
+        new Transform3d(
+            new Translation3d(
+                Units.inchesToMeters(4),
+                Units.inchesToMeters(11.65625),
+                Units.inchesToMeters(27.625)),
+            new Rotation3d(0, Units.degreesToRadians(20), 0));
+    public static final Transform3d robotToRightCam =
+        new Transform3d(
+            new Translation3d(
+                Units.inchesToMeters(4),
+                Units.inchesToMeters(-11.65625),
+                Units.inchesToMeters(27.625)),
+            new Rotation3d(0, Units.degreesToRadians(20), 0));
+  }
+
+  // Swerve Drive Drivetrain Related Constants
+  public static final class DriveConstants {
+
+    public static final double gearRatio = 6.75; // SDS mk4i L2
+    public static final double wheelCircumference = 0.309; // SDS mk4i L2
+    public static final double encoderTicks = 2048; // CANCoder
+
+    // These are feedforward controllers for within swerve modules
+    public static final double ksVolts = 0.73394; // all need to be characterized by the SysId tool
+    public static final double kvVoltSecondsPerMeter = 2.4068;
+    public static final double kaVoltSecondsSquaredPerMeter = 0.28749;
+
+    public static final double ksTurning = 0.75; // .75Borrowed these values
+    public static final double kvTurning =
+        0.75; // .384 to 1.27 (1.27 aligns 12V to 3pi max angular velocity)
+    public static final double kaTurning = 0;
+
+    // These are PID controllers for within swerve modules
+    public static final double kPModuleDriveController = 3; // 3 works well Borrowed these values
+    public static final double kIModuleDriveController =
+        0; // 30-40 works but slow response time a lot
+    public static final double kDModuleDriveController = 0;
+    // Borrowed these values
+    public static final double kPModuleTurnController = 12.5; // 10
+    public static final double kIModuleTurnController = 0;
+    public static final double kDModuleTurnController = 0.06;
+
+    // Borrowed these values...
+    public static final double kModuleMaxAngularVelocity = 3 * Math.PI; // Math.PI  (units: rad/s)
+    public static final double kModuleMaxAngularAcceleration =
+        6 * Math.PI; // Math.PI * 2  (units: rad/s/s)
+
+    // Some limits governing overall robot movement
+    public static final double kMaxWheelSpeedMetersPerSecond = 4; // 3
+    public static final double kMaxAngularSpeedRadiansPerSecond = Math.PI * 2;
+
+    public static final class moduleA {
+      public static final double otherTurnOffset = 79; // May need finer adjustment on these.
+      public static final double practiceTurnOffset = -57; // May need finer adjustment on these.
+      public static final double compTurnOffset = 139.84; // +0.8
+
+      public static double turnOffset() {
+        return (CompBot) ? compTurnOffset : (PracticeBot ? practiceTurnOffset : otherTurnOffset);
+      }
     }
 
-    public static final double PI = 3.14159;
-    public static final boolean CompBot = Robot.isCompBot();
-    public static final boolean PracticeBot = Robot.isPracticeBot();
-    public static final boolean OtherBot = Robot.isOtherBot();
+    public static final class moduleB {
+      public static final double otherTurnOffset = -96; // May need finer adjustment on these.
+      public static final double practiceTurnOffset = 53; // May need finer adjustment on these.
+      public static final double compTurnOffset = 68.66;
 
-    public static final int PCMID = 3;  // CAN ID for PCM
-
-    // IDs for physical input devices
-    // Make sure order matches that of DriverStation
-    public static final class Inputs {
-        public static final int driverControllerID = 0; // ID for Xbox/Logitech controller
-        public static final int operatorControllerID = 1;
+      public static double turnOffset() {
+        return (CompBot) ? compTurnOffset : (PracticeBot ? practiceTurnOffset : otherTurnOffset);
+      }
     }
 
-    public static final class VisionConstants {
-        
-        public static final String rightCameraName = "Arducam_OV9281_USB_Camera";
-        public static final String leftCameraName = "Arducam_OV9281_2";
-        public static final Transform3d robotToLeftCam = new Transform3d(new Translation3d(Units.inchesToMeters(4) , Units.inchesToMeters(11.65625), Units.inchesToMeters(27.625)), new Rotation3d(0, Units.degreesToRadians(20), 0));
-        public static final Transform3d robotToRightCam = new Transform3d(new Translation3d(Units.inchesToMeters(4), Units.inchesToMeters(-11.65625), Units.inchesToMeters(27.625)), new Rotation3d(0, Units.degreesToRadians(20), 0));
+    public static final class moduleC {
+      public static final double otherTurnOffset = 104; // May need finer adjustment on these.
+      public static final double practiceTurnOffset = -14; // May need finer adjustment on these.
+      public static final double compTurnOffset = -148.90; // -0.6
+
+      public static double turnOffset() {
+        return (CompBot) ? compTurnOffset : (PracticeBot ? practiceTurnOffset : otherTurnOffset);
+      }
     }
 
-    //Swerve Drive Drivetrain Related Constants
-    public static final class DriveConstants {
+    public static final class moduleD {
+      public static final double otherTurnOffset = -52; // May need finer adjustment on these.
+      public static final double practiceTurnOffset = 18; // May need finer adjustment on these.
+      public static final double compTurnOffset = 35.44; // -0.1
 
-        public static final double gearRatio = 6.75; //SDS mk4i L2
-        public static final double wheelCircumference = 0.309;  //SDS mk4i L2
-        public static final double encoderTicks = 2048;  //CANCoder
-
-        //These are feedforward controllers for within swerve modules
-        public static final double ksVolts = 0.73394;  //all need to be characterized by the SysId tool
-        public static final double kvVoltSecondsPerMeter = 2.4068;
-        public static final double kaVoltSecondsSquaredPerMeter = 0.28749;
-
-        public static final double ksTurning = 0.75; //.75Borrowed these values
-        public static final double kvTurning = 0.75; //.384 to 1.27 (1.27 aligns 12V to 3pi max angular velocity)
-        public static final double kaTurning = 0;
-
-        //These are PID controllers for within swerve modules
-        public static final double kPModuleDriveController = 3;  //3 works well Borrowed these values
-        public static final double kIModuleDriveController = 0; //30-40 works but slow response time a lot
-        public static final double kDModuleDriveController = 0;
-            //Borrowed these values
-        public static final double kPModuleTurnController = 12.5;  //10
-        public static final double kIModuleTurnController = 0;
-        public static final double kDModuleTurnController = 0.06;
-
-        //Borrowed these values...
-        public static final double kModuleMaxAngularVelocity = 3 * Math.PI; // Math.PI  (units: rad/s)
-        public static final double kModuleMaxAngularAcceleration = 6 * Math.PI; //Math.PI * 2  (units: rad/s/s)
-
-        //Some limits governing overall robot movement
-        public static final double kMaxWheelSpeedMetersPerSecond = 4; //3
-        public static final double kMaxAngularSpeedRadiansPerSecond = Math.PI * 2; 
-
-        public static final class moduleA {
-            public static final double otherTurnOffset = 79; //May need finer adjustment on these.
-            public static final double practiceTurnOffset = -57; //May need finer adjustment on these.
-            public static final double compTurnOffset = 139.84; //+0.8
-
-            public static double turnOffset() {
-                return (CompBot) ? compTurnOffset : (PracticeBot ? practiceTurnOffset : otherTurnOffset);
-            }
-        }
-
-        public static final class moduleB {
-            public static final double otherTurnOffset = -96; //May need finer adjustment on these.
-            public static final double practiceTurnOffset = 53; //May need finer adjustment on these.
-            public static final double compTurnOffset = 68.66;
-
-            public static double turnOffset() {
-                return (CompBot) ? compTurnOffset : (PracticeBot ? practiceTurnOffset : otherTurnOffset);
-            }
-        }
-
-        public static final class moduleC {
-            public static final double otherTurnOffset = 104; //May need finer adjustment on these.
-            public static final double practiceTurnOffset = -14; //May need finer adjustment on these.
-            public static final double compTurnOffset = -148.90; //-0.6
-
-            public static double turnOffset() {
-                return (CompBot) ? compTurnOffset : (PracticeBot ? practiceTurnOffset : otherTurnOffset);
-            }
-        }
-        
-        public static final class moduleD {
-            public static final double otherTurnOffset = -52; //May need finer adjustment on these.
-            public static final double practiceTurnOffset = 18; //May need finer adjustment on these.
-            public static final double compTurnOffset = 35.44; //-0.1
-
-            public static double turnOffset() {
-                return (CompBot) ? compTurnOffset : (PracticeBot ? practiceTurnOffset : otherTurnOffset);
-            }
-        }
-
-        //CAN IDs
-        public static final int gyroID = 1;
-
-        public static final int angleMotorA = 20;
-        public static final int angleMotorB = 30;
-        public static final int angleMotorC = 40;
-        public static final int angleMotorD = 50;
-
-        public static final int driveMotorA = 21;
-        public static final int driveMotorB = 31;
-        public static final int driveMotorC = 41;
-        public static final int driveMotorD = 51;
-
-        public static final int turnEncoderA = 22;
-        public static final int turnEncoderB = 32;
-        public static final int turnEncoderC = 42;
-        public static final int turnEncoderD = 52;
+      public static double turnOffset() {
+        return (CompBot) ? compTurnOffset : (PracticeBot ? practiceTurnOffset : otherTurnOffset);
+      }
     }
 
-    public static final class EndEffectorConstants {
-        public static final int neoID = 12;
-        public static final int snowblowerID = 13;
-        public static final double wristConversionFactor = 360/5.333;
-        public static final double angleBuffer = 2000;
-        public static final double wristStart = 1835; //needs to be 170 less than angleBuffer - new resetpoint
-    }
+    // CAN IDs
+    public static final int gyroID = 1;
 
+    public static final int angleMotorA = 20;
+    public static final int angleMotorB = 30;
+    public static final int angleMotorC = 40;
+    public static final int angleMotorD = 50;
 
+    public static final int driveMotorA = 21;
+    public static final int driveMotorB = 31;
+    public static final int driveMotorC = 41;
+    public static final int driveMotorD = 51;
 
-    public static final class ArmConstants {
-        public static final int leftArmID = 10;
-        public static final int rightArmID = 11;
+    public static final int turnEncoderA = 22;
+    public static final int turnEncoderB = 32;
+    public static final int turnEncoderC = 42;
+    public static final int turnEncoderD = 52;
+  }
 
-        public static final int camLimitDIO = 6;
+  public static final class EndEffectorConstants {
+    public static final int neoID = 12;
+    public static final int snowblowerID = 13;
+    public static final double wristConversionFactor = 360 / 5.333;
+    public static final double angleBuffer = 2000;
+    public static final double wristStart =
+        1835; // needs to be 170 less than angleBuffer - new resetpoint
+  }
 
-        public static final double armGearRatio = 166.5; //this is what's listed in the arm engineering notebook, no idea if that's right
+  public static final class ArmConstants {
+    public static final int leftArmID = 10;
+    public static final int rightArmID = 11;
 
-        //Kinematics values based on arm geometry.  All of this is in inches and degrees for easy comparison to CAD
-        public static final double R1 = 6.125; //Crank length
-        public static final double R2 = 42.5;  //Connecting rod length
-        public static final double R3 = 7.25; //Connecting rod pivot to arm pivot
-        public static final double PHI = 9.1;  //Angle that connecting rod leads arm
-        public static final double X3 = 18.18; // horizontal distance between crank pivot and arm pivot
-        public static final double Y3 =  39.304; //vertical distance between crank pivot and arm pivot
-        public static final double minCrankAngle = 241.11; //degrees for horizontal forward.
-        public static final double maxCrankAngle = 421.11;
+    public static final int camLimitDIO = 6;
 
-        //random numbers for each of these levels, need to find accurate measurements later
-        public static final double highLevel = 10;
-        public static final double midLevel = -10;
-        public static final double lowLevel = -88;
-        public static final double stowLevel = -110;//-106
-        public static final double pickup = -77;
+    public static final double armGearRatio =
+        166.5; // this is what's listed in the arm engineering notebook, no idea if that's right
 
-        public static final double kS = 0.6;//0.6 most recently 0.3 original
-        public static final double kV = 0.06;
+    // Kinematics values based on arm geometry.  All of this is in inches and degrees for easy
+    // comparison to CAD
+    public static final double R1 = 6.125; // Crank length
+    public static final double R2 = 42.5; // Connecting rod length
+    public static final double R3 = 7.25; // Connecting rod pivot to arm pivot
+    public static final double PHI = 9.1; // Angle that connecting rod leads arm
+    public static final double X3 = 18.18; // horizontal distance between crank pivot and arm pivot
+    public static final double Y3 = 39.304; // vertical distance between crank pivot and arm pivot
+    public static final double minCrankAngle = 241.11; // degrees for horizontal forward.
+    public static final double maxCrankAngle = 421.11;
 
-    }
+    // random numbers for each of these levels, need to find accurate measurements later
+    public static final double highLevel = 10;
+    public static final double midLevel = -10;
+    public static final double lowLevel = -88;
+    public static final double stowLevel = -110; // -106
+    public static final double pickup = -77;
+
+    public static final double kS = 0.6; // 0.6 most recently 0.3 original
+    public static final double kV = 0.06;
+  }
 }

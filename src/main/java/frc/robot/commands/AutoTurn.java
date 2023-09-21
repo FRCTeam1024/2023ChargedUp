@@ -9,11 +9,13 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.SwerveDrive;
 
 public class AutoTurn extends CommandBase {
-  /** Creates a new AutoAlignAprilTag. */
   private SwerveDrive m_swerve;
+
   private double goal;
   private int counter;
   private double angle;
+
+  /** Creates a new AutoAlignAprilTag. */
   public AutoTurn(SwerveDrive swerve, double theGoal) {
     // Use addRequirements() here to declare subsystem dependencies.
     m_swerve = swerve;
@@ -34,13 +36,13 @@ public class AutoTurn extends CommandBase {
   public void execute() {
     angle = MathUtil.inputModulus(m_swerve.getYawDegrees(), -180, 180);
     double error = goal - angle;
-    if(error < -0.5){
+    if (error < -0.5) {
       counter = 0;
-      m_swerve.drive(0,0,-0.25,true);
-    }else if(error > 0.5){
+      m_swerve.drive(0, 0, -0.25, true);
+    } else if (error > 0.5) {
       counter = 0;
-      m_swerve.drive(0,0,0.25,true);
-    }else{
+      m_swerve.drive(0, 0, 0.25, true);
+    } else {
       counter++;
       m_swerve.defenseMode();
     }
@@ -53,7 +55,7 @@ public class AutoTurn extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    if(counter >= 10){
+    if (counter >= 10) {
       return true;
     } else {
       return false;

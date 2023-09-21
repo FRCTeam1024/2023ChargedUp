@@ -4,12 +4,11 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatusFrame;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
-import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
-
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -18,7 +17,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import frc.robot.Constants.DriveConstants;
- 
+
 public class SwerveModule {
 
   private final WPI_TalonFX m_angleMotor;
@@ -26,75 +25,81 @@ public class SwerveModule {
 
   private final CANCoder m_turnEncoder;
 
-  private final PIDController m_drivePIDController = 
+  private final PIDController m_drivePIDController =
       new PIDController(
           DriveConstants.kPModuleDriveController,
           DriveConstants.kIModuleDriveController,
-          DriveConstants.kDModuleDriveController); 
+          DriveConstants.kDModuleDriveController);
 
   private final ProfiledPIDController m_turningPIDController =
-      new ProfiledPIDController(                      
-          DriveConstants.kPModuleTurnController, 
-          DriveConstants.kIModuleTurnController, 
-          DriveConstants.kDModuleTurnController, 
+      new ProfiledPIDController(
+          DriveConstants.kPModuleTurnController,
+          DriveConstants.kIModuleTurnController,
+          DriveConstants.kDModuleTurnController,
           new TrapezoidProfile.Constraints(
-              DriveConstants.kModuleMaxAngularVelocity, DriveConstants.kModuleMaxAngularAcceleration));
+              DriveConstants.kModuleMaxAngularVelocity,
+              DriveConstants.kModuleMaxAngularAcceleration));
 
-  private final SimpleMotorFeedforward m_driveFeedforward = 
+  private final SimpleMotorFeedforward m_driveFeedforward =
       new SimpleMotorFeedforward(
-          DriveConstants.ksVolts, 
-          DriveConstants.kvVoltSecondsPerMeter, 
+          DriveConstants.ksVolts,
+          DriveConstants.kvVoltSecondsPerMeter,
           DriveConstants.kaVoltSecondsSquaredPerMeter);
-          
-  private final SimpleMotorFeedforward m_turnFeedforward = 
+
+  private final SimpleMotorFeedforward m_turnFeedforward =
       new SimpleMotorFeedforward(
-          DriveConstants.ksTurning, 
-          DriveConstants.kvTurning, 
-          DriveConstants.kaTurning);
+          DriveConstants.ksTurning, DriveConstants.kvTurning, DriveConstants.kaTurning);
 
   private SwerveModuleState myState = new SwerveModuleState();
 
- // private SwerveModuleState state;
+  // private SwerveModuleState state;
 
   /** Creates a new SwerveModule. */
-  public SwerveModule(int angleMotorChannel, int driveMotorChannel, int turnEncoderChannel, 
-    double turnOffset, boolean turnReversed, boolean driveReversed) {
+  public SwerveModule(
+      int angleMotorChannel,
+      int driveMotorChannel,
+      int turnEncoderChannel,
+      double turnOffset,
+      boolean turnReversed,
+      boolean driveReversed) {
 
     m_angleMotor = new WPI_TalonFX(angleMotorChannel);
     m_driveMotor = new WPI_TalonFX(driveMotorChannel);
     m_turnEncoder = new CANCoder(turnEncoderChannel);
 
-    //Always start from known settings
+    // Always start from known settings
     m_angleMotor.configFactoryDefault();
     m_driveMotor.configFactoryDefault();
     m_turnEncoder.configFactoryDefault();
 
-    //Set motor directions based on parameters
+    // Set motor directions based on parameters
     m_driveMotor.setInverted(driveReversed);
     m_angleMotor.setInverted(turnReversed);
 
-    //Set brake mode
+    // Set brake mode
     m_driveMotor.setNeutralMode(NeutralMode.Brake);
     m_angleMotor.setNeutralMode(NeutralMode.Brake);
 
-    //Set how we want to the encoder to read
+    // Set how we want to the encoder to read
     m_turnEncoder.configAbsoluteSensorRange(AbsoluteSensorRange.Signed_PlusMinus180);
     m_turnEncoder.configMagnetOffset(turnOffset);
 
-    //Set CAN rates.  Save CAN bus bandwidth by slowing down some CAN that we don't need.
+    // Set CAN rates.  Save CAN bus bandwidth by slowing down some CAN that we don't need.
     m_angleMotor.setStatusFramePeriod(StatusFrame.Status_1_General, 250);
     m_angleMotor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 250);
 
     // Limit the PID Controller's input range between -pi and pi and set the input
     // to be continuous.
     m_turningPIDController.enableContinuousInput(-Math.PI, Math.PI);
-;  }
+    ;
+  }
 
-  public void setDesiredState(SwerveModuleState moduleState){
+  public void setDesiredState(SwerveModuleState moduleState) {
     // Optimize the reference state to avoid spinning further than 90 degrees
-    SwerveModuleState state = SwerveModuleState.optimize(moduleState, new Rotation2d(getAngleRadians()));
+    SwerveModuleState state =
+        SwerveModuleState.optimize(moduleState, new Rotation2d(getAngleRadians()));
 
-    //Store the current goal state for reference
+    // Store the current goal state for reference
     myState = state;
 
     // Calculate the drive output from the drive PID controller.
@@ -110,34 +115,36 @@ public class SwerveModule {
     final double turnFeedforward =
         m_turnFeedforward.calculate(m_turningPIDController.getSetpoint().velocity);
 
-   m_driveMotor.setVoltage(driveOutput + driveFeedforward);
-   m_angleMotor.setVoltage(turnOutput + turnFeedforward);
-
+    m_driveMotor.setVoltage(driveOutput + driveFeedforward);
+    m_angleMotor.setVoltage(turnOutput + turnFeedforward);
   }
 
-  public void stop(){
+  public void stop() {
     m_driveMotor.setVoltage(0);
     m_angleMotor.setVoltage(0);
   }
 
-  public double getDriveVelocity(){
-    return m_driveMotor.getSelectedSensorVelocity()*(10*DriveConstants.wheelCircumference/(DriveConstants.encoderTicks*DriveConstants.gearRatio));
+  public double getDriveVelocity() {
+    return m_driveMotor.getSelectedSensorVelocity()
+        * (10
+            * DriveConstants.wheelCircumference
+            / (DriveConstants.encoderTicks * DriveConstants.gearRatio));
   }
 
-  public double getVelocityError(){
+  public double getVelocityError() {
     return myState.speedMetersPerSecond - getDriveVelocity();
   }
 
-  public double getAngleDegrees(){
+  public double getAngleDegrees() {
     return m_turnEncoder.getAbsolutePosition();
-  } 
+  }
 
-  public double getAngleErrorDegrees(){
+  public double getAngleErrorDegrees() {
     return myState.angle.getDegrees() - getAngleDegrees();
   }
 
   public double getAngleRadians() {
-    return m_turnEncoder.getAbsolutePosition()*Math.PI/180;
+    return m_turnEncoder.getAbsolutePosition() * Math.PI / 180;
   }
 
   public double getDriveVoltage() {
@@ -160,10 +167,11 @@ public class SwerveModule {
     return myState;
   }
 
-  public SwerveModulePosition getPosition(){
+  public SwerveModulePosition getPosition() {
     return new SwerveModulePosition(
-      m_driveMotor.getSelectedSensorPosition()*DriveConstants.wheelCircumference/(DriveConstants.encoderTicks*DriveConstants.gearRatio), new Rotation2d(getAngleRadians())
-    );
+        m_driveMotor.getSelectedSensorPosition()
+            * DriveConstants.wheelCircumference
+            / (DriveConstants.encoderTicks * DriveConstants.gearRatio),
+        new Rotation2d(getAngleRadians()));
   }
-
 }

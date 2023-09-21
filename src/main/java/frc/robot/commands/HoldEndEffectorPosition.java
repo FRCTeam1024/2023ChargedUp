@@ -15,6 +15,7 @@ import frc.robot.subsystems.EndEffector;
 public class HoldEndEffectorPosition extends PIDCommand {
   private final EndEffector endEffector;
   private final Logitech controller;
+
   /** Creates a new HoldEndEffectorPosition. */
   public HoldEndEffectorPosition(EndEffector m_endEffector, Logitech controllerParam) {
     super(
@@ -33,7 +34,7 @@ public class HoldEndEffectorPosition extends PIDCommand {
     controller = controllerParam;
     addRequirements(endEffector);
     // Configure additional PID options by calling `getController` here.
-    //endEffector.turnWristWithJoysticks(controller.getRightStickY());
+    // endEffector.turnWristWithJoysticks(controller.getRightStickY());
   }
 
   // Returns true when the command should end.

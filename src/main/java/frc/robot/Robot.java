@@ -4,23 +4,13 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.PathPlannerTrajectory;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Path;
-
-import com.pathplanner.lib.PathPlanner;
-import com.pathplanner.lib.PathPlannerTrajectory;
-import com.pathplanner.lib.server.PathPlannerServer;
-
-import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.math.trajectory.TrajectoryUtil;
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Filesystem;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -51,11 +41,11 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
 
-    //Display and log the name and version of the code that is running
-    //System.out.println("Running "+BuildConfig.APP_NAME+" "+BuildConfig.APP_VERSION);
+    // Display and log the name and version of the code that is running
+    // System.out.println("Running "+BuildConfig.APP_NAME+" "+BuildConfig.APP_VERSION);
 
-    //Pathweaver code from 2022 - may not be needed for pathplanner
-    /* 
+    // Pathweaver code from 2022 - may not be needed for pathplanner
+    /*
     for(int i = 0; i < fileList.length; i++) {
       //try {
         Path thePath = Filesystem.getDeployDirectory().toPath().resolve("pathplanner/"+fileList[i]);
@@ -69,24 +59,25 @@ public class Robot extends TimedRobot {
 
     // Check whether the current robot is the competition robot or the practice robot:
     // FALSE from the DIO means the jumper is present.
-    if(otherBotJumper.get() == false) {
+    if (otherBotJumper.get() == false) {
       otherBotState = true;
     } else {
       otherBotState = false;
     }
-    if(practiceBotJumper.get() == false){
+    if (practiceBotJumper.get() == false) {
       practiceBotState = true;
     } else {
       practiceBotState = false;
     }
-    if(!otherBotState && !practiceBotState){
+    if (!otherBotState && !practiceBotState) {
       compBotState = true;
-    }else if(otherBotState && practiceBotState){
-      System.out.println("\n\n\n\n\n ROBOT IS IN QUANTUM SUPERPOSITION STATE: BOTH PRACTICE AND COMP BOT\n   INITIALIZING TO COMP BOT STATE\n\n\n\n\n");
+    } else if (otherBotState && practiceBotState) {
+      System.out.println(
+          "\n\n\n\n\n ROBOT IS IN QUANTUM SUPERPOSITION STATE: BOTH PRACTICE AND COMP BOT\n   INITIALIZING TO COMP BOT STATE\n\n\n\n\n");
       practiceBotState = false;
       otherBotState = false;
       compBotState = true;
-    }else{
+    } else {
       compBotState = false;
     }
 
@@ -115,9 +106,9 @@ public class Robot extends TimedRobot {
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
-        //Call this to diable any PIDSubsytems to avoid integral windup.
-        m_robotContainer.disablePIDSubsystems();
-        m_robotContainer.stopSubsystems();
+    // Call this to diable any PIDSubsytems to avoid integral windup.
+    m_robotContainer.disablePIDSubsystems();
+    m_robotContainer.stopSubsystems();
   }
 
   @Override
@@ -149,7 +140,7 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.cancel();
     }
 
-    //m_robotContainer.resetDriver();
+    // m_robotContainer.resetDriver();
   }
 
   /** This function is called periodically during operator control. */
@@ -175,18 +166,17 @@ public class Robot extends TimedRobot {
   public void simulationPeriodic() {}
 
   /**
-  * 
-  * @return TRUE if the current robot is the competition robot. Otherwise, false for practice bot.
-  */
+   * @return TRUE if the current robot is the competition robot. Otherwise, false for practice bot.
+   */
   public static boolean isCompBot() {
     return compBotState;
   }
 
-  public static boolean isPracticeBot(){
+  public static boolean isPracticeBot() {
     return practiceBotState;
   }
 
-  public static boolean isOtherBot(){
+  public static boolean isOtherBot() {
     return otherBotState;
   }
 }
