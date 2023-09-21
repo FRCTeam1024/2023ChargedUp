@@ -23,6 +23,7 @@ import com.pathplanner.lib.PathPoint;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
 import edu.wpi.first.math.Pair;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -79,9 +80,6 @@ public class SwerveDrive extends SubsystemBase {
 
   //For vision estimation - according to PhotonVision & WPILIB examples, it should be possible to just drop this in as a replacement for odometry
 
-  public double[] velocityErrors = new double[4];
-  public double[] angleErrors = new double[4];
-
   /** Creates a new SwerveDrive. */
   public SwerveDrive() {
     //pigeon.enterCalibrationMode(CalibrationMode.Temperature);
@@ -96,7 +94,7 @@ public class SwerveDrive extends SubsystemBase {
     modulePositions[2] = c.getPosition();
     modulePositions[3] = d.getPosition();
 
-    m_odometry = new SwerveDrivePoseEstimator(m_kinematics, new Rotation2d(Math.PI), modulePositions, new Pose2d());
+    m_odometry = new SwerveDrivePoseEstimator(m_kinematics, new Rotation2d(Math.PI), modulePositions, new Pose2d(), VecBuilder.fill(0.01, 0.01, 0.05), VecBuilder.fill(.05, 0.05, Units.degreesToRadians(5)));
   }
 
   @Override
