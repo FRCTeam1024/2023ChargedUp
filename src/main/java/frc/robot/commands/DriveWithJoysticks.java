@@ -50,7 +50,7 @@ public class DriveWithJoysticks extends CommandBase {
 
     double xSpeed = -controller.getRightStickY() * DriveConstants.kMaxWheelSpeedMetersPerSecond * speedFactor; //these were negated, changing negation because robot starts at 180
     double ySpeed = -controller.getRightStickX() * DriveConstants.kMaxWheelSpeedMetersPerSecond * speedFactor; //also changed negation
-    double rot = controller.getLeftStickX() * DriveConstants.kMaxAngularSpeedRadiansPerSecond * speedFactor;
+    double rot = -controller.getLeftStickX() * DriveConstants.kMaxAngularSpeedRadiansPerSecond * speedFactor;
     yaw = drivetrain.getYawDegrees();
     if(arm.getArmAngle() >= -60){
       rot *= 0.5;
@@ -81,10 +81,10 @@ public class DriveWithJoysticks extends CommandBase {
     if(!controller.dPadUp.getAsBoolean() && !controller.dPadDown.getAsBoolean() && !controller.dPadLeft.getAsBoolean() && !controller.dPadRight.getAsBoolean()){
       robotTurn.reset(drivetrain.getYawDegrees());
     }
-    if( xSpeed != 0 || ySpeed != 0 || rot  != 0 || controller.rightBumper.getAsBoolean()){// || arm.getAngle() >= -60  -> if we decide to stop x-lock based on arm angle
+    //if( xSpeed != 0 || ySpeed != 0 || rot  != 0 || controller.rightBumper.getAsBoolean()){// || arm.getAngle() >= -60  -> if we decide to stop x-lock based on arm angle
       drivetrain.drive(xSpeed, ySpeed, rot, !controller.rightTrigger.getAsBoolean());
-    }
-    else {drivetrain.defenseMode();}
+    //}
+    //else {drivetrain.defenseMode();}
     
   }
 

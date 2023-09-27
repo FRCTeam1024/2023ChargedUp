@@ -80,7 +80,7 @@ public class RobotContainer {
   private final Logitech operatorController = new Logitech(1);
 
   //Default Commands
-  private final DriveWithJoysticks driveWithController = new DriveWithJoysticks(drivetrain, driverController, 0.25, arm);//change back to 0.58
+  private final DriveWithJoysticks driveWithController = new DriveWithJoysticks(drivetrain, driverController, 0.2, arm);//change back to 0.58
   private final TurnWristWithJoysticks turnWristWithJoysticks = new TurnWristWithJoysticks(endEffector, operatorController);
  
   //Chooser for auto
@@ -124,8 +124,8 @@ public class RobotContainer {
     // DRIVER CONTROLS
     driverController.aButton.onTrue(new InstantCommand(() -> drivetrain.setHeading180()));
     driverController.yButton.onTrue(new InstantCommand(() -> drivetrain.zeroHeading()));
-    driverController.leftTrigger.whileTrue(new DriveWithJoysticks(drivetrain,driverController,0.35, arm));
-    driverController.leftBumper.whileTrue(new DriveWithJoysticks(drivetrain,driverController,1, arm));
+    //.leftTrigger.whileTrue(new DriveWithJoysticks(drivetrain,driverController,0.35, arm));
+    //driverController.leftBumper.whileTrue(new DriveWithJoysticks(drivetrain,driverController,1, arm));
 
     //driverController.dPadUp.whileTrue(new AutoTurn(drivetrain, 0));
     //driverController.dPadDown.whileTrue(new AutoTurn(drivetrain, 180));
@@ -143,7 +143,7 @@ public class RobotContainer {
     operatorController.dPadUp.whileTrue(new ProxyCommand(() -> arm.moveTo(ArmConstants.highLevel)));  //Use moveTo(ArmConstant.MaxArmAngle)
     operatorController.dPadDown.whileTrue(new ProxyCommand(() -> arm.moveTo(ArmConstants.stowLevel)));  //Use moveTo(ArmConstants.MinArmAngle)
 
-    operatorController.aButton.onTrue(new ProxyCommand(() -> arm.moveTo(ArmConstants.stowLevel)));
+    //operatorController.aButton.onTrue(new ProxyCommand(() -> arm.moveTo(ArmConstants.stowLevel)));
     operatorController.xButton.onTrue(new ProxyCommand(() -> arm.moveTo(ArmConstants.pickup)));
     operatorController.bButton.onTrue(new ProxyCommand(() -> arm.moveTo(ArmConstants.midLevel)));
     operatorController.yButton.onTrue(new ProxyCommand(() -> arm.moveTo(6)));
